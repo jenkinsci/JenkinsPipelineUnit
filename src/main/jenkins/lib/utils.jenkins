@@ -1,0 +1,57 @@
+#!groovy
+
+/**
+ * Cleans a name and replaces all characters other than A-Za-z0-9 with "_", and all capitalizing all characters
+ * @param s name to clean
+ * @return clean name
+ */
+@NonCPS
+private static String cleanName(String s) {
+    return s.replaceAll(/\W/, '_').toUpperCase()
+}
+
+/**
+ * Returns the version of a property inside a maven pom.
+ * To get the module version, use the "version" property name.
+ *
+ * If the property is defined twice in the pom, the first one will be returned.
+ *
+ * @param pom le chemin vers le pom
+ * @param property name of the property to retrieve
+ * @return the version
+ */
+def versionForPom(pom, property) {
+    def matcher = readFile(pom) =~ "<$property>(.+)</$property>"
+    matcher ? matcher[0][1] : null
+}
+
+/**
+ * Returns the current scm revision. Be sure you are in a git context.
+ * @return the sha1 of the revision (full format)
+ */
+String currentRevision() {
+    return sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+}
+
+/**
+ * Return a list of normalized pair of the form [repository, branch]. It works with any prefix like
+ * refs/remotes/repo/branch, or repo/branch, etc.
+ *
+ * @param branchs a list of branch with any prefix (need at least to contain repository and branch)
+ * @param repository the name of the repository
+ * @return
+ */
+def getRepositoryBranchSplit(String[] branchs, String repository) {
+    def branchSplits = []
+    for (int i = 0; i < branchs.length; i++) {
+        def branch = branchs[i].trim()
+        if (!branch.contains(repository)) {
+            continue
+        }
+        def brancheWithRemote = branch.substring(branch.indexOf(repository))
+        branchSplits.add(brancheWithRemote.split("/"))
+    }
+    branchSplits
+}
+
+return this

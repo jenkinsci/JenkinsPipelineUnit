@@ -1,0 +1,23 @@
+def execute() {
+    node() {
+        def utils = load "src/main/jenkins/lib/utils.jenkins"
+        stage('Checkout') {
+            checkout scm
+            gitlabBuilds(builds: ["build", "test"]) {
+                stage("build") {
+                    gitlabCommitStatus("build") {
+                        sh 'mvn clean package -DskipTests'
+                    }
+                }
+
+                stage("test") {
+                    gitlabCommitStatus("test") {
+                        sh 'mvn verify'
+                    }
+                }
+            }
+        }
+    }
+}
+
+return this
