@@ -53,7 +53,7 @@ class TestJenkinsFile extends BasePipelineTest {
         assertThat(helper.callStack.stream()
                         .filter { c -> c.methodName == "sh" }
                         .map(MethodCall.&callArgsToString)
-                        .findAll { s -> s.contains("mvn clean $expectedPhase") })
+                        .findAll { s -> s.contains("./gradlew $expectedPhase") })
                         .hasSize(1)
     }
 }

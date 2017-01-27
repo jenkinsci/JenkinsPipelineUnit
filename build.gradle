@@ -1,0 +1,124 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+repositories {
+    mavenCentral()
+}
+
+group = "com.lesfurets"
+archivesBaseName = "pipeline-test-helper"
+version = "0.9-SNAPSHOT"
+
+dependencies {
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all',     version: '2.4.6'
+    compile group: 'junit',                 name: 'junit',          version: '4.11'
+    compile group: 'org.assertj',           name: 'assertj-core',   version: '3.4.1'
+}
+
+// Get external properties from file
+if (project.hasProperty('extProps')) {
+    def props = new Properties()
+    file("$extProps").withInputStream { props.load(it) }
+    props.stringPropertyNames().forEach {
+        ext."$it" = props.getProperty(it)
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ['src/main/jenkins']
+            include '**/*.jenkins'
+        }
+    }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+test {
+    testLogging {
+        events "PASSED", "FAILED", "SKIPPED"
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name "$project.group:$project.archivesBaseName"
+                packaging 'jar'
+                description 'Helpers for testing Jenkins pipelines.'
+                url 'https://github.com/lesfurets/pipeline-test-helper'
+
+                scm {
+                    url 'https://github.com/lesfurets/pipeline-test-helper'
+                    connection 'scm:git:git://github.com/lesfurets/pipeline-test-helper.git'
+                    developerConnection 'scm:git:git@github.com/lesfurets/pipeline-test-helper.git'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT License'
+                        url 'http://www.opensource.org/licenses/mit-license.php'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'ozangunalp'
+                        name 'Ozan Gunalp'
+                        email 'ozangunalp@gmail.com'
+                        url 'https://github.com/ozangunalp'
+                        organization 'lesfurets.com'
+                        organizationUrl 'https://github.com/lesfurets'
+                    }
+                    developer {
+                        id 'EQuincerot'
+                        name 'Emmanuel Quincerot'
+                        url 'https://github.com/EQuincerot'
+                        organization 'lesfurets.com'
+                        organizationUrl 'https://github.com/lesfurets'
+                    }
+                    developer {
+                        name 'Thomas du Boÿs'
+                        url 'https://github.com/Skool'
+                        id 'Skool'
+                        organization 'lesfurets.com'
+                        organizationUrl 'https://github.com/lesfurets'
+                    }
+                }
+            }
+        }
+    }
+}
+
+task verify(dependsOn: build)
+task deploy(dependsOn: uploadArchives)

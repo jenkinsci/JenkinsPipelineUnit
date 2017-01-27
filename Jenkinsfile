@@ -15,14 +15,14 @@ stage ('Build') {
         withCredentials([
             file(credentialsId: 'gpg-pubring', variable: 'GPG_PUB_RING'),
             file(credentialsId: 'gpg-secring', variable: 'GPG_SEC_RING'),
-            file(credentialsId: 'gpg-settings', variable: 'MVN_SETTINGS')]) {
+            file(credentialsId: 'gradle-settings', variable: 'GRADLE_SETTINGS')]) {
                 try {
-                    sh "mvn clean $phase -P release --settings=$MVN_SETTINGS -Dgpg.publicKeyring=$GPG_PUB_RING -Dgpg.secretKeyring=$GPG_SEC_RING"
+                    sh "./gradlew $phase -P signing.secretKeyRingFile=$GPG_SEC_RING -P extProps=$GRADLE_SETTINGS"
                 } finally {
-                    archiveArtifacts 'target/*.jar'
-                    archiveArtifacts 'target/*.asc'
-                    archiveArtifacts 'target/*.pom'
-                    junit 'target/surefire-reports/*.xml'
+                    archiveArtifacts 'build/libs/*.jar'
+                    archiveArtifacts 'build/libs/*.asc'
+                    archiveArtifacts 'build/poms/*.pom'
+                    junit 'build/test-results/test/*.xml'
                 }
         }
         step([$class: 'WsCleanup'])
