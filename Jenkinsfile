@@ -21,7 +21,8 @@ stage ('Build') {
                 } finally {
                     archiveArtifacts 'build/libs/*.jar'
                     archiveArtifacts 'build/libs/*.asc'
-                    archiveArtifacts 'build/poms/*.pom'
+                    if (phase == 'deploy') archiveArtifacts 'build/poms/*.xml'
+                    if (phase == 'deploy') archiveArtifacts 'build/poms/*.asc'
                     junit 'build/test-results/test/*.xml'
                 }
         }

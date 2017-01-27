@@ -121,4 +121,4 @@ uploadArchives {
 }
 
 task verify(dependsOn: build)
-task deploy(dependsOn: uploadArchives)
+task deploy(dependsOn: [build, uploadArchives])

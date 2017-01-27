@@ -29,6 +29,7 @@ class TestJenkinsFile extends BasePipelineTest {
     @Override
     @Before
     void setUp() throws Exception {
+        super.setUp()
         def scmBranch = branch
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
@@ -43,7 +44,6 @@ class TestJenkinsFile extends BasePipelineTest {
         ])
         helper.registerAllowedMethod("file", [Map.class], stringInterceptor)
         helper.registerAllowedMethod("archiveArtifacts", [String.class], null)
-        super.setUp()
     }
 
     @Test
