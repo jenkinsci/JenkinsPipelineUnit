@@ -37,7 +37,7 @@ sourceSets {
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
-    from javadoc
+    from groovydoc
 }
 
 task sourcesJar(type: Jar) {
