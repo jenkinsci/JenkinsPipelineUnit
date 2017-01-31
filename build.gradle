@@ -82,7 +82,6 @@ uploadArchives {
             def snapRepo = project.hasProperty('snapshotRepository') ?
                             project.snapshotRepository :
                             "https://oss.sonatype.org/content/repositories/snapshots/"
-            println snapRepo
             snapshotRepository(url: snapRepo) {
                 authentication(userName: ossrhUsername, password: ossrhPassword)
             }
