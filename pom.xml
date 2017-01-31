@@ -87,6 +87,11 @@
       <artifactId>assertj-core</artifactId>
       <version>${assertj-core.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.cloudbees</groupId>
+      <artifactId>groovy-cps</artifactId>
+      <version>1.11</version>
+    </dependency>
   </dependencies>
   <build>
     <pluginManagement>
