@@ -1,0 +1,19 @@
+language: java
+sudo: false
+jdk:
+  - oraclejdk8
+install: true
+script:
+  ./gradlew verify -x sign
+cache:
+  directories:
+  - $HOME/.gradle/caches/
+  - $HOME/.gradle/wrapper/
+# safelist
+branches:
+  only:
+  - develop
+  - master
+  - /^feature_.*$/
+notifications:
+  email: false
