@@ -1,13 +1,12 @@
 package com.lesfurets.jenkins
 
+import com.lesfurets.jenkins.helpers.BasePipelineTest
 import org.junit.Before
 import org.junit.Test
 
-import com.lesfurets.jenkins.helpers.BasePipelineTest
-
 import static org.assertj.core.api.Assertions.assertThat
 
-class TestExampleJob extends BasePipelineTest {
+class TestParallelJob extends BasePipelineTest {
 
     @Override
     @Before
@@ -30,9 +29,11 @@ class TestExampleJob extends BasePipelineTest {
 
     @Test
     void name() throws Exception {
-        def script = loadScript("job/exampleJob.jenkins")
+        def script = loadScript("job/parallelJob.jenkins")
         script.execute()
         printCallStack()
-        assertJobStatusSuccess()
+
+        assertJobStatusFailure()
+
     }
 }
