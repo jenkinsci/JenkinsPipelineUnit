@@ -87,7 +87,7 @@ class PipelineTestHelper {
             }
         }
         if (exceptions) {
-            throw new Exception(exceptions)
+            throw new Exception(exceptions.join(','))
         }
     }
 

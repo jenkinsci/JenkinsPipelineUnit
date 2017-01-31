@@ -1,6 +1,9 @@
 package com.lesfurets.jenkins.helpers
 
+import org.assertj.core.api.Assertions
 import org.junit.Before
+
+import static org.assertj.core.api.Assertions.assertThat
 
 abstract class BasePipelineTest {
 
@@ -54,6 +57,13 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("gatlingArchive", [], null)
         helper.registerAllowedMethod("string", [Map.class], stringInterceptor)
         helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
+        helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE')})
+
+        binding.setVariable('currentBuild', [result: 'SUCCESS'])
+    }
+
+    void updateBuildStatus(String status){
+        binding.getVariable('currentBuild').result = status
     }
 
     Script loadScript(String scriptName) {
@@ -67,4 +77,21 @@ abstract class BasePipelineTest {
             }
         }
     }
+
+    void assertJobStatusFailure() {
+        assertJobStatus('FAILURE')
+    }
+
+    void assertJobStatusUnstable() {
+        assertJobStatus('UNSTABLE')
+    }
+
+    void assertJobStatusSuccess() {
+        assertJobStatus('SUCCESS')
+    }
+
+    private assertJobStatus(String status) {
+        assertThat(binding.getVariable('currentBuild').result).isEqualTo(status)
+    }
+
 }
