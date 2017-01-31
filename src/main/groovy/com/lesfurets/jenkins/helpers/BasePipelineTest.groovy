@@ -11,7 +11,7 @@ abstract class BasePipelineTest {
 
     Class baseClass = MockPipelineScript.class
 
-    Map<String, String> imports = ["NonCPS": "com.lesfurets.jenkins.helpers.NonCPS"]
+    Map<String, String> imports = ["NonCPS": "com.cloudbees.groovy.cps.NonCPS"]
 
     String baseScriptRoot = "production/jenkins/"
 
