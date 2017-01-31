@@ -1,5 +1,8 @@
 package com.lesfurets.jenkins.helpers
 
+import static com.lesfurets.jenkins.helpers.MethodSignature.method
+
+import java.nio.file.Paths
 import java.util.function.Consumer
 import java.util.function.Function
 
@@ -7,9 +10,6 @@ import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.codehaus.groovy.runtime.MetaClassHelper
 
-import java.nio.file.Paths
-
-import static com.lesfurets.jenkins.helpers.MethodSignature.method
 
 class PipelineTestHelper {
 
@@ -55,7 +55,7 @@ class PipelineTestHelper {
     /**
      * Method interceptor for method 'load' to load scripts via encapsulated GroovyScriptEngine
      */
-    private loadInterceptor = { args ->
+    protected loadInterceptor = { args ->
         String name = args
         // The script is loaded by its normal name :
         def relativize = Paths.get(baseScriptRoot).relativize(Paths.get(name)).normalize()
@@ -73,7 +73,7 @@ class PipelineTestHelper {
         return this.loadScript(name, delegate.binding)
     }
 
-    private parallelInterceptor = { Map m ->
+    protected parallelInterceptor = { Map m ->
         // If you have many steps in parallel and one of the step in Jenkins fails, the other tasks keep runnning in Jenkins.
         // Since here the parallel steps are executed sequentially, we are hiding the error to let other steps run
         // and we make the job failing at the end.
@@ -95,7 +95,7 @@ class PipelineTestHelper {
      * Method interceptor for any method called in executing script.
      * Calls are logged on the call stack.
      */
-    private methodInterceptor = { String name, args ->
+    protected methodInterceptor = { String name, args ->
         // register method call to stack
         int depth = Thread.currentThread().stackTrace.findAll { it.className == delegate.class.name }.size()
         this.registerMethodCall(delegate, depth, name, args)
@@ -119,7 +119,7 @@ class PipelineTestHelper {
      * List of allowed methods with default interceptors.
      * Complete this list in need with {@link #registerAllowedMethod}
      */
-    private Map<MethodSignature, Closure> allowedMethodCallbacks = [
+    protected Map<MethodSignature, Closure> allowedMethodCallbacks = [
             (method("load", String.class))                : loadInterceptor,
             (method("stage", String.class, Closure.class)): null,
             (method("stage", String.class, Closure.class)): null,
@@ -173,7 +173,7 @@ class PipelineTestHelper {
      * @param name method name
      * @param args method arguments
      */
-    private void registerMethodCall(Object target, int stackDepth, String name, Object... args) {
+    protected void registerMethodCall(Object target, int stackDepth, String name, Object... args) {
         MethodCall call = new MethodCall()
         call.target = target
         call.methodName = name
@@ -189,7 +189,7 @@ class PipelineTestHelper {
      * @param args parameter objects
      * @return Map.Entry corresponding to the method <MethodSignature, Closure>
      */
-    private Map.Entry<MethodSignature, Closure> getAllowedMethodEntry(String name, args) {
+    protected Map.Entry<MethodSignature, Closure> getAllowedMethodEntry(String name, args) {
         Class[] paramTypes = MetaClassHelper.castArgumentsToClassArray(args)
         MethodSignature signature = method(name, paramTypes)
         return allowedMethodCallbacks.find { k, v -> k == signature }

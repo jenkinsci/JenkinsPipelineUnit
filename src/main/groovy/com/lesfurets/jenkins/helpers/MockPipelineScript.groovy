@@ -6,18 +6,12 @@ abstract class MockPipelineScript extends Script {
         if (this._TEST_HELPER.isMethodAllowed(name, args)) {
             def result = null
             if (args != null) {
-                for (it in args) {
-                    if (it instanceof Closure) {
-                        result = it.call()
-                    }
-                    if (it instanceof Map) {
-                        it.each { k, v ->
-                            if (k instanceof Closure) {
-                                result = k.call()
-                            }
-                            if (v instanceof Closure) {
-                                result = v.call()
-                            }
+                for (argument in args) {
+                    callIfClosure(argument)
+                    if (argument instanceof Map) {
+                        argument.each { k, v ->
+                            callIfClosure(k)
+                            callIfClosure(v)
                         }
                     }
                 }
@@ -27,4 +21,13 @@ abstract class MockPipelineScript extends Script {
             throw new MissingMethodException(name, this.class, args)
         }
     }
+
+    def callIfClosure(Object closure) {
+        def result = null
+        if (closure instanceof Closure) {
+            result = closure.call()
+        }
+        return result
+    }
+
 }
