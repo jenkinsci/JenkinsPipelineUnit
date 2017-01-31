@@ -33,7 +33,7 @@ class PipelineTestHelper {
     /**
      * Base class for instantiated scripts
      */
-    Class scriptBaseClass
+    Class scriptBaseClass = MockPipelineScript.class
 
     /**
      * Classloader to instantiate scripts

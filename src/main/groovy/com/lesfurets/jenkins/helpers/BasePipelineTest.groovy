@@ -9,8 +9,6 @@ abstract class BasePipelineTest {
 
     String extension = "jenkins"
 
-    Class baseClass = MockPipelineScript.class
-
     Map<String, String> imports = ["NonCPS": "com.cloudbees.groovy.cps.NonCPS"]
 
     String baseScriptRoot = "production/jenkins/"
@@ -35,7 +33,6 @@ abstract class BasePipelineTest {
         helper.setScriptRoots roots
         helper.setScriptExtension extension
         helper.setBaseClassloader this.class.classLoader
-        helper.setScriptBaseClass baseClass
         helper.setImports imports
         helper.setBaseScriptRoot baseScriptRoot
     }
