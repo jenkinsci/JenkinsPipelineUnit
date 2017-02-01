@@ -62,6 +62,11 @@ abstract class BasePipelineTest {
         binding.setVariable('currentBuild', [result: 'SUCCESS'])
     }
 
+    /**
+     * Updates the build status.
+     * Can be useful when mocking a jenkins method.
+     * @param status job status to set
+     */
     void updateBuildStatus(String status){
         binding.getVariable('currentBuild').result = status
     }
@@ -78,14 +83,29 @@ abstract class BasePipelineTest {
         }
     }
 
+    /**
+     * Asserts the job status is FAILURE.
+     * Please check the mocks update this status when necessary.
+     * @See #updateBuildStatus(String)
+     */
     void assertJobStatusFailure() {
         assertJobStatus('FAILURE')
     }
 
+    /**
+     * Asserts the job status is UNSTABLE.
+     * Please check the mocks update this status when necessary
+     * @See #updateBuildStatus(String)
+     */
     void assertJobStatusUnstable() {
         assertJobStatus('UNSTABLE')
     }
 
+    /**
+     * Asserts the job status is SUCCESS.
+     * Please check the mocks update this status when necessary
+     * @See #updateBuildStatus(String)
+     */
     void assertJobStatusSuccess() {
         assertJobStatus('SUCCESS')
     }

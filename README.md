@@ -89,8 +89,27 @@ void should_execute_without_errors() throws Exception {
     }.any { call ->
         callArgsToString(call).contains("mvn verify")
     }).isTrue()
+    assertJobStatusSuccess()
 }
 
+```
+
+This will check as well `mvn verify` has been called during the job execution. 
+
+### Compare the callstacks with the past
+You have dedicated method you can call if you override BaseRegressionTest:
+```groovy
+    @Test
+    void testNonReg() throws Exception {
+        def script = loadScript("job/exampleJob.jenkins")
+        script.execute()
+        super.testNonRegression("example", false)
+    }
+```
+This will compare the current callstack of the job to the one you have in a text callstack reference file.
+To update this file, just set the `updateReference` to true when calling testNonRegression:
+```groovy
+super.testNonRegression("example", true)
 ```
 
 ## Configuration
