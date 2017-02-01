@@ -17,6 +17,7 @@ abstract class MockPipelineScriptCPS extends MockPipelineScript implements Seria
      */
     def callIfClosure(Object closure) {
         def result = null
+        // Every closure we receive here is CpsClosure, NonCPS code does not get called in here.
         if (closure instanceof CpsClosure) {
             try {
                 result = closure.call()
