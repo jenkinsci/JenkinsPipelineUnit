@@ -1,13 +1,13 @@
 # Pipeline Test Helper
 
-[![Build Status](https://travis-ci.org/lesfurets/pipeline-test-helper.svg?branch=develop)](https://travis-ci.org/lesfurets/pipeline-test-helper)
+[![Build Status](https://travis-ci.org/lesfurets/pipeline-test-helper.svg?branch=master)](https://travis-ci.org/lesfurets/pipeline-test-helper)
 
 Helpers for testing Jenkins pipeline code, written in [Groovy Pipeline DSL](https://jenkins.io/doc/book/pipeline/).
 
-If you use Jenkins as your CI workhorse (like us @[lesfurets.com](https://www.lesfurets.com)) and you enjoy writing _pipeline-as-code_, 
-you know already that pipeline code can get pretty complex.
+If you use Jenkins as your CI workhorse (like us @ [lesfurets.com](https://www.lesfurets.com)) and you enjoy writing _pipeline-as-code_, 
+you already know that pipeline code is very powerful but can get pretty complex.
 
-These helpers lets you write unit tests on the configuration and conditional logic of the pipeline code, by providing a mock execution of the pipeline.
+These helpers let you write unit tests on the configuration and conditional logic of the pipeline code, by providing a mock execution of the pipeline.
 You can mock built-in Jenkins commands, job configurations, see the stacktrace of the whole execution and even track regressions.
 
 ## Usage
@@ -37,6 +37,7 @@ You can write your tests in Java or Groovy, using the test framework you prefer.
 Easiest entry point is extending the abstract class `BasePipelineTest`.
 
 ```groovy
+import com.lesfurets.jenkins.helpers.BasePipelineTest
 
 class TestExampleJob extends BasePipelineTest {
 
@@ -67,7 +68,7 @@ You can register interceptors to mock Jenkins commands, which may or may not ret
 ```
 
 The test helper already includes some mocks, but the list is far from complete. 
-You need to _register allowed methods_ if you want to override these mock and add others. 
+You need to _register allowed methods_ if you want to override these mocks and add others. 
 Note that you need to provide a method signature and a callback (closure or lambda) in order to allow a method.
 Any method call which is not recognized will throw an exception.
 
@@ -102,7 +103,7 @@ However `load` takes the full path relative to the project root.
 The test helper mock successfully the `load` command to load the scripts. But for you to not think about relative paths, 
 you need to configure the path of the project where your pipeline scripts are in your project. 
 Defaults to `production/jenkins/`
-- Pipeline script extension, defaults to `.jenkins`.
+- Pipeline script extension, defaults to jenkins (matches any `*.jenkins` file)
 
 Overriding these default values is easy: 
 
@@ -113,7 +114,7 @@ class TestExampleJob extends BasePipelineTest {
     @Override
     @Before
     void setUp() throws Exception {
-        helper.baseScriptRoot = ''
+        helper.baseScriptRoot = 'jenkinsJobs'
         helper.roots += 'src/main/groovy'
         helper.extension = 'pipeline'
         super.setUp()
@@ -123,6 +124,19 @@ class TestExampleJob extends BasePipelineTest {
 
 ```
 
+This will work fine for such a project structure:
+
+```
+ jenkinsJobs
+ └── src
+     ├── main
+     │   └── groovy
+     │       └── ExampleJob.pipeline
+     └── test
+         └── groovy
+             └── TestExampleJob.groovy
+```
+
 ## Note on CPS
 
 If you already fiddled with Jenkins pipeline DSL, you experienced strange errors during execution on Jenkins.
@@ -130,8 +144,11 @@ This is because Jenkins does not directly execute your pipeline in Groovy,
 but transforms the pipeline code into an intermediate format to in order to run Groovy code in 
 [Continuation Passing Style](https://en.wikipedia.org/wiki/Continuation-passing_style) (CPS).
  
-The usual errors are partly due to the sandboxing Jenkins applies for security reasons, 
-and partly due to the serializability Jenkins imposes.
+The usual errors are partly due to the 
+[the sandboxing Jenkins applies](https://wiki.jenkins-ci.org/display/JENKINS/Script+Security+Plugin#ScriptSecurityPlugin-GroovySandboxing) 
+for security reasons, 
+and partly due to the 
+[serializability Jenkins imposes](https://github.com/jenkinsci/pipeline-plugin/blob/master/TUTORIAL.md#serializing-local-variables).
 
 Jenkins requires that at each execution step, the whole script context is serializable, in order to stop and resume the job execution.  
 To simulate this aspect, CPS versions of the helpers transform your scripts into the CPS format and check if at each step your script context is serializable. 
