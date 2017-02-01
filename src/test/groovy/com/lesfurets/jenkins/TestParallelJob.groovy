@@ -4,8 +4,6 @@ import com.lesfurets.jenkins.helpers.BasePipelineTest
 import org.junit.Before
 import org.junit.Test
 
-import static org.assertj.core.api.Assertions.assertThat
-
 class TestParallelJob extends BasePipelineTest {
 
     @Override

@@ -5,8 +5,6 @@ import org.junit.Test
 
 import com.lesfurets.jenkins.helpers.BasePipelineTest
 
-import static org.assertj.core.api.Assertions.assertThat
-
 class TestExampleJob extends BasePipelineTest {
 
     @Override

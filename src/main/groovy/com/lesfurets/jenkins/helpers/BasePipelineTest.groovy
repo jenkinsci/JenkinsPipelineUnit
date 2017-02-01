@@ -1,6 +1,5 @@
 package com.lesfurets.jenkins.helpers
 
-import org.assertj.core.api.Assertions
 import org.junit.Before
 
 import static org.assertj.core.api.Assertions.assertThat
