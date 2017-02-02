@@ -1,7 +1,5 @@
 package com.lesfurets.jenkins.helpers
 
-import org.junit.Before
-
 import static org.assertj.core.api.Assertions.assertThat
 
 abstract class BasePipelineTest {
@@ -39,7 +37,6 @@ abstract class BasePipelineTest {
         helper.setBaseScriptRoot baseScriptRoot
     }
 
-    @Before
     void setUp() throws Exception {
         helper.build()
         helper.registerAllowedMethod("gitlabCommitStatus", [String.class, Closure.class], null)

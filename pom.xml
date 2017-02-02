@@ -65,8 +65,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <!-- Dependency versions -->
-    <junit.version>4.11</junit.version>
+    <groovy-cps.version>1.11</groovy-cps.version>
     <assertj-core.version>3.4.1</assertj-core.version>
+    <junit.version>4.11</junit.version>
     <groovy.version>2.4.6</groovy.version>
     <groovy-eclipse-compiler.version>2.9.2-01</groovy-eclipse-compiler.version>
     <groovy-eclipse-batch.version>2.4.3-01</groovy-eclipse-batch.version>
@@ -78,9 +79,9 @@
       <version>${groovy.version}</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
+      <groupId>com.cloudbees</groupId>
+      <artifactId>groovy-cps</artifactId>
+      <version>${groovy-cps.version}</version>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
@@ -88,9 +89,10 @@
       <version>${assertj-core.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.cloudbees</groupId>
-      <artifactId>groovy-cps</artifactId>
-      <version>1.11</version>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
