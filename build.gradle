@@ -8,7 +8,7 @@ repositories {
 }
 
 group = "com.lesfurets"
-archivesBaseName = "pipeline-test-helper"
+archivesBaseName = "jenkins-pipeline-unit"
 version = "0.10-SNAPSHOT"
 
 dependencies {
@@ -89,13 +89,13 @@ uploadArchives {
             pom.project {
                 name "$project.group:$project.archivesBaseName"
                 packaging 'jar'
-                description 'Helpers for testing Jenkins pipelines.'
-                url 'https://github.com/lesfurets/pipeline-test-helper'
+                description 'Jenkins Pipeline Unit testing framework'
+                url 'https://github.com/lesfurets/JenkinsPipelineUnit'
 
                 scm {
-                    url 'https://github.com/lesfurets/pipeline-test-helper'
-                    connection 'scm:git:git://github.com/lesfurets/pipeline-test-helper.git'
-                    developerConnection 'scm:git:git@github.com/lesfurets/pipeline-test-helper.git'
+                    url 'https://github.com/lesfurets/JenkinsPipelineUnit'
+                    connection 'scm:git:git://github.com/lesfurets/JenkinsPipelineUnit.git'
+                    developerConnection 'scm:git:git@github.com/lesfurets/JenkinsPipelineUnit.git'
                 }
 
                 licenses {

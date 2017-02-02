@@ -4,21 +4,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.lesfurets</groupId>
-  <artifactId>pipeline-test-helper</artifactId>
+  <artifactId>jenkins-pipeline-unit</artifactId>
   <version>0.10-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <description>
-    Helpers for testing Jenkins pipelines.
+    Jenkins Pipeline Unit testing framework
   </description>
-  <url>https://github.com/lesfurets/pipeline-test-helper</url>
+  <url>https://github.com/lesfurets/JenkinsPipelineUnit</url>
   <issueManagement>
-    <url>https://github.com/lesfurets/pipeline-test-helper/issues</url>
+    <url>https://github.com/lesfurets/JenkinsPipelineUnit/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
   <scm>
-    <url>https://github.com/lesfurets/pipeline-test-helper</url>
-    <connection>scm:git:git://github.com/lesfurets/pipeline-test-helper.git</connection>
-    <developerConnection>scm:git:git@github.com/lesfurets/pipeline-test-helper.git</developerConnection>
+    <url>https://github.com/lesfurets/JenkinsPipelineUnit</url>
+    <connection>scm:git:git://github.com/lesfurets/JenkinsPipelineUnit.git</connection>
+    <developerConnection>scm:git:git@github.com/lesfurets/JenkinsPipelineUnit.git</developerConnection>
   </scm>
   <licenses>
     <license>
