@@ -1,6 +1,6 @@
-package com.lesfurets.jenkins.helpers
+package com.lesfurets.jenkins.unit
 
-import static com.lesfurets.jenkins.helpers.MethodCall.callArgsToString
+import static com.lesfurets.jenkins.unit.MethodCall.callArgsToString
 import static org.assertj.core.api.Assertions.assertThat
 import static org.assertj.core.api.Assertions.fail
 

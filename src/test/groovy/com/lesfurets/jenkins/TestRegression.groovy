@@ -3,15 +3,16 @@ package com.lesfurets.jenkins
 import org.junit.Before
 import org.junit.Test
 
-import com.lesfurets.jenkins.helpers.BaseRegressionTest
+import com.lesfurets.jenkins.unit.BaseRegressionTest
 
 class TestRegression extends BaseRegressionTest {
 
     @Override
     @Before
     void setUp() throws Exception {
-        helper.baseScriptRoot = ""
+        super.setUp()
         def scmBranch = "feature_test"
+        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744fc4876848f3a21aefc92960ea4c716cf"})
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
                         branches                         : [[name: scmBranch]],
@@ -23,7 +24,6 @@ class TestRegression extends BaseRegressionTest {
                                                                             url          : "github.com/lesfurets/pipeline-test-helper.git"
                                                             ]]
         ])
-        super.setUp()
     }
 
     @Test

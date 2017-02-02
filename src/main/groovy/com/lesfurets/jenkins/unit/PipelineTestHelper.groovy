@@ -1,6 +1,6 @@
-package com.lesfurets.jenkins.helpers
+package com.lesfurets.jenkins.unit
 
-import static com.lesfurets.jenkins.helpers.MethodSignature.method
+import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 import java.nio.file.Paths
 import java.util.function.Consumer
@@ -121,17 +121,7 @@ class PipelineTestHelper {
      */
     protected Map<MethodSignature, Closure> allowedMethodCallbacks = [
             (method("load", String.class))                : loadInterceptor,
-            (method("stage", String.class, Closure.class)): null,
-            (method("stage", String.class, Closure.class)): null,
-            (method("sh", String.class))                  : null,
-            (method("node", String.class, Closure.class)) : null,
-            (method("node", Closure.class))               : null,
             (method("parallel", Map.class))               : parallelInterceptor,
-            (method("checkout", Map.class))               : null,
-            (method("echo", String.class))                : null,
-            (method("timeout", Map.class, Closure.class)) : null,
-            (method("step", Map.class))                   : null,
-            (method("input", String.class))               : null,
     ]
 
     PipelineTestHelper() {

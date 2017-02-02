@@ -1,6 +1,6 @@
 package com.lesfurets.jenkins
 
-import com.lesfurets.jenkins.helpers.BasePipelineTest
+import com.lesfurets.jenkins.unit.BasePipelineTest
 import org.junit.Before
 import org.junit.Test
 
@@ -9,7 +9,7 @@ class TestParallelJob extends BasePipelineTest {
     @Override
     @Before
     void setUp() throws Exception {
-        helper.baseScriptRoot = ""
+        super.setUp()
         def scmBranch = "feature_test"
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
@@ -22,7 +22,6 @@ class TestParallelJob extends BasePipelineTest {
                                                                             url          : "github.com/lesfurets/pipeline-test-helper.git"
                                                             ]]
         ])
-        super.setUp()
     }
 
     @Test

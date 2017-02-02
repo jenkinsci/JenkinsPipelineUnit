@@ -1,13 +1,13 @@
-package com.lesfurets.jenkins.helpers.cps
+package com.lesfurets.jenkins.unit.cps
 
-import com.lesfurets.jenkins.helpers.BasePipelineTest
+import com.lesfurets.jenkins.unit.BasePipelineTest
 
 class BasePipelineTestCPS extends BasePipelineTest {
 
     BasePipelineTestCPS() {
         helper = new PipelineTestHelperCPS()
-        helper.setScriptRoots roots
-        helper.setScriptExtension extension
+        helper.setScriptRoots scriptRoots
+        helper.setScriptExtension scriptExtension
         helper.setBaseClassloader this.class.classLoader
         helper.setImports imports
         helper.setBaseScriptRoot baseScriptRoot

@@ -3,16 +3,15 @@
  */
 package com.lesfurets.jenkins;
 
-import static com.lesfurets.jenkins.helpers.MethodSignature.method;
+import static com.lesfurets.jenkins.unit.MethodSignature.method;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.function.Consumer;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.lesfurets.jenkins.helpers.BasePipelineTest;
+import com.lesfurets.jenkins.unit.BasePipelineTest;
 
 import groovy.lang.Script;
 

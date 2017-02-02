@@ -1,19 +1,18 @@
-package com.lesfurets.jenkins.helpers
-
-import org.junit.Before
+package com.lesfurets.jenkins.unit
 
 import static org.assertj.core.api.Assertions.assertThat
 
 abstract class BasePipelineTest {
 
     PipelineTestHelper helper
-    String[] roots = ["src/main/jenkins" , "./."]
 
-    String extension = "jenkins"
+    String[] scriptRoots = ["src/main/jenkins", "./."]
+
+    String scriptExtension = "jenkins"
 
     Map<String, String> imports = ["NonCPS": "com.cloudbees.groovy.cps.NonCPS"]
 
-    String baseScriptRoot = "production/jenkins/"
+    String baseScriptRoot = "."
 
     Binding binding = new Binding()
 
@@ -32,16 +31,26 @@ abstract class BasePipelineTest {
 
     BasePipelineTest() {
         helper = new PipelineTestHelper()
-        helper.setScriptRoots roots
-        helper.setScriptExtension extension
+        helper.setScriptRoots scriptRoots
+        helper.setScriptExtension scriptExtension
         helper.setBaseClassloader this.class.classLoader
         helper.setImports imports
         helper.setBaseScriptRoot baseScriptRoot
     }
 
-    @Before
     void setUp() throws Exception {
         helper.build()
+        helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("node", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("node", [Closure.class], null)
+        helper.registerAllowedMethod("sh", [String.class], null)
+        helper.registerAllowedMethod("sh", [Map.class], null)
+        helper.registerAllowedMethod("checkout", [Map.class], null)
+        helper.registerAllowedMethod("echo", [String.class], null)
+        helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
+        helper.registerAllowedMethod("step", [Map.class], null)
+        helper.registerAllowedMethod("input", [String.class], null)
         helper.registerAllowedMethod("gitlabCommitStatus", [String.class, Closure.class], null)
         helper.registerAllowedMethod("gitlabBuilds", [Map.class, Closure.class], null)
         helper.registerAllowedMethod("logRotator", [Map.class], null)

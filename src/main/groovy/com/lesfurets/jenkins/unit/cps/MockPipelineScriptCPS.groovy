@@ -1,10 +1,10 @@
-package com.lesfurets.jenkins.helpers.cps
+package com.lesfurets.jenkins.unit.cps
 
 import com.cloudbees.groovy.cps.Continuation
 import com.cloudbees.groovy.cps.Envs
 import com.cloudbees.groovy.cps.impl.CpsCallableInvocation
 import com.cloudbees.groovy.cps.impl.CpsClosure
-import com.lesfurets.jenkins.helpers.MockPipelineScript
+import com.lesfurets.jenkins.unit.MockPipelineScript
 
 abstract class MockPipelineScriptCPS extends MockPipelineScript implements Serializable {
 

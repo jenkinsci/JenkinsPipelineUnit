@@ -7,8 +7,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-import com.lesfurets.jenkins.helpers.BasePipelineTest
-import com.lesfurets.jenkins.helpers.MethodCall
+import com.lesfurets.jenkins.unit.BasePipelineTest
+import com.lesfurets.jenkins.unit.MethodCall
 
 @RunWith(Parameterized.class)
 class TestJenkinsFile extends BasePipelineTest {
