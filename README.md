@@ -156,7 +156,8 @@ This will check as well `mvn verify` has been called during the job execution.
 
 ### Compare the callstacks with a previous implementation
 
-You have a dedicated method you can call if you override BaseRegressionTest:
+One other use of the callstacks is to check your pipeline executions for possible regressions.
+You have a dedicated method you can call if you extend `BaseRegressionTest`:
 
 ```groovy
     @Test
@@ -168,11 +169,13 @@ You have a dedicated method you can call if you override BaseRegressionTest:
 ```
 
 This will compare the current callstack of the job to the one you have in a text callstack reference file.
-To update this file, just set the `updateReference` to true when calling testNonRegression:
+To overwrite this file with new callstack, just set the `updateReference` to true when calling testNonRegression:
 
 ```groovy
 super.testNonRegression("example", true)
 ```
+
+You then can go ahead and commit this change in your SCM to check in the change.
 
 ## Configuration
 
