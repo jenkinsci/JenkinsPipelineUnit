@@ -3,7 +3,7 @@ package com.lesfurets.jenkins
 import org.junit.Before
 import org.junit.Test
 
-import com.lesfurets.jenkins.helpers.BaseRegressionTest
+import com.lesfurets.jenkins.unit.BaseRegressionTest
 
 class TestRegression extends BaseRegressionTest {
 

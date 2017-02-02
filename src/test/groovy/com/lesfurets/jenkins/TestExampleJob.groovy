@@ -3,7 +3,7 @@ package com.lesfurets.jenkins
 import org.junit.Before
 import org.junit.Test
 
-import com.lesfurets.jenkins.helpers.BasePipelineTest
+import com.lesfurets.jenkins.unit.BasePipelineTest
 
 class TestExampleJob extends BasePipelineTest {
 

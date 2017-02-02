@@ -1,4 +1,4 @@
-package com.lesfurets.jenkins.helpers
+package com.lesfurets.jenkins.unit
 
 abstract class MockPipelineScript extends Script {
 

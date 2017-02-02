@@ -1,11 +1,11 @@
-package com.lesfurets.jenkins.helpers.cps
+package com.lesfurets.jenkins.unit.cps
 
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 
 import com.cloudbees.groovy.cps.*
 import com.cloudbees.groovy.cps.impl.CpsCallableInvocation
-import com.lesfurets.jenkins.helpers.PipelineTestHelper
+import com.lesfurets.jenkins.unit.PipelineTestHelper
 
 class PipelineTestHelperCPS extends PipelineTestHelper {
 

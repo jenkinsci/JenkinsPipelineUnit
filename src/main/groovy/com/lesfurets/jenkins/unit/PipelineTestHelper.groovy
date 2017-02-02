@@ -1,6 +1,6 @@
-package com.lesfurets.jenkins.helpers
+package com.lesfurets.jenkins.unit
 
-import static com.lesfurets.jenkins.helpers.MethodSignature.method
+import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 import java.nio.file.Paths
 import java.util.function.Consumer

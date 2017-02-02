@@ -3,7 +3,7 @@ package com.lesfurets.jenkins
 import org.junit.Before
 import org.junit.Test
 
-import com.lesfurets.jenkins.helpers.cps.BasePipelineTestCPS
+import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
 
 class TestSerializationCPS extends BasePipelineTestCPS {
 

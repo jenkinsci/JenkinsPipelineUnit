@@ -1,6 +1,6 @@
-package com.lesfurets.jenkins.helpers.cps
+package com.lesfurets.jenkins.unit.cps
 
-import com.lesfurets.jenkins.helpers.BasePipelineTest
+import com.lesfurets.jenkins.unit.BasePipelineTest
 
 class BasePipelineTestCPS extends BasePipelineTest {
 
