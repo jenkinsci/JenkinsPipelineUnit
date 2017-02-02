@@ -5,9 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat
 abstract class BasePipelineTest {
 
     PipelineTestHelper helper
-    String[] roots = ["src/main/jenkins" , "./."]
 
-    String extension = "jenkins"
+    String[] scriptRoots = ["src/main/jenkins", "./."]
+
+    String scriptExtension = "jenkins"
 
     Map<String, String> imports = ["NonCPS": "com.cloudbees.groovy.cps.NonCPS"]
 
@@ -30,8 +31,8 @@ abstract class BasePipelineTest {
 
     BasePipelineTest() {
         helper = new PipelineTestHelper()
-        helper.setScriptRoots roots
-        helper.setScriptExtension extension
+        helper.setScriptRoots scriptRoots
+        helper.setScriptExtension scriptExtension
         helper.setBaseClassloader this.class.classLoader
         helper.setImports imports
         helper.setBaseScriptRoot baseScriptRoot

@@ -6,8 +6,8 @@ class BasePipelineTestCPS extends BasePipelineTest {
 
     BasePipelineTestCPS() {
         helper = new PipelineTestHelperCPS()
-        helper.setScriptRoots roots
-        helper.setScriptExtension extension
+        helper.setScriptRoots scriptRoots
+        helper.setScriptExtension scriptExtension
         helper.setBaseClassloader this.class.classLoader
         helper.setImports imports
         helper.setBaseScriptRoot baseScriptRoot
