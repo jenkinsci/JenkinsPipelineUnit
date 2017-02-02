@@ -39,6 +39,17 @@ abstract class BasePipelineTest {
 
     void setUp() throws Exception {
         helper.build()
+        helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("node", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("node", [Closure.class], null)
+        helper.registerAllowedMethod("sh", [String.class], null)
+        helper.registerAllowedMethod("sh", [Map.class], null)
+        helper.registerAllowedMethod("checkout", [Map.class], null)
+        helper.registerAllowedMethod("echo", [String.class], null)
+        helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
+        helper.registerAllowedMethod("step", [Map.class], null)
+        helper.registerAllowedMethod("input", [String.class], null)
         helper.registerAllowedMethod("gitlabCommitStatus", [String.class, Closure.class], null)
         helper.registerAllowedMethod("gitlabBuilds", [Map.class, Closure.class], null)
         helper.registerAllowedMethod("logRotator", [Map.class], null)
