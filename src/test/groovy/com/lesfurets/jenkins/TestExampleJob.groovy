@@ -15,14 +15,7 @@ class TestExampleJob extends BasePipelineTest {
         helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744fc4876848f3a21aefc92960ea4c716cf"})
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
-                        branches                         : [[name: scmBranch]],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions                       : [],
-                        submoduleCfg                     : [],
-                        userRemoteConfigs                : [[
-                                                                            credentialsId: 'gitlab_git_ssh',
-                                                                            url          : "github.com/lesfurets/pipeline-test-helper.git"
-                                                            ]]
+                        branches                         : [[name: scmBranch]]
         ])
     }
 

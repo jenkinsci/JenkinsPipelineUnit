@@ -85,6 +85,27 @@ class TestExampleJob extends BasePipelineTest {
 
 ```
 
+This test will print the call stack of the execution :
+
+```text
+exampleJob.run()
+exampleJob.execute()
+  exampleJob.node(groovy.lang.Closure)
+     exampleJob.load(src/main/jenkins/lib/utils.jenkins)
+        utils.run()
+     exampleJob.stage(Checkout, groovy.lang.Closure)
+        exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}]})
+        utils.currentRevision()
+           utils.sh({returnStdout=true, script=git rev-parse HEAD})
+        exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
+           exampleJob.stage(build, groovy.lang.Closure)
+              exampleJob.gitlabCommitStatus(build, groovy.lang.Closure)
+                 exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
+           exampleJob.stage(test, groovy.lang.Closure)
+              exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
+                 exampleJob.sh(mvn verify -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
+```
+
 ### Mock Jenkins commands
 
 You can register interceptors to mock Jenkins commands, which may or may not return a result.
