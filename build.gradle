@@ -9,7 +9,7 @@ repositories {
 
 group = "com.lesfurets"
 archivesBaseName = "jenkins-pipeline-unit"
-version = "0.10"
+version = "0.11-SNAPSHOT"
 
 dependencies {
     compile group: 'org.codehaus.groovy',   name: 'groovy-all',     version: '2.4.6'
