@@ -12,7 +12,7 @@ abstract class BasePipelineTest {
 
     Map<String, String> imports = ["NonCPS": "com.cloudbees.groovy.cps.NonCPS"]
 
-    String baseScriptRoot = "production/jenkins/"
+    String baseScriptRoot = "."
 
     Binding binding = new Binding()
 
