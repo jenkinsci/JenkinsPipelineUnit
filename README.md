@@ -34,14 +34,47 @@ testCompile group:'com.lesfurets', name:'jenkins-pipeline-unit', version:'0.10'
 
 ### Start writing tests
 
-You can write your tests in Java or Groovy, using the test framework you prefer.
-The easiest entry point is extending the abstract class `BasePipelineTest`.
+You can write your tests in Groovy or Java 8, using the test framework you prefer.
+The easiest entry point is extending the abstract class `BasePipelineTest`, which initializes the framework with JUnit.
+
+Let's say you wrote this awesome pipeline script, which builds and tests your project :
+ 
+ ```groovy
+def execute() {
+    node() {
+        def utils = load "src/main/jenkins/lib/utils.jenkins"
+        stage('Checkout') {
+            checkout scm
+            String revision = utils.currentRevision()
+            gitlabBuilds(builds: ["build", "test"]) {
+                stage("build") {
+                    gitlabCommitStatus("build") {
+                        sh "mvn clean package -DskipTests -DgitRevision=$revision"
+                    }
+                }
+
+                stage("test") {
+                    gitlabCommitStatus("test") {
+                        sh "mvn verify -DgitRevision=$revision"
+                    }
+                }
+            }
+        }
+    }
+}
+
+return this
+```
+
+Now using the Jenkins Pipeline Unit you can unit test if it does the job :
 
 ```groovy
 import com.lesfurets.jenkins.helpers.BasePipelineTest
 
 class TestExampleJob extends BasePipelineTest {
-
+        
+        //...
+        
         @Test
         void should_execute_without_errors() throws Exception {
             def script = loadScript("job/exampleJob.jenkins")
@@ -61,6 +94,7 @@ You can register interceptors to mock Jenkins commands, which may or may not ret
     @Before
     void setUp() throws Exception {
         super.setUp()
+        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744fc4876848f3a21aefc92960ea4c716cf"})
         helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
         helper.registerAllowedMethod(method("readFile", String.class), { file ->
             return Files.contentOf(new File(file), Charset.forName("UTF-8"))
@@ -73,7 +107,9 @@ You need to _register allowed methods_ if you want to override these mocks and a
 Note that you need to provide a method signature and a callback (closure or lambda) in order to allow a method.
 Any method call which is not recognized will throw an exception.
 
-Some tricky methods such as `load` and `parallel` are implemented directly in the helper. 
+You can take a look at the `BasePipelineTest` class to have the short list of allowed methods.
+
+Some tricky methods such as `load` and `parallel` are implemented directly in the helper.
 If you want to override those, make sure that you extend the `PipelineTestHelper` class.
 
 ### Analyze the mock execution
@@ -126,7 +162,7 @@ The abstract class `BasePipelineTest` configures the helper with useful conventi
 However `load` takes the full path relative to the project root.
 The test helper mock successfully the `load` command to load the scripts.
 To make relative paths work, you need to configure the path of the project where your pipeline scripts are,
-which defaults to `production/jenkins/`
+which defaults to `.`.
 - Pipeline script extension, which defaults to jenkins (matches any `*.jenkins` file)
 
 Overriding these default values is easy:
