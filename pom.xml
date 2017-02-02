@@ -4,21 +4,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.lesfurets</groupId>
-  <artifactId>pipeline-test-helper</artifactId>
-  <version>0.9-SNAPSHOT</version>
+  <artifactId>jenkins-pipeline-unit</artifactId>
+  <version>0.10-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <description>
-    Helpers for testing Jenkins pipelines.
+    Jenkins Pipeline Unit testing framework
   </description>
-  <url>https://github.com/lesfurets/pipeline-test-helper</url>
+  <url>https://github.com/lesfurets/JenkinsPipelineUnit</url>
   <issueManagement>
-    <url>https://github.com/lesfurets/pipeline-test-helper/issues</url>
+    <url>https://github.com/lesfurets/JenkinsPipelineUnit/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
   <scm>
-    <url>https://github.com/lesfurets/pipeline-test-helper</url>
-    <connection>scm:git:git://github.com/lesfurets/pipeline-test-helper.git</connection>
-    <developerConnection>scm:git:git@github.com/lesfurets/pipeline-test-helper.git</developerConnection>
+    <url>https://github.com/lesfurets/JenkinsPipelineUnit</url>
+    <connection>scm:git:git://github.com/lesfurets/JenkinsPipelineUnit.git</connection>
+    <developerConnection>scm:git:git@github.com/lesfurets/JenkinsPipelineUnit.git</developerConnection>
   </scm>
   <licenses>
     <license>
@@ -65,8 +65,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <!-- Dependency versions -->
-    <junit.version>4.11</junit.version>
+    <groovy-cps.version>1.11</groovy-cps.version>
     <assertj-core.version>3.4.1</assertj-core.version>
+    <junit.version>4.11</junit.version>
     <groovy.version>2.4.6</groovy.version>
     <groovy-eclipse-compiler.version>2.9.2-01</groovy-eclipse-compiler.version>
     <groovy-eclipse-batch.version>2.4.3-01</groovy-eclipse-batch.version>
@@ -78,14 +79,20 @@
       <version>${groovy.version}</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
+      <groupId>com.cloudbees</groupId>
+      <artifactId>groovy-cps</artifactId>
+      <version>${groovy-cps.version}</version>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>${assertj-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
@@ -213,8 +220,6 @@
             <artifactId>maven-source-plugin</artifactId>
             <executions>
               <execution>
-                <id>attach-sources</id>
-                <phase>verify</phase>
                 <goals>
                   <goal>jar-no-fork</goal>
                 </goals>

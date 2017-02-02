@@ -1,6 +1,6 @@
-package com.lesfurets.jenkins.helpers
+package com.lesfurets.jenkins.unit
 
-import static com.lesfurets.jenkins.helpers.MethodSignature.method
+import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 import org.codehaus.groovy.runtime.MetaClassHelper
 
@@ -53,7 +53,7 @@ class MethodCall {
     }
 
     /**
-     * @see #callToSignature(com.lesfurets.jenkins.helpers.MethodCall)
+     * @see #callToSignature(com.lesfurets.jenkins.unit.MethodCall)
      * @return method signature
      */
     MethodSignature toSignature() {
@@ -61,7 +61,7 @@ class MethodCall {
     }
 
     /**
-     * @see #callArgsToString(com.lesfurets.jenkins.helpers.MethodCall)
+     * @see #callArgsToString(com.lesfurets.jenkins.unit.MethodCall)
      * @return string representation
      */
     String argsToString() {

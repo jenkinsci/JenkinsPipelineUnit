@@ -3,16 +3,17 @@ def execute() {
         def utils = load "src/main/jenkins/lib/utils.jenkins"
         stage('Checkout') {
             checkout scm
+            String revision = utils.currentRevision()
             gitlabBuilds(builds: ["build", "test"]) {
                 stage("build") {
                     gitlabCommitStatus("build") {
-                        sh 'mvn clean package -DskipTests'
+                        sh "mvn clean package -DskipTests -DgitRevision=$revision"
                     }
                 }
 
                 stage("test") {
                     gitlabCommitStatus("test") {
-                        sh 'mvn verify'
+                        sh "mvn verify -DgitRevision=$revision"
                     }
                 }
             }

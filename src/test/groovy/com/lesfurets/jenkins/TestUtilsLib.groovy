@@ -5,12 +5,19 @@ import static org.assertj.core.api.Assertions.assertThat
 import java.nio.charset.Charset
 
 import org.assertj.core.util.Files
+import org.junit.Before
 import org.junit.Test
 
-import com.lesfurets.jenkins.helpers.BasePipelineTest
-import static com.lesfurets.jenkins.helpers.MethodSignature.method
+import com.lesfurets.jenkins.unit.BasePipelineTest
+import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 class TestUtilsLib extends BasePipelineTest {
+
+    @Override
+    @Before
+    void setUp() throws Exception {
+        super.setUp()
+    }
 
     @Test
     void should_return_name_with_uppercase_underscore() throws Exception {

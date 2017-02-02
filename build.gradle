@@ -1,0 +1,139 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: 'jacoco'
+
+repositories {
+    mavenCentral()
+}
+
+group = "com.lesfurets"
+archivesBaseName = "jenkins-pipeline-unit"
+version = "0.10-SNAPSHOT"
+
+dependencies {
+    compile group: 'org.codehaus.groovy',   name: 'groovy-all',     version: '2.4.6'
+    compile group: 'com.cloudbees',         name: 'groovy-cps',     version: '1.11'
+    compile group: 'org.assertj',           name: 'assertj-core',   version: '3.4.1'
+    testCompile group: 'junit',                 name: 'junit',          version: '4.11'
+}
+
+// Get external properties from file
+if (project.hasProperty('extProps')) {
+    def props = new Properties()
+    file("$extProps").withInputStream { props.load(it) }
+    props.stringPropertyNames().forEach {
+        ext."$it" = props.getProperty(it)
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ['src/main/jenkins']
+            include '**/*.jenkins'
+        }
+    }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from groovydoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+test {
+    testLogging {
+        events "PASSED", "FAILED", "SKIPPED"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            def repo = project.hasProperty('repository') ?
+                            project.repository :
+                            "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            repository(url: repo) {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            def snapRepo = project.hasProperty('snapshotRepository') ?
+                            project.snapshotRepository :
+                            "https://oss.sonatype.org/content/repositories/snapshots/"
+            snapshotRepository(url: snapRepo) {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name "$project.group:$project.archivesBaseName"
+                packaging 'jar'
+                description 'Jenkins Pipeline Unit testing framework'
+                url 'https://github.com/lesfurets/JenkinsPipelineUnit'
+
+                scm {
+                    url 'https://github.com/lesfurets/JenkinsPipelineUnit'
+                    connection 'scm:git:git://github.com/lesfurets/JenkinsPipelineUnit.git'
+                    developerConnection 'scm:git:git@github.com/lesfurets/JenkinsPipelineUnit.git'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT License'
+                        url 'http://www.opensource.org/licenses/mit-license.php'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'ozangunalp'
+                        name 'Ozan Gunalp'
+                        email 'ozangunalp@gmail.com'
+                        url 'https://github.com/ozangunalp'
+                        organization 'lesfurets.com'
+                        organizationUrl 'https://github.com/lesfurets'
+                    }
+                    developer {
+                        id 'EQuincerot'
+                        name 'Emmanuel Quincerot'
+                        url 'https://github.com/EQuincerot'
+                        organization 'lesfurets.com'
+                        organizationUrl 'https://github.com/lesfurets'
+                    }
+                    developer {
+                        name 'Thomas du Boÿs'
+                        url 'https://github.com/Skool'
+                        id 'Skool'
+                        organization 'lesfurets.com'
+                        organizationUrl 'https://github.com/lesfurets'
+                    }
+                }
+            }
+        }
+    }
+}
+
+task verify(dependsOn: build)
+task deploy(dependsOn: [build, uploadArchives])

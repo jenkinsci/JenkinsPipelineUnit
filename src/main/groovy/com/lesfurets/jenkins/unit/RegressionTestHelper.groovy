@@ -1,6 +1,6 @@
-package com.lesfurets.jenkins.helpers
+package com.lesfurets.jenkins.unit
 
-import static com.lesfurets.jenkins.helpers.MethodCall.callArgsToString
+import static com.lesfurets.jenkins.unit.MethodCall.callArgsToString
 import static org.assertj.core.api.Assertions.assertThat
 import static org.assertj.core.api.Assertions.fail
 
@@ -9,7 +9,7 @@ import java.util.stream.Collectors
 
 import org.assertj.core.api.SoftAssertions
 
-abstract class BaseRegressionTest extends BasePipelineTest {
+class RegressionTestHelper {
 
     public static final String ARGUMENT_MISMATCH = """Method arguments does not match for method '%s' on '%s':
     A : %s
@@ -20,13 +20,8 @@ abstract class BaseRegressionTest extends BasePipelineTest {
 
     public static final String METHOD_CALL_NOT_EXISTS = "Method call '%s' does not exist on second stack"
 
-    void testNonRegression(String subname = '', boolean writeReference) {
-        String targetFileName = "src/test/resources/callstacks/${this.class.simpleName}"
-        if (subname) {
-            targetFileName += "_${subname}"
-        }
+    static void testNonRegression(PipelineTestHelper helper, String targetFileName, boolean writeReference) {
         targetFileName += '.txt'
-
         def referenceFile = new File(targetFileName)
 
         if (writeReference) {
