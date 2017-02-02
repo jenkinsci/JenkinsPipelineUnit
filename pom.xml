@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.lesfurets</groupId>
   <artifactId>jenkins-pipeline-unit</artifactId>
-  <version>0.10-SNAPSHOT</version>
+  <version>0.10</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <description>
     Jenkins Pipeline Unit testing framework
