@@ -7,11 +7,11 @@ abstract class MockPipelineScript extends Script {
             def result = null
             if (args != null) {
                 for (argument in args) {
-                    callIfClosure(argument)
+                    result = callIfClosure(argument, result)
                     if (argument instanceof Map) {
                         argument.each { k, v ->
-                            callIfClosure(k)
-                            callIfClosure(v)
+                            result = callIfClosure(k, result)
+                            result = callIfClosure(v, result)
                         }
                     }
                 }
@@ -22,12 +22,11 @@ abstract class MockPipelineScript extends Script {
         }
     }
 
-    def callIfClosure(Object closure) {
-        def result = null
+    def callIfClosure(Object closure, Object currentResult) {
         if (closure instanceof Closure) {
-            result = closure.call()
+            currentResult = closure.call()
         }
-        return result
+        return currentResult
     }
 
 }

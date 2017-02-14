@@ -54,4 +54,11 @@ def getRepositoryBranchSplit(String[] branchs, String repository) {
     branchSplits
 }
 
+def getScmRevision(String remote, String ref) {
+    return node() {
+        checkout([ remote: remote, ref: ref])
+        currentRevision()
+    }
+}
+
 return this
