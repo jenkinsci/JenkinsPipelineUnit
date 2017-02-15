@@ -91,4 +91,16 @@ class TestUtilsLib extends BasePipelineTest {
         // then
         assertThat(revision).isEqualTo(expectedRevision)
     }
+
+    @Test
+    void should_call_vararg_method_with_no_parameters() throws Exception {
+        Script commons = loadScript("lib/utils.jenkins")
+        assertThat(commons.joinStrings()).isEqualTo("")
+    }
+
+    @Test
+    void should_call_vararg_method_with_multiple_parameters() throws Exception {
+        Script commons = loadScript("lib/utils.jenkins")
+        assertThat(commons.joinStrings('one', 'two')).isEqualTo("one,two")
+    }
 }

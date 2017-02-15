@@ -61,4 +61,8 @@ def getScmRevision(String remote, String ref) {
     }
 }
 
+def joinStrings(String... strings) {
+    return strings.join(',')
+}
+
 return this
