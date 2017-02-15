@@ -145,5 +145,8 @@ uploadArchives {
     }
 }
 
+closeRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
+promoteRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
+
 task verify(dependsOn: build)
 task deploy(dependsOn: [build, uploadArchives, closeAndPromoteRepository])
