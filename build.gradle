@@ -145,6 +145,7 @@ uploadArchives {
     }
 }
 
+closeAndPromoteRepository.mustRunAfter(uploadArchives)
 closeRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
 promoteRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
 
