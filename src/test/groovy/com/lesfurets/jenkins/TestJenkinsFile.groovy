@@ -42,6 +42,7 @@ class TestJenkinsFile extends BasePipelineTest {
                                                                             url          : "github.com/lesfurets/pipeline-test-helper.git"
                                                             ]]
         ])
+        helper.registerAllowedMethod("junit", [Map.class], null)
         helper.registerAllowedMethod("file", [Map.class], stringInterceptor)
         helper.registerAllowedMethod("archiveArtifacts", [String.class], null)
     }

@@ -23,7 +23,7 @@ stage ('Build') {
                     archiveArtifacts 'build/libs/*.asc'
                     if (phase == 'deploy') archiveArtifacts 'build/poms/*.xml'
                     if (phase == 'deploy') archiveArtifacts 'build/poms/*.asc'
-                    junit 'build/test-results/test/*.xml'
+                    junit allowEmptyResults: true, testResults: 'build/test-results/test/*.xml'
                 }
         }
         step([$class: 'WsCleanup'])
