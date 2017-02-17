@@ -15,12 +15,11 @@ abstract class MockPipelineScriptCPS extends MockPipelineScript implements Seria
      * @param closure to execute
      * @return result of the closure execution
      */
-    def callIfClosure(Object closure) {
-        def result = null
+    def callIfClosure(Object closure, Object currentResult) {
         // Every closure we receive here is CpsClosure, NonCPS code does not get called in here.
         if (closure instanceof CpsClosure) {
             try {
-                result = closure.call()
+                currentResult = closure.call()
             } catch (CpsCallableInvocation e) {
                 def next = e.invoke(Envs.empty(), null, Continuation.HALT)
                 while(next.yield==null) {
@@ -31,10 +30,10 @@ abstract class MockPipelineScriptCPS extends MockPipelineScript implements Seria
                     }
                     next = next.step()
                 }
-                result = next.yield.replay()
+                currentResult = next.yield.replay()
             }
         }
-        return result
+        return currentResult
     }
 
     private void writeObject(ObjectOutputStream oos) throws IOException {

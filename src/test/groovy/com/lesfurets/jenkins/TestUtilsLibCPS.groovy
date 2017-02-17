@@ -1,5 +1,6 @@
 package com.lesfurets.jenkins
 
+import static com.lesfurets.jenkins.unit.MethodSignature.method
 import static org.assertj.core.api.Assertions.assertThat
 
 import java.nio.charset.Charset
@@ -8,10 +9,9 @@ import org.assertj.core.util.Files
 import org.junit.Before
 import org.junit.Test
 
-import com.lesfurets.jenkins.unit.BasePipelineTest
-import static com.lesfurets.jenkins.unit.MethodSignature.method
+import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
 
-class TestUtilsLib extends BasePipelineTest {
+class TestUtilsLibCPS extends BasePipelineTestCPS {
 
     @Override
     @Before
@@ -90,17 +90,5 @@ class TestUtilsLib extends BasePipelineTest {
         def revision = commons.getScmRevision("origin", "branch")
         // then
         assertThat(revision).isEqualTo(expectedRevision)
-    }
-
-    @Test
-    void should_call_vararg_method_with_no_parameters() throws Exception {
-        Script commons = loadScript("lib/utils.jenkins")
-        assertThat(commons.joinStrings()).isEqualTo("")
-    }
-
-    @Test
-    void should_call_vararg_method_with_multiple_parameters() throws Exception {
-        Script commons = loadScript("lib/utils.jenkins")
-        assertThat(commons.joinStrings('one', 'two')).isEqualTo("one,two")
     }
 }

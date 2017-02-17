@@ -1,7 +1,17 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
+    }
+}
+
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'jacoco'
+apply plugin: 'io.codearte.nexus-staging'
 
 repositories {
     mavenCentral()
@@ -9,7 +19,7 @@ repositories {
 
 group = "com.lesfurets"
 archivesBaseName = "jenkins-pipeline-unit"
-version = "0.10"
+version = "0.11-SNAPSHOT"
 
 dependencies {
     compile group: 'org.codehaus.groovy',   name: 'groovy-all',     version: '2.4.6'
@@ -135,5 +145,9 @@ uploadArchives {
     }
 }
 
+closeAndPromoteRepository.mustRunAfter(uploadArchives)
+closeRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
+promoteRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
+
 task verify(dependsOn: build)
-task deploy(dependsOn: [build, uploadArchives])
+task deploy(dependsOn: [build, uploadArchives, closeAndPromoteRepository])
