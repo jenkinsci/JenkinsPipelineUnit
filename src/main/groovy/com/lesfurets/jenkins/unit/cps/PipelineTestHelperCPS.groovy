@@ -53,15 +53,12 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         }
         // if not search for the method declaration
         MetaMethod m = delegate.metaClass.getMetaMethod(name, *args)
-
-        // Fix for GString - String incompatibility in method invocation
-        def argsWithoutGstring = args?.collect { it instanceof GString ? it as String : it }?.toArray()
-        // ...and call it. If we cannot find it, delegate call to methodMissing
+        // call it. If we cannot find it, delegate call to methodMissing
         def result
         if (m) {
             // Call cps steps until it yields a result
             try {
-                result = m.invoke(delegate, *argsWithoutGstring)
+                result = m.doMethodInvoke(delegate, *args)
             } catch (CpsCallableInvocation e) {
                 result = e.invoke(null, null, Continuation.HALT).run().yield.replay()
             }
