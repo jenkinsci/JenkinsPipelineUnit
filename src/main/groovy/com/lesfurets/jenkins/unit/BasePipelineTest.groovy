@@ -39,7 +39,7 @@ abstract class BasePipelineTest {
         helper.setScriptRoots scriptRoots
         helper.setScriptExtension scriptExtension
         helper.setBaseClassloader baseClassLoader
-        helper.setImports imports
+        helper.imports += imports
         helper.setBaseScriptRoot baseScriptRoot
         helper.build()
 

@@ -10,6 +10,9 @@ import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.codehaus.groovy.runtime.MetaClassHelper
 
+import com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration
+import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
+import com.lesfurets.jenkins.unit.global.lib.LibraryTransformer
 
 class PipelineTestHelper {
 
@@ -43,7 +46,12 @@ class PipelineTestHelper {
     /**
      * Default imports for scripts loaded by this helper
      */
-    Map<String, String> imports
+    Map<String, String> imports = [ 'Library' : 'com.lesfurets.jenkins.unit.global.lib.Library']
+
+    /**
+     *
+     */
+    Map<String, LibraryConfiguration> libraries = [:]
 
     /**
      * Stack of method calls of scripts loaded by this helper
@@ -138,17 +146,21 @@ class PipelineTestHelper {
     }
 
     PipelineTestHelper build() {
-        ImportCustomizer customizer = new ImportCustomizer()
-        imports.each { k, v -> customizer.addImport(k, v) }
-
         CompilerConfiguration configuration = new CompilerConfiguration()
+        GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
+
+        LibraryLoader libraryLoader = new LibraryLoader(cLoader, libraries)
+        LibraryTransformer libraryTransformer = new LibraryTransformer(libraryLoader)
+        configuration.addCompilationCustomizers(libraryTransformer)
+
+        ImportCustomizer importCustomizer = new ImportCustomizer()
+        imports.each { k, v -> importCustomizer.addImport(k, v) }
+        configuration.addCompilationCustomizers(importCustomizer)
+
         configuration.setDefaultScriptExtension(scriptExtension)
         configuration.setScriptBaseClass(scriptBaseClass.getName())
-        configuration.addCompilationCustomizers(customizer)
 
-        GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
-
         gse.setConfig(configuration)
         return this
     }
@@ -255,6 +267,16 @@ class PipelineTestHelper {
     void registerAllowedMethod(MethodSignature methodSignature, Consumer callback) {
         this.registerAllowedMethod(methodSignature,
                         callback != null ? { params -> return callback.accept(params)} : null)
+    }
+
+    /**
+     *
+     * @param libraryDescription
+     */
+    void registerSharedLibrary(LibraryConfiguration libraryDescription) {
+        Objects.requireNonNull(libraryDescription)
+        Objects.requireNonNull(libraryDescription.name)
+        this.libraries.put(libraryDescription.name, libraryDescription)
     }
 
     /**

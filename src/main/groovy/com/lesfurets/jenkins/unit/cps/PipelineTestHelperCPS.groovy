@@ -6,6 +6,8 @@ import org.codehaus.groovy.control.customizers.ImportCustomizer
 import com.cloudbees.groovy.cps.*
 import com.cloudbees.groovy.cps.impl.CpsCallableInvocation
 import com.lesfurets.jenkins.unit.PipelineTestHelper
+import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
+import com.lesfurets.jenkins.unit.global.lib.LibraryTransformer
 
 class PipelineTestHelperCPS extends PipelineTestHelper {
 
@@ -69,19 +71,23 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
     }
 
     PipelineTestHelperCPS build() {
-        ImportCustomizer customizer = new ImportCustomizer()
-        imports.each { k, v -> customizer.addImport(k, v) }
-
         CompilerConfiguration configuration = new CompilerConfiguration()
-        configuration.setDefaultScriptExtension(scriptExtension)
-        configuration.setScriptBaseClass(scriptBaseClass.getName())
-        configuration.addCompilationCustomizers(customizer)
+        GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
+
+        LibraryLoader libraryLoader = new LibraryLoader(cLoader, libraries)
+        LibraryTransformer libraryTransformer = new LibraryTransformer(libraryLoader)
+        configuration.addCompilationCustomizers(libraryTransformer)
+
+        ImportCustomizer importCustomizer = new ImportCustomizer()
+        imports.each { k, v -> importCustomizer.addImport(k, v) }
+        configuration.addCompilationCustomizers(importCustomizer)
         // Add transformer for CPS compilation
         configuration.addCompilationCustomizers(new CpsTransformer())
 
-        GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
-        gse = new GroovyScriptEngine(scriptRoots, cLoader)
+        configuration.setDefaultScriptExtension(scriptExtension)
+        configuration.setScriptBaseClass(scriptBaseClass.getName())
 
+        gse = new GroovyScriptEngine(scriptRoots, cLoader)
         gse.setConfig(configuration)
         this.registerAllowedMethod("parallel", [Map.class], parallelInterceptor)
         return this
