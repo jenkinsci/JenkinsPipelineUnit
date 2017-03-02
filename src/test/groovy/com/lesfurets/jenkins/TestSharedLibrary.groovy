@@ -13,6 +13,7 @@ import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameter
 import org.junit.runners.Parameterized.Parameters
 
+import com.lesfurets.jenkins.unit.BasePipelineTest
 import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
 
 @RunWith(Parameterized.class)

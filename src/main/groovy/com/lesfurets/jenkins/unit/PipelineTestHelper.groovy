@@ -8,6 +8,7 @@ import java.util.function.Function
 
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
+import org.codehaus.groovy.runtime.InvokerHelper
 import org.codehaus.groovy.runtime.MetaClassHelper
 
 import com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration
@@ -58,7 +59,9 @@ class PipelineTestHelper {
      */
     List<MethodCall> callStack = []
 
-    private GroovyScriptEngine gse
+    protected GroovyScriptEngine gse
+
+    protected LibraryLoader libLoader
 
     /**
      * Method interceptor for method 'load' to load scripts via encapsulated GroovyScriptEngine
@@ -149,8 +152,8 @@ class PipelineTestHelper {
         CompilerConfiguration configuration = new CompilerConfiguration()
         GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
 
-        LibraryLoader libraryLoader = new LibraryLoader(cLoader, libraries)
-        LibraryTransformer libraryTransformer = new LibraryTransformer(libraryLoader)
+        libLoader = new LibraryLoader(cLoader, libraries)
+        LibraryTransformer libraryTransformer = new LibraryTransformer(libLoader)
         configuration.addCompilationCustomizers(libraryTransformer)
 
         ImportCustomizer importCustomizer = new ImportCustomizer()
@@ -213,7 +216,9 @@ class PipelineTestHelper {
     Script loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding)
         binding.setVariable("_TEST_HELPER", this)
-        Script script = gse.createScript(scriptName, binding)
+        Class scriptClass = gse.loadScriptByName(scriptName)
+        libLoader.setGlobalVars(binding, this)
+        Script script = InvokerHelper.createScript(scriptClass, binding)
         script.metaClass.invokeMethod = methodInterceptor
         script.metaClass.static.invokeMethod = methodInterceptor
         script.run()

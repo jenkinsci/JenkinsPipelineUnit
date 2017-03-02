@@ -2,18 +2,17 @@ package com.lesfurets.jenkins.unit.cps
 
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
+import org.codehaus.groovy.runtime.InvokerHelper
 
-import com.cloudbees.groovy.cps.*
+import com.cloudbees.groovy.cps.Continuation
+import com.cloudbees.groovy.cps.ObjectInputStreamWithLoader
 import com.cloudbees.groovy.cps.impl.CpsCallableInvocation
 import com.lesfurets.jenkins.unit.PipelineTestHelper
-import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
-import com.lesfurets.jenkins.unit.global.lib.LibraryTransformer
+import com.lesfurets.jenkins.unit.global.lib.*
 
 class PipelineTestHelperCPS extends PipelineTestHelper {
 
     protected Class scriptBaseClass = MockPipelineScriptCPS.class
-
-    private GroovyScriptEngine gse
 
     protected parallelInterceptor = { Map m ->
         // If you have many steps in parallel and one of the step in Jenkins fails, the other tasks keep runnning in Jenkins.
@@ -74,15 +73,15 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         CompilerConfiguration configuration = new CompilerConfiguration()
         GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
 
-        LibraryLoader libraryLoader = new LibraryLoader(cLoader, libraries)
-        LibraryTransformer libraryTransformer = new LibraryTransformer(libraryLoader)
+        libLoader = new LibraryLoader(cLoader, libraries)
+        LibraryTransformer libraryTransformer = new LibraryTransformer(libLoader)
         configuration.addCompilationCustomizers(libraryTransformer)
 
         ImportCustomizer importCustomizer = new ImportCustomizer()
         imports.each { k, v -> importCustomizer.addImport(k, v) }
         configuration.addCompilationCustomizers(importCustomizer)
         // Add transformer for CPS compilation
-        configuration.addCompilationCustomizers(new CpsTransformer())
+        configuration.addCompilationCustomizers(new LibraryCpsTransformer())
 
         configuration.setDefaultScriptExtension(scriptExtension)
         configuration.setScriptBaseClass(scriptBaseClass.getName())
@@ -102,7 +101,9 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
     Script loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding)
         binding.setVariable("_TEST_HELPER", this)
-        Script script = gse.createScript(scriptName, binding)
+        Class scriptClass = gse.loadScriptByName(scriptName)
+        libLoader.setGlobalVars(binding, this)
+        Script script = InvokerHelper.createScript(scriptClass, binding)
         script.metaClass.invokeMethod = methodInterceptor
         script.metaClass.static.invokeMethod = methodInterceptor
         // Probably unnecessary

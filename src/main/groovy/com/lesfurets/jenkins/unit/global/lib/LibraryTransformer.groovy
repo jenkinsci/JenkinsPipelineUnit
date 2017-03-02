@@ -34,7 +34,11 @@ class LibraryTransformer extends CompilationCustomizer {
         final Map<String, AnnotationNode> libraryAnnotations = new HashMap<>()
 
         // load implicit libraries
-        libraryLoader.loadImplicitLibraries()
+        try {
+            libraryLoader.loadImplicitLibraries()
+        } catch (Exception e) {
+            source.addError(new SyntaxException(e.getMessage(), 0, 0))
+        }
 
         new ClassCodeVisitorSupport() {
 

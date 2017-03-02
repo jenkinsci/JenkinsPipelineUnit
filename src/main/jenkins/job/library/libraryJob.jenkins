@@ -3,6 +3,13 @@ package job.library
 @Library('commons')
 import net.courtanet.jenkins.Utils
 
+sh acme.name
+acme.name = 'something'
+sh acme.name
+
+sayHello 'World'
+sayHello()
+
 def execute() {
     parallel(
         action1: {
