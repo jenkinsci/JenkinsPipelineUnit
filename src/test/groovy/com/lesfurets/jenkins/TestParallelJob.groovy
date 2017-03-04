@@ -10,7 +10,7 @@ class TestParallelJob extends BasePipelineTest {
     @Before
     void setUp() throws Exception {
         super.setUp()
-        def scmBranch = "feature_test"
+        def scmBranch = 'feature_test'
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
                         branches                         : [[name: scmBranch]],
@@ -19,14 +19,14 @@ class TestParallelJob extends BasePipelineTest {
                         submoduleCfg                     : [],
                         userRemoteConfigs                : [[
                                                                             credentialsId: 'gitlab_git_ssh',
-                                                                            url          : "github.com/lesfurets/pipeline-test-helper.git"
+                                                                            url          : 'github.com/lesfurets/pipeline-test-helper.git'
                                                             ]]
         ])
     }
 
     @Test
     void name() throws Exception {
-        def script = loadScript("job/parallelJob.jenkins")
+        def script = loadScript('job/parallelJob.jenkins')
         script.execute()
         printCallStack()
 

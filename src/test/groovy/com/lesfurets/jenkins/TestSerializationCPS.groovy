@@ -13,7 +13,7 @@ class TestSerializationCPS extends BasePipelineTestCPS {
     @Before
     void setUp() throws Exception {
         super.setUp()
-        def scmBranch = "feature_test"
+        def scmBranch = 'feature_test'
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
                         branches                         : [[name: scmBranch]],
@@ -22,7 +22,7 @@ class TestSerializationCPS extends BasePipelineTestCPS {
                         submoduleCfg                     : [],
                         userRemoteConfigs                : [[
                                                                             credentialsId: 'gitlab_git_ssh',
-                                                                            url          : "github.com/lesfurets/pipeline-test-helper.git"
+                                                                            url          : 'github.com/lesfurets/pipeline-test-helper.git'
                                                             ]]
         ])
     }

@@ -86,7 +86,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
 
         gse.setConfig(configuration)
-        this.registerAllowedMethod("parallel", [Map.class], parallelInterceptor)
+        this.registerAllowedMethod('parallel', [Map.class], parallelInterceptor)
         return this
     }
 
@@ -98,7 +98,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
      */
     Script loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding)
-        binding.setVariable("_TEST_HELPER", this)
+        binding.setVariable('_TEST_HELPER', this)
         Script script = gse.createScript(scriptName, binding)
         script.metaClass.invokeMethod = methodInterceptor
         script.metaClass.static.invokeMethod = methodInterceptor

@@ -42,20 +42,20 @@ Let's say you wrote this awesome pipeline script, which builds and tests your pr
  ```groovy
 def execute() {
     node() {
-        def utils = load "src/main/jenkins/lib/utils.jenkins"
+        def utils = load 'src/main/jenkins/lib/utils.jenkins'
         String revision = stage('Checkout') {
             checkout scm
             return utils.currentRevision()
         }
-        gitlabBuilds(builds: ["build", "test"]) {
-            stage("build") {
-                gitlabCommitStatus("build") {
+        gitlabBuilds(builds: ['build', 'test']) {
+            stage('build') {
+                gitlabCommitStatus('build') {
                     sh "mvn clean package -DskipTests -DgitRevision=$revision"
                 }
             }
 
-            stage("test") {
-                gitlabCommitStatus("test") {
+            stage('test') {
+                gitlabCommitStatus('test') {
                     sh "mvn verify -DgitRevision=$revision"
                 }
             }
@@ -76,7 +76,7 @@ class TestExampleJob extends BasePipelineTest {
         
         @Test
         void should_execute_without_errors() throws Exception {
-            def script = loadScript("job/exampleJob.jenkins")
+            def script = loadScript('job/exampleJob.jenkins')
             script.execute()
             printCallStack()
         }

@@ -49,7 +49,7 @@ def getRepositoryBranchSplit(String[] branchs, String repository) {
             continue
         }
         def brancheWithRemote = branch.substring(branch.indexOf(repository))
-        branchSplits.add(brancheWithRemote.split("/"))
+        branchSplits.add(brancheWithRemote.split('/'))
     }
     branchSplits
 }

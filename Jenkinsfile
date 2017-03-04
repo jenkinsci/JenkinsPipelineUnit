@@ -1,14 +1,14 @@
 #!groovy
 
-def deployBranches = [ "master", "develop" ]
-def phase = "verify"
+def deployBranches = [ 'master', 'develop' ]
+def phase = 'verify'
 
 stage ('Build') {
     node {
         checkout scm
         def branch = scm.branches[0].name
         if (deployBranches.contains(branch)) {
-            phase = "deploy"
+            phase = 'deploy'
         }
         echo "Running mvn $phase on branch $branch"
         sh 'mkdir -p ~/.gnupg'

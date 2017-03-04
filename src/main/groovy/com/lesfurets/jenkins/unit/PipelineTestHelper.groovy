@@ -117,8 +117,8 @@ class PipelineTestHelper {
      * Complete this list in need with {@link #registerAllowedMethod}
      */
     protected Map<MethodSignature, Closure> allowedMethodCallbacks = [
-            (method("load", String.class))                : loadInterceptor,
-            (method("parallel", Map.class))               : parallelInterceptor,
+            (method('load', String.class))                : loadInterceptor,
+            (method('parallel', Map.class))               : parallelInterceptor,
     ]
 
     PipelineTestHelper() {
@@ -200,7 +200,7 @@ class PipelineTestHelper {
      */
     Script loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding)
-        binding.setVariable("_TEST_HELPER", this)
+        binding.setVariable('_TEST_HELPER', this)
         Script script = gse.createScript(scriptName, binding)
         script.metaClass.invokeMethod = methodInterceptor
         script.metaClass.static.invokeMethod = methodInterceptor

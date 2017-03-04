@@ -2,13 +2,13 @@ import groovy.json.JsonSlurper
 
 def execute() {
     node() {
-        def utils = load "src/main/jenkins/lib/utils.jenkins"
+        def utils = load 'src/main/jenkins/lib/utils.jenkins'
         stage('Checkout') {
             checkout scm
-            gitlabBuilds(builds: ["build", "test"]) {
-                stage("build") {
-                    gitlabCommitStatus("build") {
-                        def result = parseJson("""
+            gitlabBuilds(builds: ['build', 'test']) {
+                stage('build') {
+                    gitlabCommitStatus('build') {
+                        def result = parseJson('''
 [{
   "name": "AMX-12345_test",
   "commit": {
@@ -28,14 +28,14 @@ def execute() {
   "protected": false,
   "developers_can_push": false,
   "developers_can_merge": false
-}]""")
+}]''')
                         def res = result[0]
                         sh "mvn clean package -DskipTests ${res.commit.id}"
                     }
                 }
 
-                stage("test") {
-                    gitlabCommitStatus("test") {
+                stage('test') {
+                    gitlabCommitStatus('test') {
                         sh 'mvn verify'
                     }
                 }

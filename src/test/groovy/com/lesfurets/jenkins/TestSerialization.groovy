@@ -11,7 +11,7 @@ class TestSerialization extends BasePipelineTest {
     @Before
     void setUp() throws Exception {
         super.setUp()
-        def scmBranch = "feature_test"
+        def scmBranch = 'feature_test'
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
                         branches                         : [[name: scmBranch]],
@@ -20,7 +20,7 @@ class TestSerialization extends BasePipelineTest {
                         submoduleCfg                     : [],
                         userRemoteConfigs                : [[
                                                                             credentialsId: 'gitlab_git_ssh',
-                                                                            url          : "github.com/lesfurets/pipeline-test-helper.git"
+                                                                            url          : 'github.com/lesfurets/pipeline-test-helper.git'
                                                             ]]
         ])
     }

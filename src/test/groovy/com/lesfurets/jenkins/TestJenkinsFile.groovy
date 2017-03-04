@@ -18,7 +18,7 @@ class TestJenkinsFile extends BasePipelineTest {
     @Parameterized.Parameter(1)
     public String expectedPhase
 
-    @Parameterized.Parameters(name = "Test branch {0} phase {1}")
+    @Parameterized.Parameters(name = 'Test branch {0} phase {1}')
     static Collection<Object[]> data() {
         return [['develop', 'deploy'],
                 ['master', 'deploy'],
@@ -39,20 +39,20 @@ class TestJenkinsFile extends BasePipelineTest {
                         submoduleCfg                     : [],
                         userRemoteConfigs                : [[
                                                                             credentialsId: 'gitlab_git_ssh',
-                                                                            url          : "github.com/lesfurets/pipeline-test-helper.git"
+                                                                            url          : 'github.com/lesfurets/pipeline-test-helper.git'
                                                             ]]
         ])
-        helper.registerAllowedMethod("junit", [Map.class], null)
-        helper.registerAllowedMethod("file", [Map.class], stringInterceptor)
-        helper.registerAllowedMethod("archiveArtifacts", [String.class], null)
+        helper.registerAllowedMethod('junit', [Map.class], null)
+        helper.registerAllowedMethod('file', [Map.class], stringInterceptor)
+        helper.registerAllowedMethod('archiveArtifacts', [String.class], null)
     }
 
     @Test
     void name() throws Exception {
-        loadScript("Jenkinsfile")
+        loadScript('Jenkinsfile')
         printCallStack()
         assertThat(helper.callStack.stream()
-                        .filter { c -> c.methodName == "sh" }
+                        .filter { c -> c.methodName == 'sh' }
                         .map(MethodCall.&callArgsToString)
                         .findAll { s -> s.contains("./gradlew $expectedPhase") })
                         .hasSize(1)

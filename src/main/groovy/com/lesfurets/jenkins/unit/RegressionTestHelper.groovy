@@ -11,12 +11,12 @@ import org.assertj.core.api.SoftAssertions
 
 class RegressionTestHelper {
 
-    public static final String ARGUMENT_MISMATCH = """Method arguments does not match for method '%s' on '%s':
+    public static final String ARGUMENT_MISMATCH = '''Method arguments does not match for method '%s' on '%s':
     A : %s
     B : %s
-    """
-    public static final String METHOD_CALL_COUNT = """Method call '%s' does not have the same number of calls" +
-    expected: %d, actual %d."""
+    '''
+    public static final String METHOD_CALL_COUNT = '''Method call '%s' does not have the same number of calls.
+    expected: %d, actual %d.'''
 
     public static final String METHOD_CALL_NOT_EXISTS = "Method call '%s' does not exist on second stack"
 
@@ -50,8 +50,8 @@ class RegressionTestHelper {
         SoftAssertions softly = new SoftAssertions()
 
         aSignatureToCall.entrySet().stream()
-                        .filter { e -> e.key.name != "run" }
-                        .filter { e -> e.key.name != "load" }
+                        .filter { e -> e.key.name != 'run' }
+                        .filter { e -> e.key.name != 'load' }
                         .forEach { e ->
             // Strict check method call exists
             assertThat(bSignatureToCall)
@@ -80,7 +80,7 @@ class RegressionTestHelper {
     }
 
     private static String argsToNormalizedString(MethodCall c) {
-        callArgsToString(c).replaceAll(" +", " ")
+        callArgsToString(c).replaceAll(' +', ' ')
     }
 
     private static Map<MethodSignature, List<MethodCall>> groupBySignature(List<MethodCall> aCallStack) {
