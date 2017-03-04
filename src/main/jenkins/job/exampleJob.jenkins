@@ -1,24 +1,23 @@
 def execute() {
     node() {
         def utils = load "src/main/jenkins/lib/utils.jenkins"
-        stage('Checkout') {
+        String revision = stage('Checkout') {
             checkout scm
-            String revision = utils.currentRevision()
-            gitlabBuilds(builds: ["build", "test"]) {
-                stage("build") {
-                    gitlabCommitStatus("build") {
-                        sh "mvn clean package -DskipTests -DgitRevision=$revision"
-                    }
+            return utils.currentRevision()
+        }
+        gitlabBuilds(builds: ["build", "test"]) {
+            stage("build") {
+                gitlabCommitStatus("build") {
+                    sh "mvn clean package -DskipTests -DgitRevision=$revision"
                 }
+            }
 
-                stage("test") {
-                    gitlabCommitStatus("test") {
-                        sh "mvn verify -DgitRevision=$revision"
-                    }
+            stage("test") {
+                gitlabCommitStatus("test") {
+                    sh "mvn verify -DgitRevision=$revision"
                 }
             }
         }
     }
 }
-
 return this
