@@ -12,7 +12,7 @@ class TestExampleJob extends BasePipelineTest {
     void setUp() throws Exception {
         super.setUp()
         def scmBranch = 'feature_test'
-        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744fc4876848f3a21aefc92960ea4c716cf"})
+        helper.registerAllowedMethod('sh', [Map.class], {c -> 'bcc19744'})
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
                         branches                         : [[name: scmBranch]]

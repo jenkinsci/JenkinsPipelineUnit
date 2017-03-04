@@ -79,7 +79,7 @@ class TestUtilsLib extends BasePipelineTest {
     void should_propagate_closure_result() throws Exception {
         Script commons = loadScript('lib/utils.jenkins')
         // given
-        def expectedRevision = '29480a51e10718600371e8465e631cec34aa9ab3'
+        def expectedRevision = '29480a51'
         helper.registerAllowedMethod(method('sh', Map.class), { map ->
             if (map.script == 'git rev-parse HEAD') {
                 return expectedRevision

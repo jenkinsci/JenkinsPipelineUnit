@@ -47,14 +47,14 @@ class TestUtilsLibCPS extends BasePipelineTestCPS {
         Script commons = loadScript('lib/utils.jenkins')
         helper.registerAllowedMethod(method('sh', Map.class), { map ->
             if (map.script == 'git rev-parse HEAD') {
-                return '29480a51e10718600371e8465e631cec34aa9ab3'
+                return '29480a51'
             }
             return '0'
         })
         // when
         String result = commons.currentRevision()
         // then
-        assertThat(result).isEqualTo('29480a51e10718600371e8465e631cec34aa9ab3')
+        assertThat(result).isEqualTo('29480a51')
 
     }
 
@@ -79,7 +79,7 @@ class TestUtilsLibCPS extends BasePipelineTestCPS {
     void should_propagate_closure_result() throws Exception {
         Script commons = loadScript('lib/utils.jenkins')
         // given
-        def expectedRevision = "29480a51e10718600371e8465e631cec34aa9ab3"
+        def expectedRevision = '29480a51'
         helper.registerAllowedMethod(method('sh', Map.class), { map ->
             if (map.script == 'git rev-parse HEAD') {
                 return expectedRevision

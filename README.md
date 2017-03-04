@@ -99,10 +99,10 @@ exampleJob.execute()
         exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
         exampleJob.stage(build, groovy.lang.Closure)
             exampleJob.gitlabCommitStatus(build, groovy.lang.Closure)
-                exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
+                exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744)
         exampleJob.stage(test, groovy.lang.Closure)
             exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
-                exampleJob.sh(mvn verify -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
+                exampleJob.sh(mvn verify -DgitRevision=bcc19744)
 ```
 
 ### Mock Jenkins commands
@@ -114,10 +114,10 @@ You can register interceptors to mock Jenkins commands, which may or may not ret
     @Before
     void setUp() throws Exception {
         super.setUp()
-        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744fc4876848f3a21aefc92960ea4c716cf"})
-        helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
-        helper.registerAllowedMethod(method("readFile", String.class), { file ->
-            return Files.contentOf(new File(file), Charset.forName("UTF-8"))
+        helper.registerAllowedMethod('sh', [Map.class], {c -> 'bcc19744'})
+        helper.registerAllowedMethod('timeout', [Map.class, Closure.class], null)
+        helper.registerAllowedMethod(method('readFile', String.class), { file ->
+            return Files.contentOf(new File(file), Charset.forName('UTF-8'))
         })
     }
 ```
@@ -140,11 +140,11 @@ The helper registers every method call to provide a stacktrace of the mock execu
 
 @Test
 void should_execute_without_errors() throws Exception {
-    loadScript("Jenkinsfile")
+    loadScript('Jenkinsfile')
     assertThat(helper.callStack.findAll { call ->
-        call.methodName == "sh"
+        call.methodName == 'sh'
     }.any { call ->
-        callArgsToString(call).contains("mvn verify")
+        callArgsToString(call).contains('mvn verify')
     }).isTrue()
     assertJobStatusSuccess()
 }
@@ -161,9 +161,9 @@ You have a dedicated method you can call if you extend `BaseRegressionTest`:
 ```groovy
     @Test
     void testNonReg() throws Exception {
-        def script = loadScript("job/exampleJob.jenkins")
+        def script = loadScript('job/exampleJob.jenkins')
         script.execute()
-        super.testNonRegression("example", false)
+        super.testNonRegression('example', false)
     }
 ```
 
@@ -171,7 +171,7 @@ This will compare the current callstack of the job to the one you have in a text
 To overwrite this file with new callstack, just set the `updateReference` to true when calling testNonRegression:
 
 ```groovy
-super.testNonRegression("example", true)
+super.testNonRegression('example', true)
 ```
 
 You then can go ahead and commit this change in your SCM to check in the change.
