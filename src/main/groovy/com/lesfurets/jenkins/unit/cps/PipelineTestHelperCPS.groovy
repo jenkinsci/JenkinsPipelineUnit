@@ -1,5 +1,8 @@
 package com.lesfurets.jenkins.unit.cps
 
+import com.cloudbees.groovy.cps.CpsTransformer
+import com.cloudbees.groovy.cps.Envs
+import com.cloudbees.groovy.cps.impl.CpsClosure
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.codehaus.groovy.runtime.InvokerHelper
@@ -69,6 +72,38 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         return result
     }
 
+    def getMethodInterceptor() {
+        return methodInterceptor
+    }
+
+    /**
+     * Call closure using Continuation steps of groovy CPS
+     * At each step whole environment of the step is verified against serializability
+     *
+     * @param closure to execute
+     * @return result of the closure execution
+     */
+    def callIfClosure(Object closure, Object currentResult) {
+        // Every closure we receive here is CpsClosure, NonCPS code does not get called in here.
+        if (closure instanceof CpsClosure) {
+            try {
+                currentResult = closure.call()
+            } catch (CpsCallableInvocation e) {
+                def next = e.invoke(Envs.empty(), null, Continuation.HALT)
+                while(next.yield==null) {
+                    try {
+                        this.roundtripSerialization(next.e)
+                    } catch (exception) {
+                        throw new Exception(next.e.toString(), exception)
+                    }
+                    next = next.step()
+                }
+                currentResult = next.yield.replay()
+            }
+        }
+        return currentResult
+    }
+
     PipelineTestHelperCPS build() {
         CompilerConfiguration configuration = new CompilerConfiguration()
         GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
@@ -102,12 +137,12 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
      */
     Script loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding)
-        binding.setVariable("_TEST_HELPER", this)
         Class scriptClass = gse.loadScriptByName(scriptName)
         libLoader.setGlobalVars(binding, this)
         Script script = InvokerHelper.createScript(scriptClass, binding)
         script.metaClass.invokeMethod = methodInterceptor
         script.metaClass.static.invokeMethod = methodInterceptor
+        script.metaClass.methodMissing = methodMissingInterceptor
         // Probably unnecessary
         try {
             println "Running ${script.class.name}"

@@ -65,9 +65,6 @@ class LibraryLoader {
         libRecords.values().stream()
                 .flatMap { it.definedGlobalVars.entrySet().stream() }
                 .forEach { e ->
-            // TODO Classes loaded in vars dir are not intercepted
-            e.value.metaClass.invokeMethod = helper.methodInterceptor
-            e.value.metaClass.static.invokeMethod = helper.methodInterceptor
             if (e.value instanceof Script) {
                 Script script = Script.cast(e.value)
                 script.setBinding(binding)
@@ -78,6 +75,9 @@ class LibraryLoader {
             } else {
                 binding.setVariable(e.key, e.value)
             }
+            e.value.metaClass.invokeMethod = helper.getMethodInterceptor()
+            e.value.metaClass.static.invokeMethod = helper.getMethodInterceptor()
+            e.value.metaClass.methodMissing = helper.getMissingMethodInterceptor()
         }
     }
 

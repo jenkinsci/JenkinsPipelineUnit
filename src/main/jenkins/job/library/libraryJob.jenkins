@@ -7,6 +7,8 @@ sh acme.name
 acme.name = 'something'
 sh acme.name
 
+acme.caution('world')
+
 sayHello 'World'
 sayHello()
 

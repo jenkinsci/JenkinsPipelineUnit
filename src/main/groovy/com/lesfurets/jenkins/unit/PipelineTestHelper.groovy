@@ -123,6 +123,41 @@ class PipelineTestHelper {
         return result
     }
 
+    def getMethodInterceptor() {
+        return methodInterceptor
+    }
+
+    def methodMissingInterceptor = { String name, args ->
+        if (this.isMethodAllowed(name, args)) {
+            def result = null
+            if (args != null) {
+                for (argument in args) {
+                    result = this.callIfClosure(argument, result)
+                    if (argument instanceof Map) {
+                        argument.each { k, v ->
+                            result = this.callIfClosure(k, result)
+                            result = this.callIfClosure(v, result)
+                        }
+                    }
+                }
+            }
+            return result
+        } else {
+            throw new MissingMethodException(name, delegate.class, args)
+        }
+    }
+
+    def getMissingMethodInterceptor() {
+        return methodMissingInterceptor
+    }
+
+    def callIfClosure(Object closure, Object currentResult) {
+        if (closure instanceof Closure) {
+            currentResult = closure.call()
+        }
+        return currentResult
+    }
+
     /**
      * List of allowed methods with default interceptors.
      * Complete this list in need with {@link #registerAllowedMethod}
@@ -215,12 +250,12 @@ class PipelineTestHelper {
      */
     Script loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding)
-        binding.setVariable("_TEST_HELPER", this)
         Class scriptClass = gse.loadScriptByName(scriptName)
         libLoader.setGlobalVars(binding, this)
         Script script = InvokerHelper.createScript(scriptClass, binding)
         script.metaClass.invokeMethod = methodInterceptor
         script.metaClass.static.invokeMethod = methodInterceptor
+        script.metaClass.methodMissing = missingMethodInterceptor
         script.run()
         return script
     }
