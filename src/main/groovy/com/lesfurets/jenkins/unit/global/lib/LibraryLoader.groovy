@@ -15,9 +15,7 @@ class LibraryLoader {
 
     private final GroovyClassLoader groovyClassLoader
 
-    private final Set<String> loadedLibraries = new HashSet<>()
-
-    private final Set<LibraryRecord> libRecords = new HashSet<>()
+    protected final Map<String, LibraryRecord> libRecords = new HashMap<>()
 
     private final Map<String, LibraryConfiguration> libraryDescriptions
 
@@ -31,9 +29,9 @@ class LibraryLoader {
      */
     void loadImplicitLibraries() {
         libraryDescriptions.values().stream()
-                        .filter { it.implicit }
-                        .filter { !loadedLibraries.contains(getExpression(it)) }
-                        .forEach {
+                .filter { it.implicit }
+                .filter { !libRecords.containsKey(getExpression(it)) }
+                .forEach {
             doLoadLibrary(it)
         }
     }
@@ -54,8 +52,7 @@ class LibraryLoader {
         if (!matches(libName, version, library)) {
             throw new Exception("Library '$expression' does not match description $library")
         }
-        def loadedLib = getExpression(library, version)
-        if (!loadedLibraries.contains(loadedLib)) {
+        if (!libRecords.containsKey(getExpression(library, version))) {
             doLoadLibrary(library, version)
         }
     }
@@ -65,35 +62,37 @@ class LibraryLoader {
      * @param binding
      */
     void setGlobalVars(Binding binding, PipelineTestHelper helper) {
-        libRecords.stream()
-                        .flatMap { it.definedGlobalVars.entrySet().stream() }
-                        .forEach { e ->
+        libRecords.values().stream()
+                .flatMap { it.definedGlobalVars.entrySet().stream() }
+                .forEach { e ->
+            // TODO Classes loaded in vars dir are not intercepted
+            e.value.metaClass.invokeMethod = helper.methodInterceptor
+            e.value.metaClass.static.invokeMethod = helper.methodInterceptor
             if (e.value instanceof Script) {
-                def script = Script.cast(e.value)
+                Script script = Script.cast(e.value)
                 script.setBinding(binding)
-                script.metaClass.invokeMethod = helper.methodInterceptor
-                script.metaClass.static.invokeMethod = helper.methodInterceptor
-                e.value.metaClass.getMethods().findAll { it.name == 'call' }.forEach { m ->
+                script.metaClass.getMethods().findAll { it.name == 'call' }.forEach { m ->
                     helper.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
                                     { args -> m.doMethodInvoke(e.value, args) })
                 }
+            } else {
+                binding.setVariable(e.key, e.value)
             }
-            binding.setVariable(e.key, e.value)
         }
     }
 
     /**
      * Loads library to groovy class loader.
-     * TODO set global vars
      * @param library library configuration.
      * @param version version to load, if null loads the default version defined in configuration.
      * @throws Exception
      */
     private void doLoadLibrary(LibraryConfiguration library, String version = null) throws Exception {
         println "Loading shared library ${library.name} with version ${version ?: library.defaultVersion}"
-        loadedLibraries.add(getExpression(library, version))
         try {
             def urls = library.retriever.retrieve(library.name, version ?: library.defaultVersion, library.targetPath)
+            def record = new LibraryRecord(library, version ?: library.defaultVersion, urls.path)
+            libRecords.put(record.getIdentifier(), record)
             def globalVars = [:]
             urls.forEach { url ->
                 def file = new File(url.toURI())
@@ -114,10 +113,7 @@ class LibraryLoader {
                     }
                 }
             }
-            libRecords.add(new LibraryRecord([configuration    : library,
-                                              version          : version ?: library.defaultVersion,
-                                              definedGlobalVars: globalVars
-            ]))
+            record.definedGlobalVars = globalVars
         } catch (Throwable t) {
             throw new Exception(t.message, t)
         }

@@ -18,14 +18,18 @@ import org.codehaus.groovy.syntax.SyntaxException
  * Parses class definitions for Library annotation
  * Shamelessly adapted from workflow.cps.lib.plugin
  */
-class LibraryTransformer extends CompilationCustomizer {
+class LibraryAnnotationTransformer extends CompilationCustomizer {
 
     private final static String LIBRARY_ANNOTATION_CLASS_NAME = "Library"
     private final LibraryLoader libraryLoader
 
-    LibraryTransformer(LibraryLoader libraryLoader) {
+    LibraryAnnotationTransformer(LibraryLoader libraryLoader) {
         super(CompilePhase.CONVERSION)
         this.libraryLoader = libraryLoader
+    }
+
+    Collection<LibraryRecord> getLibraryRecords() {
+        libraryLoader.libRecords.values()
     }
 
     //

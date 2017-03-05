@@ -42,7 +42,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
      * Method interceptor for any method called in executing script.
      * Calls are logged on the call stack.
      */
-    protected methodInterceptor = { String name, args ->
+    public methodInterceptor = { String name, args ->
         // register method call to stack
         int depth = Thread.currentThread().stackTrace.findAll { it.className == delegate.class.name }.size()
         this.registerMethodCall(delegate, depth, name, args)
@@ -74,14 +74,16 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
 
         libLoader = new LibraryLoader(cLoader, libraries)
-        LibraryTransformer libraryTransformer = new LibraryTransformer(libLoader)
+        LibraryAnnotationTransformer libraryTransformer = new LibraryAnnotationTransformer(libLoader)
         configuration.addCompilationCustomizers(libraryTransformer)
 
         ImportCustomizer importCustomizer = new ImportCustomizer()
         imports.each { k, v -> importCustomizer.addImport(k, v) }
         configuration.addCompilationCustomizers(importCustomizer)
         // Add transformer for CPS compilation
+        // TODO skip cps transformation for now, there are problems calling accessors
         configuration.addCompilationCustomizers(new LibraryCpsTransformer())
+        //  configuration.addCompilationCustomizers(new CpsTransformer())
 
         configuration.setDefaultScriptExtension(scriptExtension)
         configuration.setScriptBaseClass(scriptBaseClass.getName())
@@ -108,7 +110,9 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         script.metaClass.static.invokeMethod = methodInterceptor
         // Probably unnecessary
         try {
+            println "Running ${script.class.name}"
             script.run()
+            println "returning ${script.class.name}"
         } catch (CpsCallableInvocation inv) {
             println inv
         }

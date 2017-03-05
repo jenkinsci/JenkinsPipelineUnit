@@ -13,7 +13,7 @@ import org.codehaus.groovy.runtime.MetaClassHelper
 
 import com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration
 import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
-import com.lesfurets.jenkins.unit.global.lib.LibraryTransformer
+import com.lesfurets.jenkins.unit.global.lib.LibraryAnnotationTransformer
 
 class PipelineTestHelper {
 
@@ -106,7 +106,7 @@ class PipelineTestHelper {
      * Method interceptor for any method called in executing script.
      * Calls are logged on the call stack.
      */
-    protected methodInterceptor = { String name, args ->
+    public methodInterceptor = { String name, args ->
         // register method call to stack
         int depth = Thread.currentThread().stackTrace.findAll { it.className == delegate.class.name }.size()
         this.registerMethodCall(delegate, depth, name, args)
@@ -153,7 +153,7 @@ class PipelineTestHelper {
         GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
 
         libLoader = new LibraryLoader(cLoader, libraries)
-        LibraryTransformer libraryTransformer = new LibraryTransformer(libLoader)
+        LibraryAnnotationTransformer libraryTransformer = new LibraryAnnotationTransformer(libLoader)
         configuration.addCompilationCustomizers(libraryTransformer)
 
         ImportCustomizer importCustomizer = new ImportCustomizer()
