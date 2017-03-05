@@ -12,8 +12,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameter
 import org.junit.runners.Parameterized.Parameters
-
-import com.lesfurets.jenkins.unit.BasePipelineTest
 import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
 
 @RunWith(Parameterized.class)
@@ -22,7 +20,7 @@ class TestSharedLibrary extends BasePipelineTestCPS {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder()
 
-    String shared_scripts = this.class.getResource('/shared-scripts').getFile()
+    String sharedLibs = this.class.getResource('/libs').getFile()
 
     @Parameter(0)
     public String script
@@ -61,7 +59,7 @@ class TestSharedLibrary extends BasePipelineTestCPS {
                         .defaultVersion("master")
                         .allowOverride(allowOverride)
                         .implicit(implicit)
-                        .retriever(localSource().sourceURL(shared_scripts).build())
+                        .retriever(localSource().sourceURL(sharedLibs).build())
                         .build()
         helper.registerSharedLibrary(library)
         try {
