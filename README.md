@@ -42,34 +42,33 @@ Let's say you wrote this awesome pipeline script, which builds and tests your pr
  ```groovy
 def execute() {
     node() {
-        def utils = load "src/main/jenkins/lib/utils.jenkins"
-        stage('Checkout') {
+        def utils = load 'src/main/jenkins/lib/utils.jenkins'
+        String revision = stage('Checkout') {
             checkout scm
-            String revision = utils.currentRevision()
-            gitlabBuilds(builds: ["build", "test"]) {
-                stage("build") {
-                    gitlabCommitStatus("build") {
-                        sh "mvn clean package -DskipTests -DgitRevision=$revision"
-                    }
+            return utils.currentRevision()
+        }
+        gitlabBuilds(builds: ['build', 'test']) {
+            stage('build') {
+                gitlabCommitStatus('build') {
+                    sh "mvn clean package -DskipTests -DgitRevision=$revision"
                 }
+            }
 
-                stage("test") {
-                    gitlabCommitStatus("test") {
-                        sh "mvn verify -DgitRevision=$revision"
-                    }
+            stage('test') {
+                gitlabCommitStatus('test') {
+                    sh "mvn verify -DgitRevision=$revision"
                 }
             }
         }
     }
 }
-
 return this
 ```
 
 Now using the Jenkins Pipeline Unit you can unit test if it does the job :
 
 ```groovy
-import com.lesfurets.jenkins.helpers.BasePipelineTest
+import com.lesfurets.jenkins.unit.BasePipelineTest
 
 class TestExampleJob extends BasePipelineTest {
         
@@ -77,7 +76,7 @@ class TestExampleJob extends BasePipelineTest {
         
         @Test
         void should_execute_without_errors() throws Exception {
-            def script = loadScript("job/exampleJob.jenkins")
+            def script = loadScript('job/exampleJob.jenkins')
             script.execute()
             printCallStack()
         }
@@ -90,20 +89,20 @@ This test will print the call stack of the execution :
 ```text
 exampleJob.run()
 exampleJob.execute()
-  exampleJob.node(groovy.lang.Closure)
-     exampleJob.load(src/main/jenkins/lib/utils.jenkins)
+    exampleJob.node(groovy.lang.Closure)
+        exampleJob.load(src/main/jenkins/lib/utils.jenkins)
         utils.run()
-     exampleJob.stage(Checkout, groovy.lang.Closure)
-        exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}]})
+        exampleJob.stage(Checkout, groovy.lang.Closure)
+        exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}], doGenerateSubmoduleConfigurations=false, extensions=[], submoduleCfg=[], userRemoteConfigs=[{credentialsId=gitlab_git_ssh, url=github.com/lesfurets/JenkinsPipelineUnit.git}]})
         utils.currentRevision()
-           utils.sh({returnStdout=true, script=git rev-parse HEAD})
+            utils.sh({returnStdout=true, script=git rev-parse HEAD})
         exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
-           exampleJob.stage(build, groovy.lang.Closure)
-              exampleJob.gitlabCommitStatus(build, groovy.lang.Closure)
-                 exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
-           exampleJob.stage(test, groovy.lang.Closure)
-              exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
-                 exampleJob.sh(mvn verify -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
+        exampleJob.stage(build, groovy.lang.Closure)
+            exampleJob.gitlabCommitStatus(build, groovy.lang.Closure)
+                exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744)
+        exampleJob.stage(test, groovy.lang.Closure)
+            exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
+                exampleJob.sh(mvn verify -DgitRevision=bcc19744)
 ```
 
 ### Mock Jenkins commands
@@ -115,10 +114,10 @@ You can register interceptors to mock Jenkins commands, which may or may not ret
     @Before
     void setUp() throws Exception {
         super.setUp()
-        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744fc4876848f3a21aefc92960ea4c716cf"})
-        helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
-        helper.registerAllowedMethod(method("readFile", String.class), { file ->
-            return Files.contentOf(new File(file), Charset.forName("UTF-8"))
+        helper.registerAllowedMethod('sh', [Map.class], {c -> 'bcc19744'})
+        helper.registerAllowedMethod('timeout', [Map.class, Closure.class], null)
+        helper.registerAllowedMethod(method('readFile', String.class), { file ->
+            return Files.contentOf(new File(file), Charset.forName('UTF-8'))
         })
     }
 ```
@@ -141,11 +140,11 @@ The helper registers every method call to provide a stacktrace of the mock execu
 
 @Test
 void should_execute_without_errors() throws Exception {
-    loadScript("Jenkinsfile")
+    loadScript('Jenkinsfile')
     assertThat(helper.callStack.findAll { call ->
-        call.methodName == "sh"
+        call.methodName == 'sh'
     }.any { call ->
-        callArgsToString(call).contains("mvn verify")
+        callArgsToString(call).contains('mvn verify')
     }).isTrue()
     assertJobStatusSuccess()
 }
@@ -162,9 +161,9 @@ You have a dedicated method you can call if you extend `BaseRegressionTest`:
 ```groovy
     @Test
     void testNonReg() throws Exception {
-        def script = loadScript("job/exampleJob.jenkins")
+        def script = loadScript('job/exampleJob.jenkins')
         script.execute()
-        super.testNonRegression("example", false)
+        super.testNonRegression('example', false)
     }
 ```
 
@@ -172,7 +171,7 @@ This will compare the current callstack of the job to the one you have in a text
 To overwrite this file with new callstack, just set the `updateReference` to true when calling testNonRegression:
 
 ```groovy
-super.testNonRegression("example", true)
+super.testNonRegression('example', true)
 ```
 
 You then can go ahead and commit this change in your SCM to check in the change.

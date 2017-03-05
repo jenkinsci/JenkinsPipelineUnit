@@ -6,13 +6,13 @@ abstract class BasePipelineTest {
 
     PipelineTestHelper helper
 
-    String[] scriptRoots = ["src/main/jenkins", "./."]
+    String[] scriptRoots = ['src/main/jenkins', './.']
 
-    String scriptExtension = "jenkins"
+    String scriptExtension = 'jenkins'
 
-    Map<String, String> imports = ["NonCPS": "com.cloudbees.groovy.cps.NonCPS"]
+    Map<String, String> imports = ['NonCPS': 'com.cloudbees.groovy.cps.NonCPS']
 
-    String baseScriptRoot = "."
+    String baseScriptRoot = '.'
 
     Binding binding = new Binding()
 
@@ -40,32 +40,32 @@ abstract class BasePipelineTest {
 
     void setUp() throws Exception {
         helper.build()
-        helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
-        helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
-        helper.registerAllowedMethod("node", [String.class, Closure.class], null)
-        helper.registerAllowedMethod("node", [Closure.class], null)
-        helper.registerAllowedMethod("sh", [String.class], null)
-        helper.registerAllowedMethod("sh", [Map.class], null)
-        helper.registerAllowedMethod("checkout", [Map.class], null)
-        helper.registerAllowedMethod("echo", [String.class], null)
-        helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
-        helper.registerAllowedMethod("step", [Map.class], null)
-        helper.registerAllowedMethod("input", [String.class], null)
-        helper.registerAllowedMethod("gitlabCommitStatus", [String.class, Closure.class], null)
-        helper.registerAllowedMethod("gitlabBuilds", [Map.class, Closure.class], null)
-        helper.registerAllowedMethod("logRotator", [Map.class], null)
-        helper.registerAllowedMethod("buildDiscarder", [Object.class], null)
-        helper.registerAllowedMethod("pipelineTriggers", [List.class], null)
-        helper.registerAllowedMethod("properties", [List.class], null)
-        helper.registerAllowedMethod("dir", [String.class, Closure.class], null)
-        helper.registerAllowedMethod("archiveArtifacts", [Map.class], null)
-        helper.registerAllowedMethod("junit", [String.class], null)
-        helper.registerAllowedMethod("readFile", [String.class], null)
-        helper.registerAllowedMethod("disableConcurrentBuilds", [], null)
-        helper.registerAllowedMethod("gatlingArchive", [], null)
-        helper.registerAllowedMethod("string", [Map.class], stringInterceptor)
-        helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
-        helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE')})
+        helper.registerAllowedMethod('stage', [String.class, Closure.class], null)
+        helper.registerAllowedMethod('stage', [String.class, Closure.class], null)
+        helper.registerAllowedMethod('node', [String.class, Closure.class], null)
+        helper.registerAllowedMethod('node', [Closure.class], null)
+        helper.registerAllowedMethod('sh', [String.class], null)
+        helper.registerAllowedMethod('sh', [Map.class], null)
+        helper.registerAllowedMethod('checkout', [Map.class], null)
+        helper.registerAllowedMethod('echo', [String.class], null)
+        helper.registerAllowedMethod('timeout', [Map.class, Closure.class], null)
+        helper.registerAllowedMethod('step', [Map.class], null)
+        helper.registerAllowedMethod('input', [String.class], null)
+        helper.registerAllowedMethod('gitlabCommitStatus', [String.class, Closure.class], null)
+        helper.registerAllowedMethod('gitlabBuilds', [Map.class, Closure.class], null)
+        helper.registerAllowedMethod('logRotator', [Map.class], null)
+        helper.registerAllowedMethod('buildDiscarder', [Object.class], null)
+        helper.registerAllowedMethod('pipelineTriggers', [List.class], null)
+        helper.registerAllowedMethod('properties', [List.class], null)
+        helper.registerAllowedMethod('dir', [String.class, Closure.class], null)
+        helper.registerAllowedMethod('archiveArtifacts', [Map.class], null)
+        helper.registerAllowedMethod('junit', [String.class], null)
+        helper.registerAllowedMethod('readFile', [String.class], null)
+        helper.registerAllowedMethod('disableConcurrentBuilds', [], null)
+        helper.registerAllowedMethod('gatlingArchive', [], null)
+        helper.registerAllowedMethod('string', [Map.class], stringInterceptor)
+        helper.registerAllowedMethod('withCredentials', [List.class, Closure.class], withCredentialsInterceptor)
+        helper.registerAllowedMethod('error', [String.class], { updateBuildStatus('FAILURE')})
 
         binding.setVariable('currentBuild', [result: 'SUCCESS'])
     }
@@ -84,7 +84,7 @@ abstract class BasePipelineTest {
     }
 
     void printCallStack() {
-        if (!Boolean.parseBoolean(System.getProperty("printstack.disabled"))) {
+        if (!Boolean.parseBoolean(System.getProperty('printstack.disabled'))) {
             helper.callStack.each {
                 println it
             }

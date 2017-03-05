@@ -2,7 +2,7 @@ package com.lesfurets.jenkins.unit
 
 trait RegressionTest {
 
-    String callStackPath = "src/test/resources/callstacks/"
+    String callStackPath = 'src/test/resources/callstacks/'
 
     /**
      * Checks the current callstack is the same as the reference callstack.

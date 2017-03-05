@@ -41,7 +41,7 @@ abstract class MockPipelineScriptCPS extends MockPipelineScript implements Seria
         // so we need to persist that here
         def variables = getBinding().getVariables().clone()
         // Remove injected test helper from variables
-        variables.remove("_TEST_HELPER")
+        variables.remove('_TEST_HELPER')
         oos.writeObject(variables)
     }
 
