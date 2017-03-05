@@ -68,7 +68,7 @@ return this
 Now using the Jenkins Pipeline Unit you can unit test if it does the job :
 
 ```groovy
-import com.lesfurets.jenkins.helpers.BasePipelineTest
+import com.lesfurets.jenkins.unit.BasePipelineTest
 
 class TestExampleJob extends BasePipelineTest {
         
@@ -93,7 +93,7 @@ exampleJob.execute()
         exampleJob.load(src/main/jenkins/lib/utils.jenkins)
         utils.run()
         exampleJob.stage(Checkout, groovy.lang.Closure)
-        exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}], doGenerateSubmoduleConfigurations=false, extensions=[], submoduleCfg=[], userRemoteConfigs=[{credentialsId=gitlab_git_ssh, url=github.com/lesfurets/pipeline-test-helper.git}]})
+        exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}], doGenerateSubmoduleConfigurations=false, extensions=[], submoduleCfg=[], userRemoteConfigs=[{credentialsId=gitlab_git_ssh, url=github.com/lesfurets/JenkinsPipelineUnit.git}]})
         utils.currentRevision()
             utils.sh({returnStdout=true, script=git rev-parse HEAD})
         exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
