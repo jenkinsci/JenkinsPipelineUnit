@@ -15,9 +15,9 @@ class LibraryLoader {
 
     private final GroovyClassLoader groovyClassLoader
 
-    protected final Map<String, LibraryRecord> libRecords = new HashMap<>()
-
     private final Map<String, LibraryConfiguration> libraryDescriptions
+
+    protected final Map<String, LibraryRecord> libRecords = new HashMap<>()
 
     LibraryLoader(GroovyClassLoader groovyClassLoader, Map<String, LibraryConfiguration> libraryDescriptions) {
         this.groovyClassLoader = groovyClassLoader

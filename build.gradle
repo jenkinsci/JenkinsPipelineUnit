@@ -23,7 +23,7 @@ version = "0.12-SNAPSHOT"
 
 dependencies {
     compile group: 'org.codehaus.groovy',   name: 'groovy-all',     version: '2.4.6'
-    compile group: 'com.cloudbees',         name: 'groovy-cps',     version: '1.11'
+    compile group: 'com.cloudbees',         name: 'groovy-cps',     version: '1.12'
     compile group: 'org.assertj',           name: 'assertj-core',   version: '3.4.1'
     compile group: 'commons-io',            name: 'commons-io',     version: '2.5'
     compile group: 'org.apache.ivy',        name: 'ivy',            version: '2.4.0'

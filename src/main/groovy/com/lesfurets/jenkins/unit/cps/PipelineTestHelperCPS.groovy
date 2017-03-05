@@ -116,9 +116,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         imports.each { k, v -> importCustomizer.addImport(k, v) }
         configuration.addCompilationCustomizers(importCustomizer)
         // Add transformer for CPS compilation
-        // TODO skip cps transformation for now, there are problems calling accessors
-        configuration.addCompilationCustomizers(new LibraryCpsTransformer())
-        //  configuration.addCompilationCustomizers(new CpsTransformer())
+        configuration.addCompilationCustomizers(new CpsTransformer())
 
         configuration.setDefaultScriptExtension(scriptExtension)
         configuration.setScriptBaseClass(scriptBaseClass.getName())

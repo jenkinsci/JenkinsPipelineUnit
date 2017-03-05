@@ -21,6 +21,7 @@ import org.codehaus.groovy.syntax.SyntaxException
 class LibraryAnnotationTransformer extends CompilationCustomizer {
 
     private final static String LIBRARY_ANNOTATION_CLASS_NAME = "Library"
+
     private final LibraryLoader libraryLoader
 
     LibraryAnnotationTransformer(LibraryLoader libraryLoader) {
@@ -28,11 +29,6 @@ class LibraryAnnotationTransformer extends CompilationCustomizer {
         this.libraryLoader = libraryLoader
     }
 
-    Collection<LibraryRecord> getLibraryRecords() {
-        libraryLoader.libRecords.values()
-    }
-
-    //
     @Override
     void call(SourceUnit source, GeneratorContext context, ClassNode classNode) throws CompilationFailedException {
         final Map<String, AnnotationNode> libraryAnnotations = new HashMap<>()
