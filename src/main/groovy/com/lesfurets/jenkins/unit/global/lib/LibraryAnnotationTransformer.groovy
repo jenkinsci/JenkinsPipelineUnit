@@ -37,7 +37,7 @@ class LibraryAnnotationTransformer extends CompilationCustomizer {
         try {
             libraryLoader.loadImplicitLibraries()
         } catch (Exception e) {
-            source.addError(new SyntaxException(e.getMessage(), 0, 0))
+            source.addException(e)
         }
 
         new ClassCodeVisitorSupport() {

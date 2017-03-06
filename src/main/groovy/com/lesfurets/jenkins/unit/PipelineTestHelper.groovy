@@ -11,9 +11,9 @@ import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.codehaus.groovy.runtime.InvokerHelper
 import org.codehaus.groovy.runtime.MetaClassHelper
 
+import com.lesfurets.jenkins.unit.global.lib.LibraryAnnotationTransformer
 import com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration
 import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
-import com.lesfurets.jenkins.unit.global.lib.LibraryAnnotationTransformer
 
 class PipelineTestHelper {
 

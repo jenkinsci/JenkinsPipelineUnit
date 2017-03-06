@@ -1,17 +1,18 @@
 package com.lesfurets.jenkins.unit.cps
 
-import com.cloudbees.groovy.cps.CpsTransformer
-import com.cloudbees.groovy.cps.Envs
-import com.cloudbees.groovy.cps.impl.CpsClosure
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.codehaus.groovy.runtime.InvokerHelper
 
 import com.cloudbees.groovy.cps.Continuation
+import com.cloudbees.groovy.cps.CpsTransformer
+import com.cloudbees.groovy.cps.Envs
 import com.cloudbees.groovy.cps.ObjectInputStreamWithLoader
 import com.cloudbees.groovy.cps.impl.CpsCallableInvocation
+import com.cloudbees.groovy.cps.impl.CpsClosure
 import com.lesfurets.jenkins.unit.PipelineTestHelper
-import com.lesfurets.jenkins.unit.global.lib.*
+import com.lesfurets.jenkins.unit.global.lib.LibraryAnnotationTransformer
+import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
 
 class PipelineTestHelperCPS extends PipelineTestHelper {
 

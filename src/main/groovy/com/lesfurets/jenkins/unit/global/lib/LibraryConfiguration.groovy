@@ -1,13 +1,11 @@
 package com.lesfurets.jenkins.unit.global.lib
 
-import groovy.transform.ToString
 import groovy.transform.builder.Builder
 
 /**
  * Mock for org.jenkinsci.plugins.workflow.libs.LibraryConfiguration
  */
 @Builder(builderMethodName = "library")
-@ToString
 class LibraryConfiguration {
 
     String name
@@ -17,4 +15,15 @@ class LibraryConfiguration {
     boolean allowOverride = true
     String targetPath
 
+
+    @Override
+    String toString() {
+        return "LibraryConfiguration{" +
+                "name='" + name + '\'' +
+                ", defaultVersion='" + defaultVersion + '\'' +
+                ", retriever=" + retriever +
+                ", implicit=" + implicit +
+                ", allowOverride=" + allowOverride +
+                '}';
+    }
 }

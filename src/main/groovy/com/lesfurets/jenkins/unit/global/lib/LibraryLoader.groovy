@@ -24,13 +24,17 @@ class LibraryLoader {
         this.libraryDescriptions = libraryDescriptions
     }
 
+    static String getLibraryId(LibraryConfiguration lib, String version = null) {
+        return "$lib.name@${version ?: lib.defaultVersion}"
+    }
+
     /**
      * Loads all implicit library configurations
      */
     void loadImplicitLibraries() {
         libraryDescriptions.values().stream()
                 .filter { it.implicit }
-                .filter { !libRecords.containsKey(getExpression(it)) }
+                .filter { !libRecords.containsKey(getLibraryId(it)) }
                 .forEach {
             doLoadLibrary(it)
         }
@@ -52,7 +56,7 @@ class LibraryLoader {
         if (!matches(libName, version, library)) {
             throw new Exception("Library '$expression' does not match description $library")
         }
-        if (!libRecords.containsKey(getExpression(library, version))) {
+        if (!libRecords.containsKey(getLibraryId(library, version))) {
             doLoadLibrary(library, version)
         }
     }
@@ -114,8 +118,8 @@ class LibraryLoader {
                 }
             }
             record.definedGlobalVars = globalVars
-        } catch (Throwable t) {
-            throw new Exception(t.message, t)
+        } catch (Exception e) {
+            throw new LibraryLoadingException(e, library, version)
         }
     }
 
@@ -129,10 +133,6 @@ class LibraryLoader {
         }
     }
 
-    private static String getExpression(LibraryConfiguration lib, String version = null) {
-        return "$lib.name@${version ?: lib.defaultVersion}"
-    }
-
     private static boolean matches(String libName, String version, LibraryConfiguration libraryDescription) {
         if (libraryDescription.name == libName) {
             if (version == null) {
@@ -144,4 +144,12 @@ class LibraryLoader {
         }
         return false
     }
+
+    static class LibraryLoadingException extends Exception {
+
+        LibraryLoadingException(Throwable cause, LibraryConfiguration configuration, String version) {
+            super("Error on loading library ${LibraryLoader.getLibraryId(configuration, version)} : ${cause.message}", cause)
+        }
+    }
+
 }
