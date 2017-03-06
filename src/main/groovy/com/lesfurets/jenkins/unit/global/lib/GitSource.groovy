@@ -15,6 +15,8 @@ class GitSource extends SourceRetriever {
         def fetch = target.toPath().resolve("$repository@$branch").toFile()
         if (fetch.exists()) {
             return [fetch.toURI().toURL()]
+        } else {
+            fetch.parentFile.mkdirs()
         }
         def command = "git clone -b $branch --single-branch $sourceURL $repository@$branch"
         println command
