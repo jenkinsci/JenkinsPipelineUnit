@@ -12,6 +12,7 @@ class TestSerializationCPS extends BasePipelineTestCPS {
     @Override
     @Before
     void setUp() throws Exception {
+        scriptRoots += 'src/test/jenkins'
         super.setUp()
         def scmBranch = "feature_test"
         binding.setVariable('scm', [

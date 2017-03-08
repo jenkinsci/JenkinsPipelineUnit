@@ -35,6 +35,7 @@ class TestSharedLibrary extends BasePipelineTest {
     @Override
     @Before
     void setUp() throws Exception {
+        scriptRoots += 'src/test/jenkins'
         super.setUp()
     }
 

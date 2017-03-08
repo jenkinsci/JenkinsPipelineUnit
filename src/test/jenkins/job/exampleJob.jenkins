@@ -1,6 +1,6 @@
 def execute() {
     node() {
-        def utils = load "src/main/jenkins/lib/utils.jenkins"
+        def utils = load "src/test/jenkins/lib/utils.jenkins"
         stage('Checkout') {
             checkout scm
             String revision = utils.currentRevision()

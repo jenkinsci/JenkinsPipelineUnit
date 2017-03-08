@@ -39,14 +39,6 @@ if (project.hasProperty('extProps')) {
     }
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDirs = ['src/main/jenkins']
-            include '**/*.jenkins'
-        }
-    }
-}
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'

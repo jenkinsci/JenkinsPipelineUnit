@@ -35,6 +35,7 @@ class TestSharedLibraryCPS extends BasePipelineTestCPS {
     @Override
     @Before
     void setUp() throws Exception {
+        scriptRoots += 'src/test/jenkins'
         super.setUp()
     }
 
