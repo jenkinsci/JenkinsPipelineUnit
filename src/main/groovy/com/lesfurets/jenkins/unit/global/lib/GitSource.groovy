@@ -29,4 +29,11 @@ class GitSource extends SourceRetriever {
         return [fetch.toURI().toURL()]
     }
 
+
+    @Override
+    String toString() {
+        return "GitSource{" +
+                        "sourceURL='" + sourceURL + '\'' +
+                        '}'
+    }
 }

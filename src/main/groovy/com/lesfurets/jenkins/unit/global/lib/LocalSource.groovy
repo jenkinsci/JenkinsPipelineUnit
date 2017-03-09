@@ -15,4 +15,12 @@ class LocalSource extends SourceRetriever {
         }
         throw new IllegalStateException("Directory $sourceDir.path does not exists")
     }
+
+
+    @Override
+    String toString() {
+        return "LocalSource{" +
+                        "sourceURL='" + sourceURL + '\'' +
+                        '}'
+    }
 }
