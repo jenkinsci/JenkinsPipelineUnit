@@ -37,6 +37,7 @@ class TestSharedLibraryCPS extends BasePipelineTestCPS {
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
+        binding.setVariable('scm', [branch: 'master'])
     }
 
     @Parameters(name = "Test {0} allowOverride:{1} implicit:{2} expected:{3}")

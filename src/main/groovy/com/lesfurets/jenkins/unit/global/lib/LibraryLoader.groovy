@@ -2,6 +2,7 @@ package com.lesfurets.jenkins.unit.global.lib
 
 import static com.lesfurets.jenkins.unit.MethodSignature.method
 
+import java.lang.reflect.Method
 import java.nio.file.Files
 
 import org.apache.commons.io.FilenameUtils
@@ -13,6 +14,8 @@ import com.lesfurets.jenkins.unit.PipelineTestHelper
  * Loads libraries to groovy class loader
  */
 class LibraryLoader {
+
+    private static Method SCRIPT_SET_BINDING = Script.getMethod('setBinding', Binding.class)
 
     private final GroovyClassLoader groovyClassLoader
 
@@ -72,8 +75,8 @@ class LibraryLoader {
                 .forEach { e ->
             if (e.value instanceof Script) {
                 Script script = Script.cast(e.value)
-                // visible in callStack
-                script.setBinding(binding)
+                // invoke setBinding from method to avoid interception
+                SCRIPT_SET_BINDING.invoke(script, binding)
                 script.metaClass.getMethods().findAll { it.name == 'call' }.forEach { m ->
                     helper.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
                                     { args -> m.doMethodInvoke(e.value, args) })
@@ -113,6 +116,7 @@ class LibraryLoader {
                                     .filter { !globalVars.containsValue(it) }
                                     .forEach {
                         def clazz = groovyClassLoader.loadClass(it)
+                        // instanciate by invokeConstructor to avoid interception
                         Object var = DefaultGroovyMethods.newInstance(clazz)
                         globalVars.put(it, var)
                     }

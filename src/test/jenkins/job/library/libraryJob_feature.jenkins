@@ -8,6 +8,9 @@ def execute() {
                 def utils = new Utils2()
                 def s = Utils2.tools()
                 println s
+                helloMessage {
+                    message = "hello this is a test"
+                }
                 sh "${utils.gitTools()}"
                 sh 'sleep 3'
             }
