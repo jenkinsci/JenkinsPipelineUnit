@@ -1,27 +1,20 @@
 package com.lesfurets.jenkins.unit.global.lib
 
-import static com.lesfurets.jenkins.unit.MethodSignature.method
-
-import java.lang.reflect.Method
 import java.nio.file.Files
 
 import org.apache.commons.io.FilenameUtils
 import org.codehaus.groovy.runtime.DefaultGroovyMethods
-
-import com.lesfurets.jenkins.unit.PipelineTestHelper
 
 /**
  * Loads libraries to groovy class loader
  */
 class LibraryLoader {
 
-    private static Method SCRIPT_SET_BINDING = Script.getMethod('setBinding', Binding.class)
-
     private final GroovyClassLoader groovyClassLoader
 
     private final Map<String, LibraryConfiguration> libraryDescriptions
 
-    protected final Map<String, LibraryRecord> libRecords = new HashMap<>()
+    final Map<String, LibraryRecord> libRecords = new HashMap<>()
 
     LibraryLoader(GroovyClassLoader groovyClassLoader, Map<String, LibraryConfiguration> libraryDescriptions) {
         this.groovyClassLoader = groovyClassLoader
@@ -62,28 +55,6 @@ class LibraryLoader {
         }
         if (!libRecords.containsKey(getLibraryId(library, version))) {
             doLoadLibrary(library, version)
-        }
-    }
-
-    /**
-     * Sets global variables defined in loaded libraries on the binding
-     * @param binding
-     */
-    void setGlobalVars(Binding binding, PipelineTestHelper helper) {
-        libRecords.values().stream()
-                .flatMap { it.definedGlobalVars.entrySet().stream() }
-                .forEach { e ->
-            if (e.value instanceof Script) {
-                Script script = Script.cast(e.value)
-                // invoke setBinding from method to avoid interception
-                SCRIPT_SET_BINDING.invoke(script, binding)
-                script.metaClass.getMethods().findAll { it.name == 'call' }.forEach { m ->
-                    helper.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
-                                    { args -> m.doMethodInvoke(e.value, args) })
-                }
-            } else {
-                binding.setVariable(e.key, e.value)
-            }
         }
     }
 

@@ -2,6 +2,7 @@ package com.lesfurets.jenkins.unit
 
 import static com.lesfurets.jenkins.unit.MethodSignature.method
 
+import java.lang.reflect.Method
 import java.nio.file.Paths
 import java.util.function.Consumer
 import java.util.function.Function
@@ -17,6 +18,8 @@ import com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration
 import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
 
 class PipelineTestHelper {
+
+    protected static Method SCRIPT_SET_BINDING = Script.getMethod('setBinding', Binding.class)
 
     /**
      * Search paths for scripts
@@ -148,7 +151,7 @@ class PipelineTestHelper {
         }
     }
 
-    def getMissingMethodInterceptor() {
+    def getMethodMissingInterceptor() {
         return methodMissingInterceptor
     }
 
@@ -186,17 +189,7 @@ class PipelineTestHelper {
 
     PipelineTestHelper build() {
         CompilerConfiguration configuration = new CompilerConfiguration()
-        GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration) {
-            @Override
-            Class parseClass(GroovyCodeSource codeSource, boolean shouldCacheSource)
-                            throws CompilationFailedException {
-                Class clazz = super.parseClass(codeSource, shouldCacheSource)
-                clazz.metaClass.invokeMethod = methodInterceptor
-                clazz.metaClass.static.invokeMethod = methodInterceptor
-                clazz.metaClass.methodMissing = missingMethodInterceptor
-                return clazz
-            }
-        }
+        GroovyClassLoader cLoader = new InterceptingGCL(this, baseClassloader, configuration)
 
         libLoader = new LibraryLoader(cLoader, libraries)
         LibraryAnnotationTransformer libraryTransformer = new LibraryAnnotationTransformer(libLoader)
@@ -254,6 +247,15 @@ class PipelineTestHelper {
     }
 
     /**
+     * Load script with name with empty binding
+     * @param name path of the script
+     * @return loaded and run script
+     */
+    Script loadScript(String name) {
+        this.loadScript(name, new Binding())
+    }
+
+    /**
      * Load and run script with given binding context
      * @param scriptName path of the script
      * @param binding
@@ -262,22 +264,39 @@ class PipelineTestHelper {
     Script loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding)
         Class scriptClass = gse.loadScriptByName(scriptName)
-        libLoader.setGlobalVars(binding, this)
+        setGlobalVars(binding)
         Script script = InvokerHelper.createScript(scriptClass, binding)
-        script.metaClass.invokeMethod = methodInterceptor
-        script.metaClass.static.invokeMethod = methodInterceptor
-        script.metaClass.methodMissing = missingMethodInterceptor
+        script.metaClass.invokeMethod = getMethodInterceptor()
+        script.metaClass.static.invokeMethod = getMethodInterceptor()
+        script.metaClass.methodMissing = getMethodMissingInterceptor()
+        return runScript(script)
+    }
+
+    protected Script runScript(Script script) {
         script.run()
         return script
     }
 
     /**
-     * Load script with name with empty binding
-     * @param name path of the script
-     * @return loaded and run script
+     * Sets global variables defined in loaded libraries on the binding
+     * @param binding
      */
-    Script loadScript(String name) {
-        this.loadScript(name, new Binding())
+    void setGlobalVars(Binding binding) {
+        libLoader.libRecords.values().stream()
+                        .flatMap { it.definedGlobalVars.entrySet().stream() }
+                        .forEach { e ->
+            if (e.value instanceof Script) {
+                Script script = Script.cast(e.value)
+                // invoke setBinding from method to avoid interception
+                SCRIPT_SET_BINDING.invoke(script, binding)
+                script.metaClass.getMethods().findAll { it.name == 'call' }.forEach { m ->
+                    this.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
+                                    { args -> m.doMethodInvoke(e.value, args) })
+                }
+            } else {
+                binding.setVariable(e.key, e.value)
+            }
+        }
     }
 
     /**

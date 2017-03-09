@@ -1,9 +1,7 @@
 package com.lesfurets.jenkins.unit.cps
 
-import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
-import org.codehaus.groovy.runtime.InvokerHelper
 
 import com.cloudbees.groovy.cps.Continuation
 import com.cloudbees.groovy.cps.CpsTransformer
@@ -11,6 +9,7 @@ import com.cloudbees.groovy.cps.Envs
 import com.cloudbees.groovy.cps.ObjectInputStreamWithLoader
 import com.cloudbees.groovy.cps.impl.CpsCallableInvocation
 import com.cloudbees.groovy.cps.impl.CpsClosure
+import com.lesfurets.jenkins.unit.InterceptingGCL
 import com.lesfurets.jenkins.unit.PipelineTestHelper
 import com.lesfurets.jenkins.unit.global.lib.LibraryAnnotationTransformer
 import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
@@ -108,17 +107,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
 
     PipelineTestHelperCPS build() {
         CompilerConfiguration configuration = new CompilerConfiguration()
-        GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration) {
-            @Override
-            Class parseClass(GroovyCodeSource codeSource, boolean shouldCacheSource)
-                            throws CompilationFailedException {
-                Class clazz = super.parseClass(codeSource, shouldCacheSource)
-                clazz.metaClass.invokeMethod = methodInterceptor
-                clazz.metaClass.static.invokeMethod = methodInterceptor
-                clazz.metaClass.methodMissing = missingMethodInterceptor
-                return clazz
-            }
-        }
+        GroovyClassLoader cLoader = new InterceptingGCL(this, baseClassloader, configuration)
 
         libLoader = new LibraryLoader(cLoader, libraries)
         LibraryAnnotationTransformer libraryTransformer = new LibraryAnnotationTransformer(libLoader)
@@ -139,21 +128,8 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         return this
     }
 
-    /**
-     * Load and run script with given binding context
-     * @param scriptName path of the script
-     * @param binding
-     * @return loaded and run script
-     */
-    Script loadScript(String scriptName, Binding binding) {
-        Objects.requireNonNull(binding)
-        Class scriptClass = gse.loadScriptByName(scriptName)
-        libLoader.setGlobalVars(binding, this)
-        Script script = InvokerHelper.createScript(scriptClass, binding)
-        script.metaClass.invokeMethod = methodInterceptor
-        script.metaClass.static.invokeMethod = methodInterceptor
-        script.metaClass.methodMissing = methodMissingInterceptor
-        // Probably unnecessary
+    @Override
+    protected Script runScript(Script script) {
         try {
             script.run()
         } catch (CpsCallableInvocation inv) {

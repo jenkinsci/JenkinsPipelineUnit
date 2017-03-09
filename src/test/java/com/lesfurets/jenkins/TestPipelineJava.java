@@ -33,6 +33,6 @@ public class TestPipelineJava extends BasePipelineTest {
     public void should_return_cleanname() throws Exception {
         Script script = loadScript("lib/utils.jenkins");
         assertThat(script.invokeMethod("cleanName", new Object[] { "some thing"})).isEqualTo("SOME_THING");
-
+        printCallStack();
     }
 }
