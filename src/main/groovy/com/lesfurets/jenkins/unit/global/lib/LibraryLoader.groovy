@@ -5,6 +5,7 @@ import static com.lesfurets.jenkins.unit.MethodSignature.method
 import java.nio.file.Files
 
 import org.apache.commons.io.FilenameUtils
+import org.codehaus.groovy.runtime.DefaultGroovyMethods
 
 import com.lesfurets.jenkins.unit.PipelineTestHelper
 
@@ -71,6 +72,7 @@ class LibraryLoader {
                 .forEach { e ->
             if (e.value instanceof Script) {
                 Script script = Script.cast(e.value)
+                // visible in callStack
                 script.setBinding(binding)
                 script.metaClass.getMethods().findAll { it.name == 'call' }.forEach { m ->
                     helper.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
@@ -79,9 +81,6 @@ class LibraryLoader {
             } else {
                 binding.setVariable(e.key, e.value)
             }
-            e.value.metaClass.invokeMethod = helper.getMethodInterceptor()
-            e.value.metaClass.static.invokeMethod = helper.getMethodInterceptor()
-            e.value.metaClass.methodMissing = helper.getMissingMethodInterceptor()
         }
     }
 
@@ -113,7 +112,9 @@ class LibraryLoader {
                                     .map { FilenameUtils.getBaseName(it.name) }
                                     .filter { !globalVars.containsValue(it) }
                                     .forEach {
-                        globalVars.put(it, groovyClassLoader.loadClass(it).newInstance())
+                        def clazz = groovyClassLoader.loadClass(it)
+                        Object var = DefaultGroovyMethods.newInstance(clazz)
+                        globalVars.put(it, var)
                     }
                 }
             }

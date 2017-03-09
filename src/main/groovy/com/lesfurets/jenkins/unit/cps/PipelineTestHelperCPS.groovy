@@ -1,5 +1,6 @@
 package com.lesfurets.jenkins.unit.cps
 
+import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.codehaus.groovy.runtime.InvokerHelper
@@ -107,7 +108,17 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
 
     PipelineTestHelperCPS build() {
         CompilerConfiguration configuration = new CompilerConfiguration()
-        GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
+        GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration) {
+            @Override
+            Class parseClass(GroovyCodeSource codeSource, boolean shouldCacheSource)
+                            throws CompilationFailedException {
+                Class clazz = super.parseClass(codeSource, shouldCacheSource)
+                clazz.metaClass.invokeMethod = methodInterceptor
+                clazz.metaClass.static.invokeMethod = methodInterceptor
+                clazz.metaClass.methodMissing = missingMethodInterceptor
+                return clazz
+            }
+        }
 
         libLoader = new LibraryLoader(cLoader, libraries)
         LibraryAnnotationTransformer libraryTransformer = new LibraryAnnotationTransformer(libLoader)
@@ -144,9 +155,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         script.metaClass.methodMissing = methodMissingInterceptor
         // Probably unnecessary
         try {
-            println "Running ${script.class.name}"
             script.run()
-            println "returning ${script.class.name}"
         } catch (CpsCallableInvocation inv) {
             println inv
         }

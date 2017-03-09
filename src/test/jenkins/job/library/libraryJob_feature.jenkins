@@ -6,6 +6,8 @@ def execute() {
         action1: {
             node() {
                 def utils = new Utils2()
+                def s = Utils2.tools()
+                println s
                 sh "${utils.gitTools()}"
                 sh 'sleep 3'
             }

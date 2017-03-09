@@ -19,4 +19,8 @@ class Utils2 implements Serializable {
 	    return [branch: 'feature']
 	}
 
+	static tools() {
+		return "something"
+	}
+
 }
