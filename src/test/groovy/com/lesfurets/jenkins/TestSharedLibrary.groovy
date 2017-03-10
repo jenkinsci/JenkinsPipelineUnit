@@ -61,7 +61,8 @@ class TestSharedLibrary extends BasePipelineTest {
                         .defaultVersion("master")
                         .allowOverride(allowOverride)
                         .implicit(implicit)
-                        .retriever(localSource().sourceURL(sharedLibs).build())
+                        .targetPath(sharedLibs)
+                        .retriever(localSource(sharedLibs))
                         .build()
         helper.registerSharedLibrary(library)
         try {

@@ -16,6 +16,9 @@ class LocalSource extends SourceRetriever {
         throw new IllegalStateException("Directory $sourceDir.path does not exists")
     }
 
+    static LocalSource localSource(String source) {
+        new LocalSource().with { it.setSourceURL(source); return it }
+    }
 
     @Override
     String toString() {

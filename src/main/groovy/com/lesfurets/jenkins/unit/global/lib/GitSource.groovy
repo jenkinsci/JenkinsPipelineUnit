@@ -29,6 +29,9 @@ class GitSource extends SourceRetriever {
         return [fetch.toURI().toURL()]
     }
 
+    static GitSource gitSource(String source) {
+        new GitSource().with { it.setSourceURL(source); return it }
+    }
 
     @Override
     String toString() {
