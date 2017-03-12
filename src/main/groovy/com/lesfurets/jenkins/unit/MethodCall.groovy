@@ -4,6 +4,9 @@ import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 import org.codehaus.groovy.runtime.MetaClassHelper
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class MethodCall {
 
     Object target

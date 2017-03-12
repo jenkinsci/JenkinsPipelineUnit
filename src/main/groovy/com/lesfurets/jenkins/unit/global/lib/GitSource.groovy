@@ -2,10 +2,12 @@ package com.lesfurets.jenkins.unit.global.lib
 
 import java.util.concurrent.TimeUnit
 
-import groovy.transform.builder.Builder
+import groovy.transform.CompileStatic
+import groovy.transform.Immutable
 
-@Builder(builderMethodName = "gitSource")
-class GitSource extends SourceRetriever {
+@Immutable
+@CompileStatic
+class GitSource implements SourceRetriever {
 
     String sourceURL
 
@@ -30,7 +32,7 @@ class GitSource extends SourceRetriever {
     }
 
     static GitSource gitSource(String source) {
-        new GitSource().with { it.setSourceURL(source); return it }
+        new GitSource(source)
     }
 
     @Override

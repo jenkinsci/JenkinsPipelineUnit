@@ -14,10 +14,13 @@ import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.control.customizers.CompilationCustomizer
 import org.codehaus.groovy.syntax.SyntaxException
 
+import groovy.transform.CompileStatic
+
 /**
  * Parses class definitions for Library annotation
  * Shamelessly adapted from workflow.cps.lib.plugin
  */
+@CompileStatic
 class LibraryAnnotationTransformer extends CompilationCustomizer {
 
     private final static String LIBRARY_ANNOTATION_CLASS_NAME = "Library"
@@ -67,9 +70,9 @@ class LibraryAnnotationTransformer extends CompilationCustomizer {
         }.visitClass(classNode)
 
         // load libraries with error handling
-        libraryAnnotations.entrySet().forEach {
-            def annotation = it.value
-            def expression = it.key
+        libraryAnnotations.entrySet().forEach { Map.Entry<String, AnnotationNode> it ->
+            AnnotationNode annotation = it.value
+            String expression = it.key
             try {
                 libraryLoader.loadLibrary(expression)
             } catch (Exception e) {

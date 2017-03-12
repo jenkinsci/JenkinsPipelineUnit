@@ -1,13 +1,18 @@
 package com.lesfurets.jenkins.unit.global.lib
 
 import java.nio.file.Files
+import java.util.function.Consumer
+import java.util.function.Predicate
 
 import org.apache.commons.io.FilenameUtils
 import org.codehaus.groovy.runtime.DefaultGroovyMethods
 
+import groovy.transform.CompileStatic
+
 /**
  * Loads libraries to groovy class loader
  */
+@CompileStatic
 class LibraryLoader {
 
     private final GroovyClassLoader groovyClassLoader
@@ -71,7 +76,7 @@ class LibraryLoader {
             def record = new LibraryRecord(library, version ?: library.defaultVersion, urls.path)
             libRecords.put(record.getIdentifier(), record)
             def globalVars = [:]
-            urls.forEach { url ->
+            urls.forEach { URL url ->
                 def file = new File(url.toURI())
 
                 def srcPath = file.toPath().resolve('src')
@@ -82,15 +87,15 @@ class LibraryLoader {
                 if (varsPath.toFile().exists()) {
                     Files.list(varsPath)
                                     .map { it.toFile() }
-                                    .filter { it.name.endsWith('.groovy') }
+                                    .filter ({File it -> it.name.endsWith('.groovy') } as Predicate<File>)
                                     .map { FilenameUtils.getBaseName(it.name) }
-                                    .filter { !globalVars.containsValue(it) }
-                                    .forEach {
+                                    .filter ({String it -> !globalVars.containsValue(it) } as Predicate<String>)
+                                    .forEach ({ String it ->
                         def clazz = groovyClassLoader.loadClass(it)
                         // instanciate by invokeConstructor to avoid interception
                         Object var = DefaultGroovyMethods.newInstance(clazz)
                         globalVars.put(it, var)
-                    }
+                    } as Consumer<String>)
                 }
             }
             record.definedGlobalVars = globalVars
@@ -103,9 +108,9 @@ class LibraryLoader {
         identifier.split('@')
         int at = identifier.indexOf('@')
         if (at == -1) {
-            return [identifier, null] // pick up defaultVersion
+            return [identifier, null] as String[] // pick up defaultVersion
         } else {
-            return [identifier.substring(0, at), identifier.substring(at + 1)]
+            return [identifier.substring(0, at), identifier.substring(at + 1)] as String[]
         }
     }
 

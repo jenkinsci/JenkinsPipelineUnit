@@ -1,5 +1,8 @@
 package com.lesfurets.jenkins.unit.global.lib
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class LibraryRecord {
 
     LibraryConfiguration configuration

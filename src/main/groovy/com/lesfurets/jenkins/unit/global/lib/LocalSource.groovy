@@ -1,9 +1,11 @@
 package com.lesfurets.jenkins.unit.global.lib
 
-import groovy.transform.builder.Builder
+import groovy.transform.CompileStatic
+import groovy.transform.Immutable
 
-@Builder(builderMethodName = "localSource")
-class LocalSource extends SourceRetriever {
+@Immutable
+@CompileStatic
+class LocalSource implements SourceRetriever {
 
     String sourceURL
 
@@ -17,7 +19,7 @@ class LocalSource extends SourceRetriever {
     }
 
     static LocalSource localSource(String source) {
-        new LocalSource().with { it.setSourceURL(source); return it }
+        new LocalSource(source)
     }
 
     @Override

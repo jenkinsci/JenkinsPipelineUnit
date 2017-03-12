@@ -2,6 +2,9 @@ package com.lesfurets.jenkins.unit
 
 import static org.codehaus.groovy.runtime.MetaClassHelper.isAssignableFrom
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class MethodSignature {
     String name
     Class[] args
@@ -16,7 +19,7 @@ class MethodSignature {
     }
 
     String argsToString() {
-        return args.collect {
+        return args.collect { Class it ->
             if (it != null && Closure.isAssignableFrom(it)) {
                 Closure.class.toString()
             } else {

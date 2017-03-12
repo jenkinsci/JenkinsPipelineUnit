@@ -1,11 +1,13 @@
 package com.lesfurets.jenkins.unit.global.lib
 
+import groovy.transform.CompileStatic
 import groovy.transform.builder.Builder
 import groovy.transform.builder.ExternalStrategy
 
 /**
  * Mock for org.jenkinsci.plugins.workflow.libs.LibraryConfiguration
  */
+@CompileStatic
 class LibraryConfiguration {
 
     String name
