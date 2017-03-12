@@ -5,6 +5,7 @@ package com.lesfurets.jenkins
 
 import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS;
@@ -31,6 +32,7 @@ class TestFailingJobs extends BasePipelineTestCPS {
      * encapsulate in a @NonCPS method, or use Java-style loops
      */
     @Test(expected = UnsupportedOperationException)
+    @Ignore
     void should_fail_forEach() throws Exception {
         def script = loadScript("job/shouldFail/forEach.jenkins")
         printCallStack()
