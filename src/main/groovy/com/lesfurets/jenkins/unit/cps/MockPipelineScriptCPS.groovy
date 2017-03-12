@@ -8,8 +8,6 @@ abstract class MockPipelineScriptCPS extends MockPipelineScript implements Seria
         // binding is defined in non-serializable Script class,
         // so we need to persist that here
         def variables = getBinding().getVariables().clone()
-        // Remove injected test helper from variables
-        variables.remove("_TEST_HELPER")
         oos.writeObject(variables)
     }
 
