@@ -3,11 +3,12 @@ package com.lesfurets.jenkins.unit
 import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 import java.lang.reflect.Method
+import java.nio.charset.Charset
 import java.nio.file.Paths
 import java.util.function.Consumer
 import java.util.function.Function
 
-import org.codehaus.groovy.control.CompilationFailedException
+import org.apache.commons.io.IOUtils
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.codehaus.groovy.runtime.InvokerHelper
@@ -54,7 +55,8 @@ class PipelineTestHelper {
     Map<String, String> imports = [ 'Library' : 'com.lesfurets.jenkins.unit.global.lib.Library']
 
     /**
-     *
+     * Global Shared Libraries to be loaded with scripts if necessary
+     * @see LibraryLoader
      */
     Map<String, LibraryConfiguration> libraries = [:]
 
@@ -88,6 +90,9 @@ class PipelineTestHelper {
         return this.loadScript(name, delegate.binding)
     }
 
+    /**
+     * Method interceptor for method 'parallel'
+     */
     protected parallelInterceptor = { Map m ->
         // If you have many steps in parallel and one of the step in Jenkins fails, the other tasks keep runnning in Jenkins.
         // Since here the parallel steps are executed sequentially, we are hiding the error to let other steps run
@@ -131,6 +136,9 @@ class PipelineTestHelper {
         return methodInterceptor
     }
 
+    /**
+     * Method for calling custom allowed methods
+     */
     def methodMissingInterceptor = { String name, args ->
         if (this.isMethodAllowed(name, args)) {
             def result = null
@@ -163,12 +171,22 @@ class PipelineTestHelper {
     }
 
     /**
+     * Method interceptor for 'libraryResource' in Shared libraries
+     * The resource from shared library should have been added to the url classloader in advance
+     */
+    def libraryResourceInterceptor = { m ->
+        def stream = gse.groovyClassLoader.getResourceAsStream(m as String)
+        return IOUtils.toString(stream, Charset.forName("UTF-8"))
+    }
+
+    /**
      * List of allowed methods with default interceptors.
      * Complete this list in need with {@link #registerAllowedMethod}
      */
     protected Map<MethodSignature, Closure> allowedMethodCallbacks = [
             (method("load", String.class))                : loadInterceptor,
             (method("parallel", Map.class))               : parallelInterceptor,
+            (method("libraryResource", String.class))     : libraryResourceInterceptor,
     ]
 
     PipelineTestHelper() {

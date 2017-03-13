@@ -81,8 +81,10 @@ class LibraryLoader {
 
                 def srcPath = file.toPath().resolve('src')
                 def varsPath = file.toPath().resolve('vars')
+                def resourcesPath = file.toPath().resolve('resources')
                 groovyClassLoader.addURL(srcPath.toUri().toURL())
                 groovyClassLoader.addURL(varsPath.toUri().toURL())
+                groovyClassLoader.addURL(resourcesPath.toUri().toURL())
 
                 if (varsPath.toFile().exists()) {
                     Files.list(varsPath)

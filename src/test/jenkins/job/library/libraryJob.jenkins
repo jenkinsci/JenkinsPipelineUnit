@@ -19,6 +19,8 @@ def execute() {
                 def utils = new Utils()
                 sh "${utils.gitTools()}"
                 sh 'sleep 3'
+                String pom = libraryResource 'net/courtanet/jenkins/pom.xml'
+                println pom
             }
         },
         action2: {
