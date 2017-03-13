@@ -176,7 +176,13 @@ class PipelineTestHelper {
      */
     def libraryResourceInterceptor = { m ->
         def stream = gse.groovyClassLoader.getResourceAsStream(m as String)
-        return IOUtils.toString(stream, Charset.forName("UTF-8"))
+        if (stream) {
+            def string = IOUtils.toString(stream, Charset.forName("UTF-8"))
+            IOUtils.closeQuietly(stream)
+            return string
+        } else {
+            throw new GroovyRuntimeException("Library Resource not found with path $m")
+        }
     }
 
     /**
