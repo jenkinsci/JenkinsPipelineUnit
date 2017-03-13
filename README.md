@@ -221,6 +221,91 @@ This will work fine for such a project structure:
              └── TestExampleJob.groovy
 ```
 
+## Testing Shared Libraries
+
+With [Shared Libraries](https://jenkins.io/doc/book/pipeline/shared-libraries/) Jenkins lets you share common code 
+on pipelines across different repositories of your organization.
+Shared libraries are configured via a settings interface in Jenkins and imported 
+with `@Library` annotation in your scripts.
+
+Testing pipeline scripts using external libraries is not trivial because the shared library code 
+is checked in another repository.
+JenkinsPipelineUnit lets you test shared libraries and pipelines depending on these libraries.
+
+Here is an example pipeline using a shared library:
+
+```groovy
+@Library('commons')
+import net.courtanet.jenkins.Utils
+
+sayHello 'World'
+
+node() {
+    stage ('Checkout') {
+        def utils = new Utils()
+        checkout "${utils.gitTools()}"
+    }
+    stage ('Build') {
+        sh './gradlew build'
+    }
+    stage ('Post Build') {
+        String json = libraryResource 'net/courtanet/jenkins/request.json'
+        sh "curl -H 'Content-Type: application/json' -X POST -d '$json' ${acme.url}"
+    }
+}
+```
+
+This pipeline is using a shared library called `commons`.
+Now lets test it:
+
+```groovy
+    String clonePath = 'path/to/clone'
+
+    def library = library()
+                    .name('commons')
+                    .retriever(gitSource('git@gitlab.admin.courtanet.net:devteam/lesfurets-jenkins-shared.git'))
+                    .targetPath(clonePath)
+                    .defaultVersion("master")
+                    .allowOverride(true)
+                    .implicit(false)
+                    .build()
+    helper.registerSharedLibrary(library)
+    
+    loadScript("job/library/exampleJob.jenkins")
+    printCallStack()
+```
+
+Notice how we defined the shared library and registered it to the helper.
+Library definition is done via a fluent API which lets you set the same configurations as in 
+[Jenkins Global Pipeline Libraries](https://jenkins.io/doc/book/pipeline/shared-libraries/#using-libraries).
+
+The `retriever` and `targetPath` fields tell the framework how to fetch the sources of the library, in which local path.
+The framework comes with two naive but useful retrievers, `gitSource` and `localSource`.
+You can write your own retriever by implementing the `SourceRetriever` interface.
+
+Note that properties `defaultVersion`, `allowOverride` and `implicit` are optional with 
+default values `master`, `true` and `false`.
+
+Now if we execute this test, the framework will fetch the sources from the Git repository and 
+load classes, scripts, global variables and resources found in the library.
+The callstack of this execution will look like the following:
+
+```text
+Loading shared library commons with version master
+libraryJob.run()
+  libraryJob.sayHello(World)
+  sayHello.echo(Hello, World.)
+  libraryJob.node(groovy.lang.Closure)
+     libraryJob.stage(Checkout, groovy.lang.Closure)
+        Utils.gitTools()
+        libraryJob.checkout({branch=master})
+     libraryJob.stage(Build, groovy.lang.Closure)
+        libraryJob.sh(./gradlew build)
+     libraryJob.stage(Post Build, groovy.lang.Closure)
+        libraryJob.libraryResource(net/courtanet/jenkins/request.json)
+        libraryJob.sh(curl -H 'Content-Type: application/json' -X POST -d '{"name" : "Ben"}' http://acme.com)
+```
+
 ## Note on CPS
 
 If you already fiddled with Jenkins pipeline DSL, you experienced strange errors during execution on Jenkins.
