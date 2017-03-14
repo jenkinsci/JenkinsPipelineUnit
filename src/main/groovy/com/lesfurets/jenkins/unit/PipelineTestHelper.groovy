@@ -2,16 +2,25 @@ package com.lesfurets.jenkins.unit
 
 import static com.lesfurets.jenkins.unit.MethodSignature.method
 
+import java.lang.reflect.Method
+import java.nio.charset.Charset
 import java.nio.file.Paths
 import java.util.function.Consumer
 import java.util.function.Function
 
+import org.apache.commons.io.IOUtils
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ImportCustomizer
+import org.codehaus.groovy.runtime.InvokerHelper
 import org.codehaus.groovy.runtime.MetaClassHelper
 
+import com.lesfurets.jenkins.unit.global.lib.LibraryAnnotationTransformer
+import com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration
+import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
 
 class PipelineTestHelper {
+
+    protected static Method SCRIPT_SET_BINDING = Script.getMethod('setBinding', Binding.class)
 
     /**
      * Search paths for scripts
@@ -43,14 +52,22 @@ class PipelineTestHelper {
     /**
      * Default imports for scripts loaded by this helper
      */
-    Map<String, String> imports
+    Map<String, String> imports = [ 'Library' : 'com.lesfurets.jenkins.unit.global.lib.Library']
+
+    /**
+     * Global Shared Libraries to be loaded with scripts if necessary
+     * @see LibraryLoader
+     */
+    Map<String, LibraryConfiguration> libraries = [:]
 
     /**
      * Stack of method calls of scripts loaded by this helper
      */
     List<MethodCall> callStack = []
 
-    private GroovyScriptEngine gse
+    protected GroovyScriptEngine gse
+
+    protected LibraryLoader libLoader
 
     /**
      * Method interceptor for method 'load' to load scripts via encapsulated GroovyScriptEngine
@@ -73,6 +90,9 @@ class PipelineTestHelper {
         return this.loadScript(name, delegate.binding)
     }
 
+    /**
+     * Method interceptor for method 'parallel'
+     */
     protected parallelInterceptor = { Map m ->
         // If you have many steps in parallel and one of the step in Jenkins fails, the other tasks keep runnning in Jenkins.
         // Since here the parallel steps are executed sequentially, we are hiding the error to let other steps run
@@ -95,7 +115,7 @@ class PipelineTestHelper {
      * Method interceptor for any method called in executing script.
      * Calls are logged on the call stack.
      */
-    protected methodInterceptor = { String name, args ->
+    public methodInterceptor = { String name, args ->
         // register method call to stack
         int depth = Thread.currentThread().stackTrace.findAll { it.className == delegate.class.name }.size()
         this.registerMethodCall(delegate, depth, name, args)
@@ -112,6 +132,59 @@ class PipelineTestHelper {
         return result
     }
 
+    def getMethodInterceptor() {
+        return methodInterceptor
+    }
+
+    /**
+     * Method for calling custom allowed methods
+     */
+    def methodMissingInterceptor = { String name, args ->
+        if (this.isMethodAllowed(name, args)) {
+            def result = null
+            if (args != null) {
+                for (argument in args) {
+                    result = this.callIfClosure(argument, result)
+                    if (argument instanceof Map) {
+                        argument.each { k, v ->
+                            result = this.callIfClosure(k, result)
+                            result = this.callIfClosure(v, result)
+                        }
+                    }
+                }
+            }
+            return result
+        } else {
+            throw new MissingMethodException(name, delegate.class, args)
+        }
+    }
+
+    def getMethodMissingInterceptor() {
+        return methodMissingInterceptor
+    }
+
+    def callIfClosure(Object closure, Object currentResult) {
+        if (closure instanceof Closure) {
+            currentResult = closure.call()
+        }
+        return currentResult
+    }
+
+    /**
+     * Method interceptor for 'libraryResource' in Shared libraries
+     * The resource from shared library should have been added to the url classloader in advance
+     */
+    def libraryResourceInterceptor = { m ->
+        def stream = gse.groovyClassLoader.getResourceAsStream(m as String)
+        if (stream) {
+            def string = IOUtils.toString(stream, Charset.forName("UTF-8"))
+            IOUtils.closeQuietly(stream)
+            return string
+        } else {
+            throw new GroovyRuntimeException("Library Resource not found with path $m")
+        }
+    }
+
     /**
      * List of allowed methods with default interceptors.
      * Complete this list in need with {@link #registerAllowedMethod}
@@ -119,6 +192,7 @@ class PipelineTestHelper {
     protected Map<MethodSignature, Closure> allowedMethodCallbacks = [
             (method("load", String.class))                : loadInterceptor,
             (method("parallel", Map.class))               : parallelInterceptor,
+            (method("libraryResource", String.class))     : libraryResourceInterceptor,
     ]
 
     PipelineTestHelper() {
@@ -138,17 +212,21 @@ class PipelineTestHelper {
     }
 
     PipelineTestHelper build() {
-        ImportCustomizer customizer = new ImportCustomizer()
-        imports.each { k, v -> customizer.addImport(k, v) }
-
         CompilerConfiguration configuration = new CompilerConfiguration()
+        GroovyClassLoader cLoader = new InterceptingGCL(this, baseClassloader, configuration)
+
+        libLoader = new LibraryLoader(cLoader, libraries)
+        LibraryAnnotationTransformer libraryTransformer = new LibraryAnnotationTransformer(libLoader)
+        configuration.addCompilationCustomizers(libraryTransformer)
+
+        ImportCustomizer importCustomizer = new ImportCustomizer()
+        imports.each { k, v -> importCustomizer.addImport(k, v) }
+        configuration.addCompilationCustomizers(importCustomizer)
+
         configuration.setDefaultScriptExtension(scriptExtension)
         configuration.setScriptBaseClass(scriptBaseClass.getName())
-        configuration.addCompilationCustomizers(customizer)
 
-        GroovyClassLoader cLoader = new GroovyClassLoader(baseClassloader, configuration)
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
-
         gse.setConfig(configuration)
         return this
     }
@@ -193,6 +271,15 @@ class PipelineTestHelper {
     }
 
     /**
+     * Load script with name with empty binding
+     * @param name path of the script
+     * @return loaded and run script
+     */
+    Script loadScript(String name) {
+        this.loadScript(name, new Binding())
+    }
+
+    /**
      * Load and run script with given binding context
      * @param scriptName path of the script
      * @param binding
@@ -200,21 +287,40 @@ class PipelineTestHelper {
      */
     Script loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding)
-        binding.setVariable("_TEST_HELPER", this)
-        Script script = gse.createScript(scriptName, binding)
-        script.metaClass.invokeMethod = methodInterceptor
-        script.metaClass.static.invokeMethod = methodInterceptor
+        Class scriptClass = gse.loadScriptByName(scriptName)
+        setGlobalVars(binding)
+        Script script = InvokerHelper.createScript(scriptClass, binding)
+        script.metaClass.invokeMethod = getMethodInterceptor()
+        script.metaClass.static.invokeMethod = getMethodInterceptor()
+        script.metaClass.methodMissing = getMethodMissingInterceptor()
+        return runScript(script)
+    }
+
+    protected Script runScript(Script script) {
         script.run()
         return script
     }
 
     /**
-     * Load script with name with empty binding
-     * @param name path of the script
-     * @return loaded and run script
+     * Sets global variables defined in loaded libraries on the binding
+     * @param binding
      */
-    Script loadScript(String name) {
-        this.loadScript(name, new Binding())
+    void setGlobalVars(Binding binding) {
+        libLoader.libRecords.values().stream()
+                        .flatMap { it.definedGlobalVars.entrySet().stream() }
+                        .forEach { e ->
+            if (e.value instanceof Script) {
+                Script script = Script.cast(e.value)
+                // invoke setBinding from method to avoid interception
+                SCRIPT_SET_BINDING.invoke(script, binding)
+                script.metaClass.getMethods().findAll { it.name == 'call' }.forEach { m ->
+                    this.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
+                                    { args -> m.doMethodInvoke(e.value, args) })
+                }
+            } else {
+                binding.setVariable(e.key, e.value)
+            }
+        }
     }
 
     /**
@@ -255,6 +361,16 @@ class PipelineTestHelper {
     void registerAllowedMethod(MethodSignature methodSignature, Consumer callback) {
         this.registerAllowedMethod(methodSignature,
                         callback != null ? { params -> return callback.accept(params)} : null)
+    }
+
+    /**
+     *
+     * @param libraryDescription
+     */
+    void registerSharedLibrary(LibraryConfiguration libraryDescription) {
+        Objects.requireNonNull(libraryDescription)
+        Objects.requireNonNull(libraryDescription.name)
+        this.libraries.put(libraryDescription.name, libraryDescription)
     }
 
     /**

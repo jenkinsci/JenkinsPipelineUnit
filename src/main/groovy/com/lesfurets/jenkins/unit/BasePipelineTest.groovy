@@ -16,6 +16,8 @@ abstract class BasePipelineTest {
 
     Binding binding = new Binding()
 
+    ClassLoader baseClassLoader = this.class.classLoader
+
     def stringInterceptor = { m -> m.variable }
 
     def withCredentialsInterceptor = { list, closure ->
@@ -31,15 +33,16 @@ abstract class BasePipelineTest {
 
     BasePipelineTest() {
         helper = new PipelineTestHelper()
-        helper.setScriptRoots scriptRoots
-        helper.setScriptExtension scriptExtension
-        helper.setBaseClassloader this.class.classLoader
-        helper.setImports imports
-        helper.setBaseScriptRoot baseScriptRoot
     }
 
     void setUp() throws Exception {
+        helper.setScriptRoots scriptRoots
+        helper.setScriptExtension scriptExtension
+        helper.setBaseClassloader baseClassLoader
+        helper.imports += imports
+        helper.setBaseScriptRoot baseScriptRoot
         helper.build()
+
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
         helper.registerAllowedMethod("node", [String.class, Closure.class], null)
@@ -75,7 +78,7 @@ abstract class BasePipelineTest {
      * Can be useful when mocking a jenkins method.
      * @param status job status to set
      */
-    void updateBuildStatus(String status){
+    void updateBuildStatus(String status) {
         binding.getVariable('currentBuild').result = status
     }
 

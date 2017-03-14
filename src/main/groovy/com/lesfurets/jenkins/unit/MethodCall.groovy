@@ -4,6 +4,9 @@ import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 import org.codehaus.groovy.runtime.MetaClassHelper
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class MethodCall {
 
     Object target
@@ -70,7 +73,9 @@ class MethodCall {
 
     @Override
     String toString() {
-        return "${'   ' * (stackDepth)}${target.class.simpleName}.$methodName(${argsToString()})"
+        return "${'   ' * (stackDepth)}" +
+                        "${target instanceof Class ? target.simpleName : target.class.simpleName}." +
+                        "$methodName(${argsToString()})"
     }
 
     boolean equals(o) {

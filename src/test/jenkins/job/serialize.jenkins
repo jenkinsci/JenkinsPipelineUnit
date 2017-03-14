@@ -2,7 +2,7 @@ import groovy.json.JsonSlurper
 
 def execute() {
     node() {
-        def utils = load "src/main/jenkins/lib/utils.jenkins"
+        def utils = load "src/test/jenkins/lib/utils.jenkins"
         stage('Checkout') {
             checkout scm
             gitlabBuilds(builds: ["build", "test"]) {
