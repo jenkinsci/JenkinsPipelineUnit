@@ -211,7 +211,7 @@ class PipelineTestHelper {
         this.baseScriptRoot = baseScriptRoot
     }
 
-    PipelineTestHelper build() {
+    PipelineTestHelper init() {
         CompilerConfiguration configuration = new CompilerConfiguration()
         GroovyClassLoader cLoader = new InterceptingGCL(this, baseClassloader, configuration)
 
@@ -229,6 +229,10 @@ class PipelineTestHelper {
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
         gse.setConfig(configuration)
         return this
+    }
+
+    protected boolean isInitialized() {
+        return gse != null
     }
 
     /**
@@ -286,7 +290,8 @@ class PipelineTestHelper {
      * @return loaded and run script
      */
     Script loadScript(String scriptName, Binding binding) {
-        Objects.requireNonNull(binding)
+        Objects.requireNonNull(binding, "Binding cannot be null.")
+        Objects.requireNonNull(gse, "GroovyScriptEngine is not initialized: Initialize the helper by calling init().")
         Class scriptClass = gse.loadScriptByName(scriptName)
         setGlobalVars(binding)
         Script script = InvokerHelper.createScript(scriptClass, binding)

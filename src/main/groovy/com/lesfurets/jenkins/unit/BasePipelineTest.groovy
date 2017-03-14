@@ -36,12 +36,14 @@ abstract class BasePipelineTest {
     }
 
     void setUp() throws Exception {
-        helper.setScriptRoots scriptRoots
-        helper.setScriptExtension scriptExtension
-        helper.setBaseClassloader baseClassLoader
-        helper.imports += imports
-        helper.setBaseScriptRoot baseScriptRoot
-        helper.build()
+        helper.with {
+            it.scriptRoots = this.scriptRoots
+            it.scriptExtension = this.scriptExtension
+            it.baseClassloader = this.baseClassLoader
+            it.imports += this.imports
+            it.baseScriptRoot = this.baseScriptRoot
+            return it
+        }.init()
 
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
@@ -68,7 +70,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("gatlingArchive", [], null)
         helper.registerAllowedMethod("string", [Map.class], stringInterceptor)
         helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
-        helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE')})
+        helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE') })
 
         binding.setVariable('currentBuild', [result: 'SUCCESS'])
     }
@@ -83,6 +85,9 @@ abstract class BasePipelineTest {
     }
 
     Script loadScript(String scriptName) {
+        if (!helper.isInitialized()) {
+            throw new IllegalStateException("Helper is not initialized: Call setUp() before tests.")
+        }
         return helper.loadScript(scriptName, this.binding)
     }
 
@@ -97,7 +102,7 @@ abstract class BasePipelineTest {
     /**
      * Asserts the job status is FAILURE.
      * Please check the mocks update this status when necessary.
-     * @See #updateBuildStatus(String)
+     * @See # updateBuildStatus ( String )
      */
     void assertJobStatusFailure() {
         assertJobStatus('FAILURE')
@@ -106,7 +111,7 @@ abstract class BasePipelineTest {
     /**
      * Asserts the job status is UNSTABLE.
      * Please check the mocks update this status when necessary
-     * @See #updateBuildStatus(String)
+     * @See # updateBuildStatus ( String )
      */
     void assertJobStatusUnstable() {
         assertJobStatus('UNSTABLE')
@@ -115,7 +120,7 @@ abstract class BasePipelineTest {
     /**
      * Asserts the job status is SUCCESS.
      * Please check the mocks update this status when necessary
-     * @See #updateBuildStatus(String)
+     * @See # updateBuildStatus ( String )
      */
     void assertJobStatusSuccess() {
         assertJobStatus('SUCCESS')

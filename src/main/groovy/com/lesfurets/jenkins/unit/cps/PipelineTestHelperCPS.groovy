@@ -105,7 +105,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         return currentResult
     }
 
-    PipelineTestHelperCPS build() {
+    PipelineTestHelperCPS init() {
         CompilerConfiguration configuration = new CompilerConfiguration()
         GroovyClassLoader cLoader = new InterceptingGCL(this, baseClassloader, configuration)
 
@@ -133,7 +133,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         try {
             script.run()
         } catch (CpsCallableInvocation inv) {
-            println inv
+            throw inv
         }
         return script
     }
