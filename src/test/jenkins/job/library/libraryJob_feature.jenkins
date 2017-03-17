@@ -1,0 +1,27 @@
+@Library('commons@feature')
+import net.courtanet.jenkins.Utils2
+
+def execute() {
+    parallel(
+        action1: {
+            node() {
+                def utils = new Utils2()
+                def s = Utils2.tools()
+                println s
+                helloMessage {
+                    message = "hello this is a test"
+                }
+                sh "${utils.gitTools()}"
+                sh 'sleep 3'
+            }
+        },
+        action2: {
+            node() {
+                sh 'sleep 4'
+                error 'message'
+            }
+        }
+    )
+}
+
+return this

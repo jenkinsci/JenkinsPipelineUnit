@@ -1,0 +1,9 @@
+node() {
+    stage('List') {
+        hello()
+    }
+}
+
+void hello() {
+    [1, 2, 3].each{ println it }
+}

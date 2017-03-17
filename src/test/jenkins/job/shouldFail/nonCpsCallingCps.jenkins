@@ -1,0 +1,15 @@
+node() {
+    stage('List') {
+        List<Long> list = createList()
+    }
+}
+
+long getLong() {
+    return 2L
+}
+
+@NonCPS
+List<Long> createList() {
+    getLong()
+    return []
+}
