@@ -20,7 +20,12 @@ class RegressionTestHelper {
 
     public static final String METHOD_CALL_NOT_EXISTS = "Method call '%s' does not exist on second stack"
 
-    static void testNonRegression(PipelineTestHelper helper, String targetFileName, boolean writeReference) {
+    public static final String WRITE_STACKS_PROPERTY = 'pipeline.write.stacks'
+
+    static void testNonRegression(PipelineTestHelper helper, String targetFileName, Boolean writeReference = null) {
+        if (writeReference == null) {
+            writeReference = Boolean.parseBoolean(System.getProperty(WRITE_STACKS_PROPERTY))
+        }
         targetFileName += '.txt'
         def referenceFile = new File(targetFileName)
 
@@ -31,7 +36,7 @@ class RegressionTestHelper {
                     out.println(it)
                 }
             }
-            fail('Please disable the write before commiting')
+            fail("Please disable the write before commiting with -D${WRITE_STACKS_PROPERTY}=false")
         }
 
         String callStack = helper.callStack.join('\n') + '\n'
