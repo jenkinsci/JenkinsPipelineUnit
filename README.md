@@ -325,3 +325,9 @@ To use this _*experimental*_ feature, you can use the abstract class `BasePipeli
 You may see some changes in the call stacks that the helper registers.
 Note also that the serialization used to test is not the same as what Jenkins uses. 
 You may find some incoherence in that level.
+
+## Contributing
+
+JenkinsPipelineUnit aims to help devops code and test Jenkins pipelines with a shorter development cycle.
+It addresses some of the requirements traced in [JENKINS-33925](https://issues.jenkins-ci.org/browse/JENKINS-33925).
+If you are willing to contribute please don't hesitate to discuss in issues and open a pull-request.
