@@ -1,6 +1,11 @@
 package com.lesfurets.jenkins.unit
 
+import static java.util.stream.Collectors.joining
 import static org.assertj.core.api.Assertions.assertThat
+
+import org.assertj.core.api.AbstractCharSequenceAssert
+
+import groovy.transform.Memoized
 
 abstract class BasePipelineTest {
 
@@ -175,11 +180,16 @@ abstract class BasePipelineTest {
         return helper.runScript(script)
     }
 
+    @Memoized
+    String callStackDump() {
+        return helper.callStack.stream()
+                     .map { it -> it.toString() }
+                     .collect(joining('\n'))
+    }
+
     void printCallStack() {
         if (!Boolean.parseBoolean(System.getProperty("printstack.disabled"))) {
-            helper.callStack.each {
-                println it
-            }
+            println callStackDump()
         }
     }
 
@@ -212,6 +222,14 @@ abstract class BasePipelineTest {
 
     private assertJobStatus(String status) {
         assertThat(binding.getVariable('currentBuild').result).isEqualTo(status)
+    }
+
+    AbstractCharSequenceAssert assertCallStack() {
+        return assertThat(callStackDump())
+    }
+
+    void assertCallStackContains(String text) {
+        assertCallStack().contains(text)
     }
 
 }
