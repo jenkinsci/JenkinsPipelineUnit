@@ -1,5 +1,8 @@
 package com.lesfurets.jenkins.unit.declarative
 
+import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeWith
+import static groovy.lang.Closure.*
+
 class StageDeclaration extends GenericPipelineDeclaration {
 
     String name
@@ -14,25 +17,23 @@ class StageDeclaration extends GenericPipelineDeclaration {
         this.steps = closure
     }
 
-    def when(Closure closure) {
+    def when(@DelegatesTo(strategy = DELEGATE_ONLY, value = WhenDeclaration) Closure closure) {
         this.when = DeclarativePipeline.createComponent(WhenDeclaration, closure)
     }
 
     def execute(Object delegate) {
+        String name = this.name
         if (!when || when.execute(delegate)) {
             super.execute(delegate)
             // TODO handle credentials
-            Closure inside = { agent?.execute(delegate) } >> steps.rehydrate(delegate, this, this)
-            Closure cl = { stage("$name", inside) }
-            def stepsCl = cl.rehydrate(delegate, this, this)
-            stepsCl.resolveStrategy = Closure.DELEGATE_FIRST
-            stepsCl.call()
+            Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, delegate, delegate)
+            Closure cl = { stage("$name", stageBody) }
+            executeWith(delegate, cl)
             if (post) {
                 this.post.execute(delegate)
             }
         } else {
-            Closure cl = { echo "Skipping stage $name" }
-            cl.rehydrate(delegate, this, this).call()
+            executeWith(delegate, { echo "Skipping stage $name" })
         }
     }
 

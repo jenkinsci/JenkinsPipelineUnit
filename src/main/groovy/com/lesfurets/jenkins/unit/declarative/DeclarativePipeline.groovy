@@ -1,5 +1,7 @@
 package com.lesfurets.jenkins.unit.declarative
 
+import static groovy.lang.Closure.*
+
 class DeclarativePipeline extends GenericPipelineDeclaration {
 
     def properties = [:]
@@ -9,20 +11,33 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
     Closure triggers
     Closure parameters
 
-    static executeOn(Closure closure, Object delegate) {
+    static <T> T executeOn(@DelegatesTo.Target Object delegate,
+                     @DelegatesTo(strategy = DELEGATE_ONLY) Closure<T> closure) {
         if (closure) {
-            def cl = closure.rehydrate(delegate, this, this)
-            cl.resolveStrategy = Closure.DELEGATE_ONLY
-            cl.call()
+            def cl = closure.rehydrate(delegate, delegate, delegate)
+            cl.resolveStrategy = DELEGATE_ONLY
+            return cl.call()
         }
+        return null
     }
 
-    static <T> T createComponent(Class<T> componentType, Closure closure) {
+    static <T> T executeWith(@DelegatesTo.Target Object delegate,
+                       @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
+        if (closure) {
+            def cl = closure.rehydrate(delegate, delegate, delegate)
+            cl.resolveStrategy = DELEGATE_FIRST
+            return cl.call()
+        }
+        return null
+    }
+
+    static <T> T createComponent(Class<T> componentType,
+                                 @DelegatesTo(strategy = DELEGATE_ONLY, value = T) Closure closure) {
         def componentInstance = componentType.newInstance()
         def rehydrate = closure.rehydrate(componentInstance, this, this)
-        rehydrate.resolveStrategy = Closure.DELEGATE_ONLY
+        rehydrate.resolveStrategy = DELEGATE_ONLY
         rehydrate.call()
-        return  componentInstance
+        return componentInstance
     }
 
     DeclarativePipeline() {
@@ -43,34 +58,35 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
 
     }
 
-    def options(Closure closure) {
+    def options(@DelegatesTo(DeclarativePipeline) Closure closure) {
         options.add(closure)
     }
 
-    def stages(Closure closure) {
+    def stages(@DelegatesTo(DeclarativePipeline) Closure closure) {
         closure.call()
     }
 
-    def triggers(Closure closure) {
+    def triggers(@DelegatesTo(DeclarativePipeline) Closure closure) {
         this.triggers = closure
     }
 
-    def parameters(Closure closure) {
+    def parameters(@DelegatesTo(DeclarativePipeline) Closure closure) {
         this.parameters = closure
     }
 
-    def stage(String name, Closure closure) {
+    def stage(String name,
+              @DelegatesTo(strategy = DELEGATE_ONLY, value = StageDeclaration) Closure closure) {
         this.stages.put(name, createComponent(StageDeclaration, closure).with { it.name = name; it })
     }
 
     def execute(Object delegate) {
         super.execute(delegate)
         this.options.forEach {
-            executeOn(it, delegate)
+            executeOn(delegate, it)
         }
         this.agent?.execute(delegate)
-        executeOn(this.parameters, delegate)
-        executeOn(this.triggers, delegate)
+        executeOn(delegate, this.parameters)
+        executeOn(delegate, this.triggers)
         this.stages.entrySet().forEach { e ->
             e.value.execute(delegate)
         }

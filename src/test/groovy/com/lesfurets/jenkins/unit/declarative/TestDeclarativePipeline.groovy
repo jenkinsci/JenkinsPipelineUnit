@@ -54,7 +54,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         addEnvVar('BRANCH_NAME', 'master')
         loadScript('Branch_Jenkinsfile')
         printCallStack()
-        assertCallStack().contains('Skipping')
+        assertCallStack().contains('Skipping stage Example Deploy')
         assertJobStatusSuccess()
     }
 
@@ -72,5 +72,17 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         printCallStack()
         assertJobStatusSuccess()
         assertCallStack().contains('AN_ACCESS_KEY:something_secret')
+    }
+
+    @Test(expected = MissingPropertyException)
+    void should_non_valid_fail() throws Exception {
+        try {
+            loadScript('Non_Valid_Jenkinsfile')
+        } catch (e) {
+            e.printStackTrace()
+            throw e
+        } finally {
+            printCallStack()
+        }
     }
 }

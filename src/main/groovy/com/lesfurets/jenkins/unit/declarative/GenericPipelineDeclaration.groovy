@@ -1,6 +1,7 @@
 package com.lesfurets.jenkins.unit.declarative
 
 import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.createComponent
+import static groovy.lang.Closure.*
 
 abstract class GenericPipelineDeclaration {
 
@@ -10,13 +11,10 @@ abstract class GenericPipelineDeclaration {
     PostDeclaration post
 
     def agent(Object o) {
-        this.agent = new AgentDeclaration().with {
-            it.label = o
-            return it
-        }
+        this.agent = new AgentDeclaration().with { it.label = o; it }
     }
 
-    def agent(Closure closure) {
+    def agent(@DelegatesTo(strategy = DELEGATE_ONLY, value = AgentDeclaration) Closure closure) {
         this.agent = createComponent(AgentDeclaration, closure)
     }
 
@@ -28,7 +26,7 @@ abstract class GenericPipelineDeclaration {
         this.tools = closure
     }
 
-    def post(Closure closure) {
+    def post(@DelegatesTo(strategy = DELEGATE_ONLY, value = PostDeclaration) Closure closure) {
         this.post = createComponent(PostDeclaration, closure)
     }
 
@@ -37,7 +35,7 @@ abstract class GenericPipelineDeclaration {
         if (environment) {
             def env = delegate.binding.env
             def cl = this.environment.rehydrate(env, delegate, this)
-            cl.resolveStrategy = Closure.DELEGATE_FIRST
+            cl.resolveStrategy = DELEGATE_FIRST
             cl.call()
         }
     }
