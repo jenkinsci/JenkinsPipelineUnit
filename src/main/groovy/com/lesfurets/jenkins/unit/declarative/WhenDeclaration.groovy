@@ -1,5 +1,7 @@
 package com.lesfurets.jenkins.unit.declarative
 
+import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeWith
+
 class WhenDeclaration {
 
     String branch
@@ -27,7 +29,7 @@ class WhenDeclaration {
         boolean br = true
         boolean env = true
         if (expression) {
-            exp = expression.rehydrate(delegate, this, this).call()
+            exp = executeWith(delegate, expression)
         }
         if (branch) {
             br = this.branch == delegate.env.BRANCH_NAME

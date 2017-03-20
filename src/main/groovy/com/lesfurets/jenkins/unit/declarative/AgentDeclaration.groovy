@@ -1,6 +1,9 @@
 package com.lesfurets.jenkins.unit.declarative
 
+import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.createComponent
+import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeWith
 import static com.lesfurets.jenkins.unit.declarative.ObjectUtils.printNonNullProperties
+import static groovy.lang.Closure.*
 
 import groovy.transform.Memoized
 import groovy.transform.ToString
@@ -18,7 +21,7 @@ class AgentDeclaration {
         this.label = label
     }
 
-    def node(Closure closure) {
+    def node(@DelegatesTo(AgentDeclaration) Closure closure) {
         closure.call()
     }
 
@@ -34,20 +37,15 @@ class AgentDeclaration {
         this.docker = new DockerDeclaration().with { it.image = image; it }
     }
 
-    def docker(Closure closure) {
-        def dockerDeclaration = new DockerDeclaration()
-        def cl = closure.rehydrate(dockerDeclaration, this, this)
-        cl.resolveStrategy = Closure.DELEGATE_ONLY
-        cl.call()
-        this.docker = dockerDeclaration
-
+    def docker(@DelegatesTo(strategy = DELEGATE_ONLY, value=DockerDeclaration) Closure closure) {
+        this.docker = createComponent(DockerDeclaration, closure)
     }
 
     def dockerfile(boolean dockerfile) {
         this.dockerfile = dockerfile
     }
 
-    def dockerfile(Closure closure) {
+    def dockerfile(@DelegatesTo(AgentDeclaration) Closure closure) {
         closure.call()
     }
 
@@ -61,8 +59,7 @@ class AgentDeclaration {
             throw new IllegalStateException("No agent description found")
         }
         agentDesc = printNonNullProperties(this)
-        Closure cl = { echo "Executing on agent $agentDesc" }
-        cl.rehydrate(delegate, this, this).call()
+        executeWith(delegate, { echo "Executing on agent $agentDesc" })
     }
 
     @ToString(includePackage = false, includeNames = true, ignoreNulls = true)

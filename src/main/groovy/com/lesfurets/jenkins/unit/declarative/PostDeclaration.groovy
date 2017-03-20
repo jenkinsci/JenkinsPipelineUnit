@@ -33,21 +33,21 @@ class PostDeclaration {
     def execute(Object delegate) {
         def currentBuild = delegate.currentBuild.result
         if (this.always) {
-            executeOn(this.always, delegate)
+            executeOn(delegate, this.always)
         }
 
         switch (currentBuild) {
             case 'SUCCESS':
-                executeOn(this.success, delegate)
+                executeOn(delegate, this.success)
                 break
             case 'FAILURE':
-                executeOn(this.failure, delegate)
+                executeOn(delegate, this.failure)
                 break
             case 'UNSTABLE':
-                executeOn(this.unstable, delegate)
+                executeOn(delegate, this.unstable)
                 break
             case 'CHANGED':
-                executeOn(this.changed, delegate)
+                executeOn(delegate, this.changed)
                 break
         }
     }
