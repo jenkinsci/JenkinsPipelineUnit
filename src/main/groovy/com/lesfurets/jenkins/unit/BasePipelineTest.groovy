@@ -84,7 +84,12 @@ abstract class BasePipelineTest {
         binding.getVariable('currentBuild').result = status
     }
 
-    Script loadScript(String scriptName) {
+    /**
+     * Loads and runs the script by its name/path
+     * @param scriptName script name or path
+     * @return the return value of the script
+     */
+    Object loadScript(String scriptName) {
         if (!helper.isInitialized()) {
             throw new IllegalStateException("Helper is not initialized: Call setUp() before tests.")
         }

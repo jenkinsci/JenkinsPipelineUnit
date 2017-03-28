@@ -277,18 +277,17 @@ class PipelineTestHelper {
     /**
      * Load script with name with empty binding
      * @param name path of the script
-     * @return loaded and run script
+     * @return the return value of the script
      */
     Object loadScript(String name) {
-
-        this.loadScript(name, new Binding())
+        return this.loadScript(name, new Binding())
     }
 
     /**
      * Load and run script with given binding context
      * @param scriptName path of the script
      * @param binding
-     * @return loaded and run script
+     * @return the return value of the script
      */
     Object loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding, "Binding cannot be null.")
@@ -302,7 +301,11 @@ class PipelineTestHelper {
         return runScript(script)
     }
 
-
+    /**
+     * Run the script
+     * @param script
+     * @return the return value of the script
+     */
     protected Object runScript(Script script) {
         return script.run()
     }
