@@ -1,6 +1,7 @@
 def execute() {
     node() {
         def utils = load "src/test/jenkins/lib/utils.jenkins"
+        def properties = load 'src/test/jenkins/lib/properties.jenkins'
         stage('Checkout') {
             checkout scm
             String revision = utils.currentRevision()
@@ -12,6 +13,7 @@ def execute() {
                 }
 
                 stage("test") {
+                    println properties.key
                     gitlabCommitStatus("test") {
                         sh "mvn verify -DgitRevision=$revision"
                     }

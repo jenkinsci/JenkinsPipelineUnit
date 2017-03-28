@@ -279,7 +279,8 @@ class PipelineTestHelper {
      * @param name path of the script
      * @return loaded and run script
      */
-    Script loadScript(String name) {
+    Object loadScript(String name) {
+
         this.loadScript(name, new Binding())
     }
 
@@ -289,7 +290,7 @@ class PipelineTestHelper {
      * @param binding
      * @return loaded and run script
      */
-    Script loadScript(String scriptName, Binding binding) {
+    Object loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding, "Binding cannot be null.")
         Objects.requireNonNull(gse, "GroovyScriptEngine is not initialized: Initialize the helper by calling init().")
         Class scriptClass = gse.loadScriptByName(scriptName)
@@ -301,9 +302,9 @@ class PipelineTestHelper {
         return runScript(script)
     }
 
-    protected Script runScript(Script script) {
-        script.run()
-        return script
+
+    protected Object runScript(Script script) {
+        return script.run()
     }
 
     /**

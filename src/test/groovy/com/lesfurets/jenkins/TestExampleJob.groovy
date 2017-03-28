@@ -5,6 +5,9 @@ import org.junit.Test
 
 import com.lesfurets.jenkins.unit.BasePipelineTest
 
+import static com.lesfurets.jenkins.unit.MethodCall.callArgsToString
+import static org.junit.Assert.assertTrue
+
 class TestExampleJob extends BasePipelineTest {
 
     @Override
@@ -26,5 +29,18 @@ class TestExampleJob extends BasePipelineTest {
         script.execute()
         printCallStack()
         assertJobStatusSuccess()
+    }
+
+    @Test
+    void should_print_property_value() {
+        def script = loadScript('job/exampleJob.jenkins')
+        script.execute()
+
+        def value = 'value'
+        assertTrue(helper.callStack.findAll { call ->
+            call.methodName == 'println'
+        }.any { call ->
+            callArgsToString(call).contains(value)
+        })
     }
 }
