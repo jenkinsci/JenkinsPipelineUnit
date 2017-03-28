@@ -7,6 +7,8 @@ import com.lesfurets.jenkins.unit.BaseRegressionTest
 
 class TestRegression extends BaseRegressionTest {
 
+
+
     @Override
     @Before
     void setUp() throws Exception {

@@ -87,7 +87,7 @@ class PipelineTestHelper {
                 }
             }
         }
-        return this.loadScriptWithoutRun(name, delegate.binding).run()
+        return this.loadScript(name, delegate.binding)
     }
 
     /**
@@ -279,7 +279,8 @@ class PipelineTestHelper {
      * @param name path of the script
      * @return loaded and run script
      */
-    Script loadScript(String name) {
+    Object loadScript(String name) {
+
         this.loadScript(name, new Binding())
     }
 
@@ -289,12 +290,7 @@ class PipelineTestHelper {
      * @param binding
      * @return loaded and run script
      */
-    Script loadScript(String scriptName, Binding binding) {
-        Script script = loadScriptWithoutRun(scriptName, binding)
-        return runScript(script)
-    }
-
-    Script loadScriptWithoutRun(String scriptName, Binding binding) {
+    Object loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding, "Binding cannot be null.")
         Objects.requireNonNull(gse, "GroovyScriptEngine is not initialized: Initialize the helper by calling init().")
         Class scriptClass = gse.loadScriptByName(scriptName)
@@ -303,12 +299,12 @@ class PipelineTestHelper {
         script.metaClass.invokeMethod = getMethodInterceptor()
         script.metaClass.static.invokeMethod = getMethodInterceptor()
         script.metaClass.methodMissing = getMethodMissingInterceptor()
-        return script
+        return runScript(script)
     }
 
-    protected Script runScript(Script script) {
-        script.run()
-        return script
+
+    protected Object runScript(Script script) {
+        return script.run()
     }
 
     /**
