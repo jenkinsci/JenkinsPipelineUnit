@@ -69,7 +69,8 @@ return this
 Now using the Jenkins Pipeline Unit you can unit test if it does the job :
 
 ```groovy
-import com.lesfurets.jenkins.helpers.BasePipelineTest
+// Example Groovy test
+import com.lesfurets.jenkins.unit.BasePipelineTest
 
 class TestExampleJob extends BasePipelineTest {
         
