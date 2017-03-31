@@ -5,10 +5,12 @@ package com.lesfurets.jenkins
 
 import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 import org.junit.Before
-import org.junit.Ignore
+import org.junit.ComparisonFailure
 import org.junit.Test
 
-import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS;
+import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
+
+import static org.assertj.core.api.Assertions.assertThat
 
 class TestFailingJobs extends BasePipelineTestCPS {
 
@@ -31,10 +33,10 @@ class TestFailingJobs extends BasePipelineTestCPS {
      * on a CPS-transformed closure is not yet supported (JENKINS-26481);
      * encapsulate in a @NonCPS method, or use Java-style loops
      */
-    @Test(expected = UnsupportedOperationException)
-    @Ignore
+    @Test(expected = ComparisonFailure)
     void should_fail_forEach() throws Exception {
         def script = loadScript("job/shouldFail/forEach.jenkins")
         printCallStack()
+        assertThat(helper.callStack.count { it.toString().contains("println")}).isEqualTo(3)
     }
 }
