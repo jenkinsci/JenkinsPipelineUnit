@@ -16,7 +16,7 @@ import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
 
 class PipelineTestHelperCPS extends PipelineTestHelper {
 
-    protected Class scriptBaseClass = MockPipelineScriptCPS.class
+    Class scriptBaseClass = MockPipelineScriptCPS.class
 
     protected parallelInterceptor = { Map m ->
         // If you have many steps in parallel and one of the step in Jenkins fails, the other tasks keep runnning in Jenkins.

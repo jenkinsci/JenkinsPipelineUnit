@@ -2,6 +2,8 @@ package com.lesfurets.jenkins.unit.declarative
 
 import static groovy.lang.Closure.*
 
+import org.jenkinsci.plugins.workflow.cps.CpsScript
+
 class DeclarativePipeline extends GenericPipelineDeclaration {
 
     def properties = [:]
@@ -12,7 +14,7 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
     Closure parameters
 
     static <T> T executeOn(@DelegatesTo.Target Object delegate,
-                     @DelegatesTo(strategy = DELEGATE_ONLY) Closure<T> closure) {
+                           @DelegatesTo(strategy = DELEGATE_ONLY) Closure<T> closure) {
         if (closure) {
             def cl = closure.rehydrate(delegate, delegate, delegate)
             cl.resolveStrategy = DELEGATE_ONLY
@@ -22,7 +24,7 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
     }
 
     static <T> T executeWith(@DelegatesTo.Target Object delegate,
-                       @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
+                             @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
         if (closure) {
             def cl = closure.rehydrate(delegate, delegate, delegate)
             cl.resolveStrategy = DELEGATE_FIRST
@@ -39,6 +41,20 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         rehydrate.call()
         return componentInstance
     }
+
+    static Object createComponent(String componentType,
+                                 @DelegatesTo(strategy = DELEGATE_ONLY) Closure closure) {
+        def componentInstance = closure.delegate.getClass()
+                                       .getClassLoader()
+                                       .loadClass(componentType)
+                                       .getConstructor(CpsScript.class)
+                                       .newInstance(closure.delegate)
+        def rehydrate = closure.rehydrate(componentInstance, this, this)
+        rehydrate.resolveStrategy = DELEGATE_ONLY
+        rehydrate.call()
+        return componentInstance
+    }
+
 
     DeclarativePipeline() {
         properties.put('any', 'any')
