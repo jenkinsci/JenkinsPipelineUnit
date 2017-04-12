@@ -69,6 +69,8 @@ class PipelineTestHelper {
 
     protected LibraryLoader libLoader
 
+    List<String> mockedClasses = ['org.jenkinsci.plugins.docker.commons.credentials.DockerRegistryEndpoint']
+
     /**
      * Method interceptor for method 'load' to load scripts via encapsulated GroovyScriptEngine
      */
@@ -155,7 +157,10 @@ class PipelineTestHelper {
             }
             return result
         } else {
-            throw new MissingMethodException(name, delegate.class, args)
+            println "Calling ${delegate.class}#$name()"
+            if (!this.mockedClasses.contains(delegate.class.name)) {
+                throw new MissingMethodException(name, delegate.class, args)
+            }
         }
     }
 
@@ -168,6 +173,18 @@ class PipelineTestHelper {
             currentResult = closure.call()
         }
         return currentResult
+    }
+
+    def constructorInterceptor = { Class cl, Object[] args ->
+        if(mockedClasses.contains(delegate.class.name)) {
+            return delegate.class.metaClass.invokeConstructor()
+        } else {
+            return delegate.class.metaClass.invokeConstructor(args)
+        }
+    }
+
+    def getConstructorInterceptor() {
+        return constructorInterceptor
     }
 
     /**

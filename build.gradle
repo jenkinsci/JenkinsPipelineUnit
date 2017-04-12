@@ -15,7 +15,9 @@ apply plugin: 'io.codearte.nexus-staging'
 
 repositories {
     mavenCentral()
-}
+    maven {
+        url='http://repo.jenkins-ci.org/releases/'
+}   }
 
 group = "com.lesfurets"
 archivesBaseName = "jenkins-pipeline-unit"
@@ -26,6 +28,8 @@ dependencies {
     compile     group: 'com.cloudbees',         name: 'groovy-cps',     version: '1.12'
     compile     group: 'commons-io',            name: 'commons-io',     version: '2.5'
     compile     group: 'org.apache.ivy',        name: 'ivy',            version: '2.4.0'
+    compile     group: 'org.jenkins-ci.plugins',name: 'docker-workflow', version: '1.9', ext: 'jar'
+//    compile     group: 'org.jenkins-ci.plugins',name: 'docker-commons', version: '1.5', ext: 'jar'
     compileOnly group: 'org.assertj',           name: 'assertj-core',   version: '3.4.1'
     testCompile group: 'org.assertj',           name: 'assertj-core',   version: '3.4.1'
     testCompile group: 'junit',                 name: 'junit',          version: '4.11'

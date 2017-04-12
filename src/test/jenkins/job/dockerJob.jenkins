@@ -1,0 +1,27 @@
+def execute() {
+    node() {
+        stage('Checkout') {
+            checkout scm
+            def revision = 'something'
+            def imageName = "alpine"
+            gitlabBuilds(builds: ["build", "test"]) {
+                stage("build") {
+                    docker.image(imageName).inside {
+                        sh "mvn clean package -DskipTests -DgitRevision=$revision"
+                    }
+                    gitlabCommitStatus("build") {
+                        sh "mvn clean package -DskipTests -DgitRevision=$revision"
+                    }
+                }
+
+                stage("test") {
+                    gitlabCommitStatus("test") {
+                        sh "mvn verify -DgitRevision=$revision"
+                    }
+                }
+            }
+        }
+    }
+}
+
+return this
