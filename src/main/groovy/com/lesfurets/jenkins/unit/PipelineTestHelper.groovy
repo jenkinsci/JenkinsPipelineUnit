@@ -175,11 +175,11 @@ class PipelineTestHelper {
         return currentResult
     }
 
-    def constructorInterceptor = { Class cl, Object[] args ->
+    def constructorInterceptor = { Map m ->
         if(mockedClasses.contains(delegate.class.name)) {
             return delegate.class.metaClass.invokeConstructor()
         } else {
-            return delegate.class.metaClass.invokeConstructor(args)
+            return delegate.class.metaClass.invokeConstructor(m)
         }
     }
 

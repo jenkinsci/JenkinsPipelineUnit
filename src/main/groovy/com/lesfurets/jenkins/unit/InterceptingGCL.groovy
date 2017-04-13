@@ -17,6 +17,7 @@ class InterceptingGCL extends GroovyClassLoader {
     Class parseClass(GroovyCodeSource codeSource, boolean shouldCacheSource)
                     throws CompilationFailedException {
         Class clazz = super.parseClass(codeSource, shouldCacheSource)
+        clazz.metaClass.constructor = helper.getConstructorInterceptor()
         clazz.metaClass.invokeMethod = helper.getMethodInterceptor()
         clazz.metaClass.static.invokeMethod = helper.getMethodInterceptor()
         clazz.metaClass.methodMissing = helper.getMethodMissingInterceptor()
