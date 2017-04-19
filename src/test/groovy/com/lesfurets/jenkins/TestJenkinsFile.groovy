@@ -40,7 +40,7 @@ class TestJenkinsFile extends BasePipelineTest {
                         submoduleCfg                     : [],
                         userRemoteConfigs                : [[
                                                                             credentialsId: 'gitlab_git_ssh',
-                                                                            url          : "github.com/lesfurets/pipeline-test-helper.git"
+                                                                            url          : 'github.com/lesfurets/JenkinsPipelineUnit.git'
                                                             ]]
         ])
         helper.registerAllowedMethod("junit", [Map.class], null)

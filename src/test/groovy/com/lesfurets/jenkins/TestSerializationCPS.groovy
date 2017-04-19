@@ -23,7 +23,7 @@ class TestSerializationCPS extends BasePipelineTestCPS {
                         submoduleCfg                     : [],
                         userRemoteConfigs                : [[
                                                                             credentialsId: 'gitlab_git_ssh',
-                                                                            url          : "github.com/lesfurets/pipeline-test-helper.git"
+                                                                            url          : 'github.com/lesfurets/JenkinsPipelineUnit.git'
                                                             ]]
         ])
     }
