@@ -106,6 +106,25 @@ This test will print the call stack of the execution :
                   exampleJob.sh(mvn verify -DgitRevision=bcc19744)
 ```
 
+### Mock Jenkins variables
+
+You can define both environment variables and job execution parameters.
+
+```groovy
+    @Override
+    @Before
+    void setUp() throws Exception {
+        super.setUp()
+        // Assigns false to a job parameter ENABLE_TEST_STAGE 
+        binding.setVariable('ENABLE_TEST_STAGE', 'false')
+        // Defines the previous execution status
+        binding.getVariable('currentBuild').previousBuild = [result: 'UNSTABLE']
+    }
+```
+
+The test helper already provides basic variables such as a very simple currentBuild definition.
+You can redefine them as you wish. 
+
 ### Mock Jenkins commands
 
 You can register interceptors to mock Jenkins commands, which may or may not return a result.
@@ -256,7 +275,7 @@ node() {
 ```
 
 This pipeline is using a shared library called `commons`.
-Now lets test it:
+Now let's test it:
 
 ```groovy
     String clonePath = 'path/to/clone'
