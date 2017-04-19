@@ -2,21 +2,22 @@ def execute() {
     node() {
         def utils = load "src/test/jenkins/lib/utils.jenkins"
         def properties = load 'src/test/jenkins/lib/properties.jenkins'
-        stage('Checkout') {
-            checkout scm
-            String revision = utils.currentRevision()
-            gitlabBuilds(builds: ["build", "test"]) {
-                stage("build") {
-                    gitlabCommitStatus("build") {
-                        sh "mvn clean package -DskipTests -DgitRevision=$revision"
-                    }
-                }
 
-                stage("test") {
+        String revision = stage('Checkout') {
+            checkout scm
+            return utils.currentRevision()
+        }
+        gitlabBuilds(builds: ["build", "test"]) {
+            stage("build") {
+                gitlabCommitStatus("build") {
+                    sh "mvn clean package -DskipTests -DgitRevision=$revision"
+                }
+            }
+
+            stage("test") {
+                gitlabCommitStatus("test") {
                     println properties.key
-                    gitlabCommitStatus("test") {
-                        sh "mvn verify -DgitRevision=$revision"
-                    }
+                    sh "mvn verify -DgitRevision=$revision"
                 }
             }
         }

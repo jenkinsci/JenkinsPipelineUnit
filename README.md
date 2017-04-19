@@ -42,21 +42,21 @@ Let's say you wrote this awesome pipeline script, which builds and tests your pr
  ```groovy
 def execute() {
     node() {
-        def utils = load "src/main/jenkins/lib/utils.jenkins"
-        stage('Checkout') {
+        def utils = load "src/test/jenkins/lib/utils.jenkins"
+        String revision = stage('Checkout') {
             checkout scm
-            String revision = utils.currentRevision()
-            gitlabBuilds(builds: ["build", "test"]) {
-                stage("build") {
-                    gitlabCommitStatus("build") {
-                        sh "mvn clean package -DskipTests -DgitRevision=$revision"
-                    }
+            return utils.currentRevision()
+        }
+        gitlabBuilds(builds: ["build", "test"]) {
+            stage("build") {
+                gitlabCommitStatus("build") {
+                    sh "mvn clean package -DskipTests -DgitRevision=$revision"
                 }
+            }
 
-                stage("test") {
-                    gitlabCommitStatus("test") {
-                        sh "mvn verify -DgitRevision=$revision"
-                    }
+            stage("test") {
+                gitlabCommitStatus("test") {
+                    sh "mvn verify -DgitRevision=$revision"
                 }
             }
         }
@@ -88,22 +88,22 @@ class TestExampleJob extends BasePipelineTest {
 This test will print the call stack of the execution :
 
 ```text
-exampleJob.run()
-exampleJob.execute()
-  exampleJob.node(groovy.lang.Closure)
-     exampleJob.load(src/main/jenkins/lib/utils.jenkins)
-        utils.run()
-     exampleJob.stage(Checkout, groovy.lang.Closure)
-        exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}]})
-        utils.currentRevision()
-           utils.sh({returnStdout=true, script=git rev-parse HEAD})
-        exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
-           exampleJob.stage(build, groovy.lang.Closure)
-              exampleJob.gitlabCommitStatus(build, groovy.lang.Closure)
-                 exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
-           exampleJob.stage(test, groovy.lang.Closure)
-              exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
-                 exampleJob.sh(mvn verify -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
+   exampleJob.run()
+   exampleJob.execute()
+      exampleJob.node(groovy.lang.Closure)
+         exampleJob.load(src/test/jenkins/lib/utils.jenkins)
+            utils.run()
+         exampleJob.stage(Checkout, groovy.lang.Closure)
+            exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}], doGenerateSubmoduleConfigurations=false, extensions=[], submoduleCfg=[], userRemoteConfigs=[{credentialsId=gitlab_git_ssh, url=github.com/lesfurets/pipeline-test-helper.git}]})
+            utils.currentRevision()
+               utils.sh({returnStdout=true, script=git rev-parse HEAD})
+         exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
+            exampleJob.stage(build, groovy.lang.Closure)
+               exampleJob.gitlabCommitStatus(build, groovy.lang.Closure)
+                  exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
+            exampleJob.stage(test, groovy.lang.Closure)
+               exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
+                  exampleJob.sh(mvn verify -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
 ```
 
 ### Mock Jenkins commands
