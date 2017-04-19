@@ -100,10 +100,10 @@ This test will print the call stack of the execution :
          exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
             exampleJob.stage(build, groovy.lang.Closure)
                exampleJob.gitlabCommitStatus(build, groovy.lang.Closure)
-                  exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
+                  exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744)
             exampleJob.stage(test, groovy.lang.Closure)
                exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
-                  exampleJob.sh(mvn verify -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
+                  exampleJob.sh(mvn verify -DgitRevision=bcc19744)
 ```
 
 ### Mock Jenkins commands
@@ -115,7 +115,7 @@ You can register interceptors to mock Jenkins commands, which may or may not ret
     @Before
     void setUp() throws Exception {
         super.setUp()
-        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744fc4876848f3a21aefc92960ea4c716cf"})
+        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744"})
         helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
         helper.registerAllowedMethod(method("readFile", String.class), { file ->
             return Files.contentOf(new File(file), Charset.forName("UTF-8"))
