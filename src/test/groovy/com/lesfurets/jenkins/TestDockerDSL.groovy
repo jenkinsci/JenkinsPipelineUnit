@@ -1,5 +1,8 @@
 package com.lesfurets.jenkins
 
+import static com.lesfurets.jenkins.unit.MethodSignature.method
+import static com.lesfurets.jenkins.unit.mock.MockedClass.mockedClass
+
 import org.jenkinsci.plugins.docker.workflow.DockerDSL
 import org.junit.Before
 import org.junit.Test
@@ -21,6 +24,13 @@ class TestDockerDSL extends BasePipelineTest {
                 DOCKER_REGISTRY_URL: 'https://hub.docker.com/registry'
         ])
         helper.registerAllowedMethod('withDockerContainer', [Map.class, Closure.class], null)
+        helper.registerMockedClass(
+                mockedClass('org.jenkinsci.plugins.docker.commons.credentials.DockerRegistryEndpoint', { it, Object[] args ->
+            it.url = args[0]
+            it.credentialsId = args[1]
+            return it
+        }).mock(method("imageName", String), { i -> return "${delegate.url}/_/$i" }))
+
     }
 
     @Test

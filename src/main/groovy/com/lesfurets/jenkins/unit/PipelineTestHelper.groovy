@@ -1,6 +1,7 @@
 package com.lesfurets.jenkins.unit
 
 import static com.lesfurets.jenkins.unit.MethodSignature.method
+import static com.lesfurets.jenkins.unit.mock.MockedClass.mockedClass
 
 import java.lang.reflect.Method
 import java.nio.charset.Charset
@@ -17,6 +18,7 @@ import org.codehaus.groovy.runtime.MetaClassHelper
 import com.lesfurets.jenkins.unit.global.lib.LibraryAnnotationTransformer
 import com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration
 import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
+import com.lesfurets.jenkins.unit.mock.MockedClass
 
 class PipelineTestHelper {
 
@@ -65,11 +67,11 @@ class PipelineTestHelper {
      */
     List<MethodCall> callStack = []
 
-    protected GroovyScriptEngine gse
+    GroovyScriptEngine gse
 
     protected LibraryLoader libLoader
 
-    List<String> mockedClasses = ['org.jenkinsci.plugins.docker.commons.credentials.DockerRegistryEndpoint']
+    Map<String, MockedClass> mockedClasses = [:]
 
     /**
      * Method interceptor for method 'load' to load scripts via encapsulated GroovyScriptEngine
@@ -127,7 +129,19 @@ class PipelineTestHelper {
             intercepted.value.delegate = delegate
             return intercepted.value.call(*args)
         }
-        // if not search for the method declaration
+        // check if it is in a mock class
+        def mockedClass = mockedClasses.get(delegate.class.name)
+        if (mockedClass) {
+            Class[] paramTypes = MetaClassHelper.castArgumentsToClassArray(args)
+            MethodSignature signature = method(name, paramTypes)
+            def closure = mockedClass.mockedMethods.get(signature)
+            if (closure) {
+                closure.delegate = delegate
+                return closure.call(*args)
+            }
+            return
+        }
+            // if not search for the method declaration
         MetaMethod m = delegate.metaClass.getMetaMethod(name, *args)
         // ...and call it. If we cannot find it, delegate call to methodMissing
         def result = (m ? m.doMethodInvoke(delegate, *args) : delegate.metaClass.invokeMissingMethod(delegate, name, args))
@@ -157,10 +171,10 @@ class PipelineTestHelper {
             }
             return result
         } else {
-            println "Calling ${delegate.class}#$name()"
-            if (!this.mockedClasses.contains(delegate.class.name)) {
+//            println "Calling ${delegate.class}#$name()"
+//            if (!this.mockedClasses.fullQualifiedName.contains(delegate.class.name)) {
                 throw new MissingMethodException(name, delegate.class, args)
-            }
+//            }
         }
     }
 
@@ -173,18 +187,6 @@ class PipelineTestHelper {
             currentResult = closure.call()
         }
         return currentResult
-    }
-
-    def constructorInterceptor = { Map m ->
-        if(mockedClasses.contains(delegate.class.name)) {
-            return delegate.class.metaClass.invokeConstructor()
-        } else {
-            return delegate.class.metaClass.invokeConstructor(m)
-        }
-    }
-
-    def getConstructorInterceptor() {
-        return constructorInterceptor
     }
 
     /**
@@ -280,6 +282,8 @@ class PipelineTestHelper {
         MethodSignature signature = method(name, paramTypes)
         return allowedMethodCallbacks.find { k, v -> k == signature }
     }
+
+
 
     /**
      *
@@ -393,6 +397,14 @@ class PipelineTestHelper {
         Objects.requireNonNull(libraryDescription)
         Objects.requireNonNull(libraryDescription.name)
         this.libraries.put(libraryDescription.name, libraryDescription)
+    }
+
+    /**
+     *
+     * @param mockedClass
+     */
+    void registerMockedClass(MockedClass mockedClass) {
+        this.mockedClasses.put(mockedClass.fullQualifiedName, mockedClass)
     }
 
     /**
