@@ -1,0 +1,17 @@
+@Library('commons')
+def execute() {
+    parallel(
+        action1: {
+            node() {
+                sayHello('action1', 'aaa')
+            }
+        },
+        action2: {
+            node() {
+                sayHello('action2', 'bbb')
+            }
+        }
+    )
+}
+
+return this
