@@ -9,7 +9,7 @@ class MethodSignature {
     String name
     Class[] args
 
-    static MethodSignature method(String name, Class... args) {
+    static MethodSignature method(String name, Class... args = []) {
         return new MethodSignature(name, args)
     }
 

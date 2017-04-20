@@ -136,6 +136,7 @@ You can register interceptors to mock Jenkins commands, which may or may not ret
         super.setUp()
         helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744"})
         helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
+        helper.registerAllowedMethod("timestamps", [], { println 'Printing timestamp' })
         helper.registerAllowedMethod(method("readFile", String.class), { file ->
             return Files.contentOf(new File(file), Charset.forName("UTF-8"))
         })

@@ -266,7 +266,7 @@ class PipelineTestHelper {
      * @param args parameter objects
      * @return Map.Entry corresponding to the method <MethodSignature, Closure>
      */
-    protected Map.Entry<MethodSignature, Closure> getAllowedMethodEntry(String name, args) {
+    protected Map.Entry<MethodSignature, Closure> getAllowedMethodEntry(String name, Object... args) {
         Class[] paramTypes = MetaClassHelper.castArgumentsToClassArray(args)
         MethodSignature signature = method(name, paramTypes)
         return allowedMethodCallbacks.find { k, v -> k == signature }
@@ -345,8 +345,8 @@ class PipelineTestHelper {
      * @param args parameter types
      * @param closure method implementation, can be null
      */
-    void registerAllowedMethod(String name, List<Class> args, Closure closure) {
-        allowedMethodCallbacks.put(method(name, args.toArray(new Class[args.size()])), closure)
+    void registerAllowedMethod(String name, List<Class> args = [], Closure closure) {
+        allowedMethodCallbacks.put(method(name, args.toArray(new Class[args?.size()])), closure)
     }
 
     /**
