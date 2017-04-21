@@ -54,7 +54,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         def intercepted = this.getAllowedMethodEntry(name, args)
         if (intercepted != null && intercepted.value) {
             intercepted.value.delegate = delegate
-            return intercepted.value.call(*args)
+            return invokeInterceptedClosure(intercepted.value, args)
         }
         // if not search for the method declaration
         MetaMethod m = delegate.metaClass.getMetaMethod(name, *args)
