@@ -1,5 +1,5 @@
 // vars/sayHello.groovy
-def call(String name, String otherName) {
+def call(String name = 'name', String otherName = null) {
     // Any valid steps can be called from this code, just like in other
     // Scripted Pipeline
     echo "Hello, ${name}."

@@ -123,21 +123,25 @@ class PipelineTestHelper {
         def intercepted = this.getAllowedMethodEntry(name, args)
         if (intercepted != null && intercepted.value) {
             intercepted.value.delegate = delegate
-            // When we use a library method, we should not spread the argument because we define a closure with a single
-            // argument. The arguments will be spread in this closure (See PipelineTestHelper#setGlobalVars)
-            // For other cases, we spread it before calling
-            // Note : InvokerHelper.invokeClosure(intercepted.value, args) is similar to intercepted.value.call(*args)
-            if (args?.size() > intercepted.value.maximumNumberOfParameters) {
-                return intercepted.value.call(args)
-            } else {
-                return intercepted.value.call(*args)
-            }
+            return invokeInterceptedClosure(intercepted.value, args)
         }
         // if not search for the method declaration
         MetaMethod m = delegate.metaClass.getMetaMethod(name, *args)
         // ...and call it. If we cannot find it, delegate call to methodMissing
         def result = (m ? m.doMethodInvoke(delegate, *args) : delegate.metaClass.invokeMissingMethod(delegate, name, args))
         return result
+    }
+
+    protected Object invokeInterceptedClosure(Closure intercepted, Object... args) {
+        // When we use a library method, we should not spread the argument because we define a closure with a single
+        // argument. The arguments will be spread in this closure (See PipelineTestHelper#setGlobalVars)
+        // For other cases, we spread it before calling
+        // Note : InvokerHelper.invokeClosure(intercepted.value, args) is similar to intercepted.value.call(*args)
+        if (args?.size() > intercepted.maximumNumberOfParameters) {
+            return intercepted.call(args)
+        } else {
+            return intercepted.call(*args)
+        }
     }
 
     def getMethodInterceptor() {
