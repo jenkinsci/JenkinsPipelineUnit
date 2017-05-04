@@ -56,7 +56,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
         helper.registerAllowedMethod("step", [Map.class], null)
         helper.registerAllowedMethod("input", [String.class], null)
-        helper.registerAllowedMethod("gitlabCommitStatus", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("gitlabCommitStatus", [String.class, Closure.class], { String name, Closure c ->
+            c.delegate = delegate
+            helper.callClosure(c)
+        })
         helper.registerAllowedMethod("gitlabBuilds", [Map.class, Closure.class], null)
         helper.registerAllowedMethod("logRotator", [Map.class], null)
         helper.registerAllowedMethod("buildDiscarder", [Object.class], null)

@@ -77,34 +77,6 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         return methodInterceptor
     }
 
-    /**
-     * Call closure using Continuation steps of groovy CPS
-     * At each step whole environment of the step is verified against serializability
-     *
-     * @param closure to execute
-     * @return result of the closure execution
-     */
-    def callIfClosure(Object closure, Object currentResult) {
-        // Every closure we receive here is CpsClosure, NonCPS code does not get called in here.
-        if (closure instanceof CpsClosure) {
-            try {
-                currentResult = closure.call()
-            } catch (CpsCallableInvocation e) {
-                def next = e.invoke(Envs.empty(), null, Continuation.HALT)
-                while(next.yield==null) {
-                    try {
-                        this.roundtripSerialization(next.e)
-                    } catch (exception) {
-                        throw new Exception(next.e.toString(), exception)
-                    }
-                    next = next.step()
-                }
-                currentResult = next.yield.replay()
-            }
-        }
-        return currentResult
-    }
-
     PipelineTestHelperCPS init() {
         CompilerConfiguration configuration = new CompilerConfiguration()
         GroovyClassLoader cLoader = new InterceptingGCL(this, baseClassloader, configuration)
@@ -129,13 +101,12 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
     }
 
     @Override
-    protected Script runScript(Script script) {
+    protected Object runScript(Script script) {
         try {
-            script.run()
+            return script.run()
         } catch (CpsCallableInvocation inv) {
-            throw inv
+            return inv.invoke(null, null, Continuation.HALT).run().yield.replay()
         }
-        return script
     }
 
     /**
@@ -153,4 +124,33 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         return (T) ois.readObject()
     }
 
+    /**
+     * Call closure using Continuation steps of groovy CPS
+     * At each step whole environment of the step is verified against serializability
+     *
+     * @param closure to call
+     * @param args array of arguments passed to this closure call. Is null by default.
+     * @return result of the closure call
+     */
+    @Override
+    Object callClosure(Closure closure, Object[] args = null) {
+        try {
+            if (args) {
+                return closure.call()
+            } else {
+                return closure.call(args)
+            }
+        } catch(CpsCallableInvocation e) {
+            def next = e.invoke(Envs.empty(), null, Continuation.HALT)
+            while(next.yield==null) {
+                try {
+                    this.roundtripSerialization(next.e)
+                } catch (exception) {
+                    throw new Exception(next.e.toString(), exception)
+                }
+                next = next.step()
+            }
+            return next.yield.replay()
+        }
+    }
 }

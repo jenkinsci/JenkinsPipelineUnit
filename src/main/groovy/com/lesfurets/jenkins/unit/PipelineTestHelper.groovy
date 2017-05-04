@@ -177,7 +177,7 @@ class PipelineTestHelper {
 
     def callIfClosure(Object closure, Object currentResult) {
         if (closure instanceof Closure) {
-            currentResult = closure.call()
+            currentResult = callClosure(closure)
         }
         return currentResult
     }
@@ -410,6 +410,21 @@ class PipelineTestHelper {
         callStack.stream().filter { call ->
             call.methodName == name
         }.count()
+    }
+
+    /**
+     * Call closure
+     *
+     * @param closure to call
+     * @param args array of arguments passed to this closure call. Is null by default.
+     * @return result of the closure call
+     */
+    Object callClosure(Closure closure, Object[] args = null) {
+        if (args) {
+            return closure.call()
+        } else {
+            return closure.call(args)
+        }
     }
 
 }
