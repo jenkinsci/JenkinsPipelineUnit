@@ -338,9 +338,8 @@ class PipelineTestHelper {
                     this.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
                                     { args -> m.doMethodInvoke(e.value, args) })
                 }
-            } else {
-                binding.setVariable(e.key, e.value)
             }
+            binding.setVariable(e.key, e.value)
         }
     }
 
