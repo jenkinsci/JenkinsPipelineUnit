@@ -18,29 +18,6 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
 
     protected Class scriptBaseClass = MockPipelineScriptCPS.class
 
-    protected parallelInterceptor = { Map m ->
-        // If you have many steps in parallel and one of the step in Jenkins fails, the other tasks keep runnning in Jenkins.
-        // Since here the parallel steps are executed sequentially, we are hiding the error to let other steps run
-        // and we make the job failing at the end.
-        List<String> exceptions = []
-        m.forEach { String parallelName, Closure closure ->
-            try {
-                def result
-                try {
-                    result = closure.call()
-                } catch(CpsCallableInvocation e) {
-                    result = e.invoke(null, null, Continuation.HALT).run().yield.replay()
-                }
-                return result
-            } catch (e) {
-                delegate.binding.currentBuild.result = 'FAILURE'
-                exceptions.add("$parallelName - ${e.getMessage()}")
-            }
-        }
-        if (exceptions) {
-            throw new Exception(exceptions.join(','))
-        }
-    }
 
     /**
      * Method interceptor for any method called in executing script.

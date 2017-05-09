@@ -98,16 +98,22 @@ class PipelineTestHelper {
         // Since here the parallel steps are executed sequentially, we are hiding the error to let other steps run
         // and we make the job failing at the end.
         List<String> exceptions = []
-        m.forEach { String parallelName, Closure closure ->
+        m.entrySet().stream()
+                        .filter { Map.Entry<String, Closure> entry -> entry.key != 'failFast' }
+                        .forEachOrdered { Map.Entry<String, Closure> entry ->
+            String parallelName = entry.key
+            Closure closure = entry.value
+            def result = null
             try {
-                return closure.call()
+                result = callClosure(closure)
             } catch (e) {
                 delegate.binding.currentBuild.result = 'FAILURE'
                 exceptions.add("$parallelName - ${e.getMessage()}")
             }
+            return result
         }
         if (exceptions) {
-            throw new Exception(exceptions.join(','))
+            throw new RuntimeException(exceptions.join(','))
         }
     }
 

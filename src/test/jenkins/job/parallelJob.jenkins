@@ -3,14 +3,15 @@ def execute() {
             action1: {
                 node() {
                     sh 'sleep 3'
+                    error 'message'
                 }
             },
             action2: {
                 node() {
                     sh 'sleep 4'
-                    error 'message'
                 }
-            }
+            },
+            failFast: true
     )
 }
 

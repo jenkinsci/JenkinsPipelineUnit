@@ -1,10 +1,11 @@
 package com.lesfurets.jenkins
 
-import com.lesfurets.jenkins.unit.BasePipelineTest
 import org.junit.Before
 import org.junit.Test
 
-class TestParallelJob extends BasePipelineTest {
+import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
+
+class TestParallelJobCPS extends BasePipelineTestCPS {
 
     @Override
     @Before
