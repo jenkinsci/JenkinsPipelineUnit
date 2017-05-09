@@ -115,7 +115,7 @@ class PipelineTestHelper {
      * Method interceptor for any method called in executing script.
      * Calls are logged on the call stack.
      */
-    public methodInterceptor = { String name, args ->
+    public methodInterceptor = { String name, Object[] args ->
         // register method call to stack
         int depth = Thread.currentThread().stackTrace.findAll { it.className == delegate.class.name }.size()
         this.registerMethodCall(delegate, depth, name, args)
@@ -126,9 +126,9 @@ class PipelineTestHelper {
             return invokeInterceptedClosure(intercepted.value, args)
         }
         // if not search for the method declaration
-        MetaMethod m = delegate.metaClass.getMetaMethod(name, *args)
+        MetaMethod m = delegate.metaClass.getMetaMethod(name, args)
         // ...and call it. If we cannot find it, delegate call to methodMissing
-        def result = (m ? m.doMethodInvoke(delegate, *args) : delegate.metaClass.invokeMissingMethod(delegate, name, args))
+        def result = (m ? m.doMethodInvoke(delegate, args) : delegate.metaClass.invokeMissingMethod(delegate, name, args))
         return result
     }
 

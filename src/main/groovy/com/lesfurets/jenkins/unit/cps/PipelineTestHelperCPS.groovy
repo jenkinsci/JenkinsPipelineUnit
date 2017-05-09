@@ -46,7 +46,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
      * Method interceptor for any method called in executing script.
      * Calls are logged on the call stack.
      */
-    public methodInterceptor = { String name, args ->
+    public methodInterceptor = { String name, Object[] args ->
         // register method call to stack
         int depth = Thread.currentThread().stackTrace.findAll { it.className == delegate.class.name }.size()
         this.registerMethodCall(delegate, depth, name, args)
@@ -57,13 +57,13 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
             return invokeInterceptedClosure(intercepted.value, args)
         }
         // if not search for the method declaration
-        MetaMethod m = delegate.metaClass.getMetaMethod(name, *args)
+        MetaMethod m = delegate.metaClass.getMetaMethod(name, args)
         // call it. If we cannot find it, delegate call to methodMissing
         def result
         if (m) {
             // Call cps steps until it yields a result
             try {
-                result = m.doMethodInvoke(delegate, *args)
+                result = m.doMethodInvoke(delegate, args)
             } catch (CpsCallableInvocation e) {
                 result = e.invoke(null, null, Continuation.HALT).run().yield.replay()
             }
