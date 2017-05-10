@@ -135,7 +135,7 @@ class PipelineTestHelper {
         def intercepted = this.getAllowedMethodEntry(name, args)
         if (intercepted != null && intercepted.value) {
             intercepted.value.delegate = delegate
-            return invokeInterceptedClosure(intercepted.value, args)
+            return callClosure(intercepted.value, args)
         }
         // if not search for the method declaration
         MetaMethod m = delegate.metaClass.getMetaMethod(name, args)
@@ -154,18 +154,6 @@ class PipelineTestHelper {
      */
     protected Object callMethod(MetaMethod method, Object delegate, Object[] args) {
         return method.doMethodInvoke(delegate, args)
-    }
-
-    protected Object invokeInterceptedClosure(Closure intercepted, Object... args) {
-        // When we use a library method, we should not spread the argument because we define a closure with a single
-        // argument. The arguments will be spread in this closure (See PipelineTestHelper#setGlobalVars)
-        // For other cases, we spread it before calling
-        // Note : InvokerHelper.invokeClosure(intercepted.value, args) is similar to intercepted.value.call(*args)
-        if (args?.size() > intercepted.maximumNumberOfParameters) {
-            return intercepted.call(args)
-        } else {
-            return intercepted.call(*args)
-        }
     }
 
     def getMethodInterceptor() {
@@ -441,17 +429,23 @@ class PipelineTestHelper {
     }
 
     /**
-     * Call closure
+     * Call closure by handling spreading of parameter default values
      *
      * @param closure to call
      * @param args array of arguments passed to this closure call. Is null by default.
      * @return result of the closure call
      */
     Object callClosure(Closure closure, Object[] args = null) {
-        if (args) {
+        // When we use a library method, we should not spread the argument because we define a closure with a single
+        // argument. The arguments will be spread in this closure (See PipelineTestHelper#setGlobalVars)
+        // For other cases, we spread it before calling
+        // Note : InvokerHelper.invokeClosure(intercepted.value, args) is similar to closure.call(*args)
+        if (!args) {
             return closure.call()
-        } else {
+        } else if (args.size() > closure.maximumNumberOfParameters) {
             return closure.call(args)
+        } else {
+            return closure.call(*args)
         }
     }
 

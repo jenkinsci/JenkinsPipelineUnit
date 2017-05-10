@@ -7,3 +7,7 @@ def call(String name = 'name', String otherName = null) {
         echo "Hello, ${otherName}."
     }
 }
+
+def call(String... args) {
+    echo "$args"
+}
