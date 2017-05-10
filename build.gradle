@@ -1,17 +1,11 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
-    }
+plugins {
+    id "io.codearte.nexus-staging" version "0.8.0"
 }
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'jacoco'
-apply plugin: 'io.codearte.nexus-staging'
 
 repositories {
     mavenCentral()
@@ -140,9 +134,13 @@ uploadArchives {
     }
 }
 
-closeAndPromoteRepository.mustRunAfter(uploadArchives)
+nexusStaging {
+    delayBetweenRetriesInMillis = 5000
+}
+
+closeAndReleaseRepository.mustRunAfter(uploadArchives)
 closeRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
-promoteRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
+releaseRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
 
 task verify(dependsOn: build)
-task deploy(dependsOn: [build, uploadArchives, closeAndPromoteRepository])
+task deploy(dependsOn: [build, uploadArchives, closeAndReleaseRepository])
