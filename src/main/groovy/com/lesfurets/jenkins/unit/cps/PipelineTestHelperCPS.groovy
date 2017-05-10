@@ -24,7 +24,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
     @Override
     protected Object callMethod(MetaMethod method, Object delegate, Object[] args) {
         try {
-            return method.doMethodInvoke(delegate, args)
+            super.callMethod(method, delegate, args)
         } catch (CpsCallableInvocation e) {
             return e.invoke(null, null, Continuation.HALT).run().yield.replay()
         }
@@ -33,7 +33,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
     @Override
     protected Object runScript(Script script) {
         try {
-            return script.run()
+            super.runScript(script)
         } catch (CpsCallableInvocation inv) {
             return inv.invoke(null, null, Continuation.HALT).run().yield.replay()
         }
@@ -65,11 +65,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
     @Override
     Object callClosure(Closure closure, Object[] args = null) {
         try {
-            if (args) {
-                return closure.call()
-            } else {
-                return closure.call(args)
-            }
+            super.callClosure(closure, args)
         } catch(CpsCallableInvocation e) {
             def next = e.invoke(Envs.empty(), null, Continuation.HALT)
             while(next.yield==null) {
