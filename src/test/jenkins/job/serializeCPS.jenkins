@@ -7,6 +7,8 @@ def execute() {
             checkout scm
             gitlabBuilds(builds: ["build", "test"]) {
                 stage("build") {
+                    def method = myMethod null
+                    echo method
                     gitlabCommitStatus("build") {
                         def result = parseJson("""
 [{
@@ -78,5 +80,10 @@ def deepClone(def mapOrCollection) {
         return mapOrCollection
     }
 }
+
+def myMethod(String foo) {
+    return 'bar'
+}
+
 
 return this
