@@ -11,6 +11,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
 
     protected Class scriptBaseClass = MockPipelineScriptCPS.class
 
+    @Override
     PipelineTestHelperCPS init() {
         super.init()
         // Set script base class
@@ -20,6 +21,7 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         return this
     }
 
+    @Override
     protected Object callMethod(MetaMethod method, Object delegate, Object[] args) {
         try {
             return method.doMethodInvoke(delegate, args)

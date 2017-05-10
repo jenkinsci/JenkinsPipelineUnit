@@ -65,8 +65,14 @@ class PipelineTestHelper {
      */
     List<MethodCall> callStack = []
 
+    /**
+     * Internal script engine
+     */
     protected GroovyScriptEngine gse
 
+    /**
+     * Loader for shared global libraries
+     */
     protected LibraryLoader libLoader
 
     /**
@@ -138,6 +144,14 @@ class PipelineTestHelper {
         return result
     }
 
+    /**
+     * Call given method on delegate object with args parameters
+     *
+     * @param method method to call
+     * @param delegate object of the method call
+     * @param args method call parameters
+     * @return return value of the object
+     */
     protected Object callMethod(MetaMethod method, Object delegate, Object[] args) {
         return method.doMethodInvoke(delegate, args)
     }
@@ -253,6 +267,10 @@ class PipelineTestHelper {
         return this
     }
 
+    /**
+     *
+     * @return true if internal GroovyScriptEngine is set
+     */
     protected boolean isInitialized() {
         return gse != null
     }
@@ -394,8 +412,9 @@ class PipelineTestHelper {
     }
 
     /**
-     *
-     * @param libraryDescription
+     * Register library description
+     * See {@link LibraryConfiguration} for its description
+     * @param libraryDescription to add
      */
     void registerSharedLibrary(LibraryConfiguration libraryDescription) {
         Objects.requireNonNull(libraryDescription)
