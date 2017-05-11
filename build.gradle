@@ -1,3 +1,5 @@
+import com.lesfurets.gradle.*
+
 plugins {
     id "io.codearte.nexus-staging" version "0.8.0"
 }
@@ -34,6 +36,7 @@ if (project.hasProperty('extProps')) {
     }
 }
 
+defaultTasks 'test'
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
@@ -138,9 +141,27 @@ nexusStaging {
     delayBetweenRetriesInMillis = 5000
 }
 
+// Deploy tasks
 closeAndReleaseRepository.mustRunAfter(uploadArchives)
 closeRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
 releaseRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
 
 task verify(dependsOn: build)
 task deploy(dependsOn: [build, uploadArchives, closeAndReleaseRepository])
+
+// Release commits and tag
+task writeVersion(type: SetVersionTask)
+task tagVersion(type: GitTagTask)
+task commitRelease(type: GitCommitTask)
+task commitNextDevVersion(type: GitCommitTask) {
+    message = "Next dev version"
+}
+
+task nextSnapshot(type: SetNextSnapshotVersionTask)
+commitNextDevVersion.dependsOn(nextSnapshot)
+
+commitRelease.dependsOn(writeVersion)
+tagVersion.dependsOn(writeVersion, commitRelease)
+
+task release(dependsOn: [writeVersion, tagVersion, commitRelease])
+task nextDevVersion(dependsOn: [nextSnapshot, commitNextDevVersion])
