@@ -35,7 +35,7 @@ class RegressionTestHelper {
         }
 
         String callStack = helper.callStack.join('\n') + '\n'
-        assertThat(callStack).isEqualTo(referenceFile.text)
+        assertThat(callStack.normalize()).isEqualTo(referenceFile.text.normalize())
     }
 
     /**
