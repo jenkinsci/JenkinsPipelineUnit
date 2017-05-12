@@ -1,12 +1,13 @@
-@Library('commons@feature')
-import net.courtanet.jenkins.Utils2
+@Library('commons@feature') _
+
+greetings {}
 
 def execute() {
     parallel(
         action1: {
             node() {
-                def utils = new Utils2()
-                def s = Utils2.tools()
+                def utils = new net.courtanet.jenkins.Utils2()
+                def s = net.courtanet.jenkins.Utils2.tools()
                 println s
                 helloMessage {
                     message = "hello this is a test"

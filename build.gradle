@@ -1,17 +1,13 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
-    }
+import com.lesfurets.gradle.*
+
+plugins {
+    id "io.codearte.nexus-staging" version "0.8.0"
 }
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'jacoco'
-apply plugin: 'io.codearte.nexus-staging'
 
 repositories {
     mavenCentral()
@@ -19,7 +15,7 @@ repositories {
 
 group = "com.lesfurets"
 archivesBaseName = "jenkins-pipeline-unit"
-version = "0.12"
+version = "1.0-SNAPSHOT"
 
 dependencies {
     compile     group: 'org.codehaus.groovy',   name: 'groovy-all',     version: '2.4.6'
@@ -40,6 +36,7 @@ if (project.hasProperty('extProps')) {
     }
 }
 
+defaultTasks 'test'
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
@@ -140,9 +137,31 @@ uploadArchives {
     }
 }
 
-closeAndPromoteRepository.mustRunAfter(uploadArchives)
+nexusStaging {
+    delayBetweenRetriesInMillis = 5000
+}
+
+// Deploy tasks
+closeAndReleaseRepository.mustRunAfter(uploadArchives)
 closeRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
-promoteRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
+releaseRepository.enabled = !project.version.toString().endsWith('-SNAPSHOT')
 
 task verify(dependsOn: build)
-task deploy(dependsOn: [build, uploadArchives, closeAndPromoteRepository])
+task deploy(dependsOn: [build, uploadArchives, closeAndReleaseRepository])
+
+// Release commits and tag
+task writeVersion(type: SetVersionTask)
+task tagVersion(type: GitTagTask)
+task commitRelease(type: GitCommitTask)
+task commitNextDevVersion(type: GitCommitTask) {
+    message = "Next dev version"
+}
+
+task nextSnapshot(type: SetNextSnapshotVersionTask)
+commitNextDevVersion.dependsOn(nextSnapshot)
+
+commitRelease.dependsOn(writeVersion)
+tagVersion.dependsOn(writeVersion, commitRelease)
+
+task release(dependsOn: [writeVersion, tagVersion, commitRelease])
+task nextDevVersion(dependsOn: [nextSnapshot, commitNextDevVersion])

@@ -56,7 +56,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
         helper.registerAllowedMethod("step", [Map.class], null)
         helper.registerAllowedMethod("input", [String.class], null)
-        helper.registerAllowedMethod("gitlabCommitStatus", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("gitlabCommitStatus", [String.class, Closure.class], { String name, Closure c ->
+            c.delegate = delegate
+            helper.callClosure(c)
+        })
         helper.registerAllowedMethod("gitlabBuilds", [Map.class, Closure.class], null)
         helper.registerAllowedMethod("logRotator", [Map.class], null)
         helper.registerAllowedMethod("buildDiscarder", [Object.class], null)
@@ -84,7 +87,12 @@ abstract class BasePipelineTest {
         binding.getVariable('currentBuild').result = status
     }
 
-    Script loadScript(String scriptName) {
+    /**
+     * Loads and runs the script by its name/path
+     * @param scriptName script name or path
+     * @return the return value of the script
+     */
+    Object loadScript(String scriptName) {
         if (!helper.isInitialized()) {
             throw new IllegalStateException("Helper is not initialized: Call setUp() before tests.")
         }

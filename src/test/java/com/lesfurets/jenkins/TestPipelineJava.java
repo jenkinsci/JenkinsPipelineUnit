@@ -31,7 +31,7 @@ public class TestPipelineJava extends BasePipelineTest {
 
     @Test
     public void should_return_cleanname() throws Exception {
-        Script script = loadScript("lib/utils.jenkins");
+        Script script = (Script) loadScript("lib/utils.jenkins");
         assertThat(script.invokeMethod("cleanName", new Object[] { "some thing"})).isEqualTo("SOME_THING");
         printCallStack();
     }

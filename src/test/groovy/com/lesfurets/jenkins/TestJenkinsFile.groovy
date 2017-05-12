@@ -20,7 +20,7 @@ class TestJenkinsFile extends BasePipelineTest {
 
     @Parameterized.Parameters(name = "Test branch {0} phase {1}")
     static Collection<Object[]> data() {
-        return [['develop', 'deploy'],
+        return [['develop', 'verify'],
                 ['master', 'deploy'],
                 ['feature_', 'verify']
         ].collect { it as Object[] }
@@ -40,7 +40,7 @@ class TestJenkinsFile extends BasePipelineTest {
                         submoduleCfg                     : [],
                         userRemoteConfigs                : [[
                                                                             credentialsId: 'gitlab_git_ssh',
-                                                                            url          : "github.com/lesfurets/pipeline-test-helper.git"
+                                                                            url          : 'github.com/lesfurets/JenkinsPipelineUnit.git'
                                                             ]]
         ])
         helper.registerAllowedMethod("junit", [Map.class], null)

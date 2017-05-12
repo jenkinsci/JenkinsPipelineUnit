@@ -13,7 +13,7 @@ class TestRegression extends BaseRegressionTest {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
         def scmBranch = "feature_test"
-        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744fc4876848f3a21aefc92960ea4c716cf"})
+        helper.registerAllowedMethod("sh", [Map.class], {c -> 'bcc19744'})
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
                         branches                         : [[name: scmBranch]],
@@ -22,7 +22,7 @@ class TestRegression extends BaseRegressionTest {
                         submoduleCfg                     : [],
                         userRemoteConfigs                : [[
                                                                             credentialsId: 'gitlab_git_ssh',
-                                                                            url          : "github.com/lesfurets/pipeline-test-helper.git"
+                                                                            url          : 'github.com/lesfurets/JenkinsPipelineUnit.git'
                                                             ]]
         ])
     }

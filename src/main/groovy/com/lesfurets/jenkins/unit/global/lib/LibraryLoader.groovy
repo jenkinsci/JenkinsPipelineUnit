@@ -10,7 +10,7 @@ import org.codehaus.groovy.runtime.DefaultGroovyMethods
 import groovy.transform.CompileStatic
 
 /**
- * Loads libraries to groovy class loader
+ * Loads global shared libraries to groovy class loader
  */
 @CompileStatic
 class LibraryLoader {

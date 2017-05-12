@@ -8,7 +8,6 @@ acme.name = 'something'
 sh acme.name
 
 acme.caution('world')
-
 sayHello 'World'
 sayHello()
 
@@ -16,6 +15,8 @@ def execute() {
     parallel(
         action1: {
             node() {
+                sayHello('arg1', 'arg2')
+                sayHello(Arrays.asList('1','2').toArray(new String[0]))
                 def utils = new Utils()
                 sh "${utils.gitTools()}"
                 sh 'sleep 3'

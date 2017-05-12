@@ -65,8 +65,14 @@ class PipelineTestHelper {
      */
     List<MethodCall> callStack = []
 
+    /**
+     * Internal script engine
+     */
     protected GroovyScriptEngine gse
 
+    /**
+     * Loader for shared global libraries
+     */
     protected LibraryLoader libLoader
 
     /**
@@ -98,16 +104,22 @@ class PipelineTestHelper {
         // Since here the parallel steps are executed sequentially, we are hiding the error to let other steps run
         // and we make the job failing at the end.
         List<String> exceptions = []
-        m.forEach { String parallelName, Closure closure ->
+        m.entrySet().stream()
+                        .filter { Map.Entry<String, Closure> entry -> entry.key != 'failFast' }
+                        .forEachOrdered { Map.Entry<String, Closure> entry ->
+            String parallelName = entry.key
+            Closure closure = entry.value
+            def result = null
             try {
-                return closure.call()
+                result = callClosure(closure)
             } catch (e) {
                 delegate.binding.currentBuild.result = 'FAILURE'
                 exceptions.add("$parallelName - ${e.getMessage()}")
             }
+            return result
         }
         if (exceptions) {
-            throw new Exception(exceptions.join(','))
+            throw new RuntimeException(exceptions.join(','))
         }
     }
 
@@ -115,7 +127,7 @@ class PipelineTestHelper {
      * Method interceptor for any method called in executing script.
      * Calls are logged on the call stack.
      */
-    public methodInterceptor = { String name, args ->
+    public methodInterceptor = { String name, Object[] args ->
         // register method call to stack
         int depth = Thread.currentThread().stackTrace.findAll { it.className == delegate.class.name }.size()
         this.registerMethodCall(delegate, depth, name, args)
@@ -123,13 +135,25 @@ class PipelineTestHelper {
         def intercepted = this.getAllowedMethodEntry(name, args)
         if (intercepted != null && intercepted.value) {
             intercepted.value.delegate = delegate
-            return intercepted.value.call(*args)
+            return callClosure(intercepted.value, args)
         }
         // if not search for the method declaration
-        MetaMethod m = delegate.metaClass.getMetaMethod(name, *args)
+        MetaMethod m = delegate.metaClass.getMetaMethod(name, args)
         // ...and call it. If we cannot find it, delegate call to methodMissing
-        def result = (m ? m.doMethodInvoke(delegate, *args) : delegate.metaClass.invokeMissingMethod(delegate, name, args))
+        def result = (m ? this.callMethod(m, delegate, args) : delegate.metaClass.invokeMissingMethod(delegate, name, args))
         return result
+    }
+
+    /**
+     * Call given method on delegate object with args parameters
+     *
+     * @param method method to call
+     * @param delegate object of the method call
+     * @param args method call parameters
+     * @return return value of the object
+     */
+    protected Object callMethod(MetaMethod method, Object delegate, Object[] args) {
+        return method.doMethodInvoke(delegate, args)
     }
 
     def getMethodInterceptor() {
@@ -165,7 +189,7 @@ class PipelineTestHelper {
 
     def callIfClosure(Object closure, Object currentResult) {
         if (closure instanceof Closure) {
-            currentResult = closure.call()
+            currentResult = callClosure(closure)
         }
         return currentResult
     }
@@ -231,6 +255,10 @@ class PipelineTestHelper {
         return this
     }
 
+    /**
+     *
+     * @return true if internal GroovyScriptEngine is set
+     */
     protected boolean isInitialized() {
         return gse != null
     }
@@ -258,7 +286,7 @@ class PipelineTestHelper {
      * @param args parameter objects
      * @return Map.Entry corresponding to the method <MethodSignature, Closure>
      */
-    protected Map.Entry<MethodSignature, Closure> getAllowedMethodEntry(String name, args) {
+    protected Map.Entry<MethodSignature, Closure> getAllowedMethodEntry(String name, Object... args) {
         Class[] paramTypes = MetaClassHelper.castArgumentsToClassArray(args)
         MethodSignature signature = method(name, paramTypes)
         return allowedMethodCallbacks.find { k, v -> k == signature }
@@ -277,19 +305,19 @@ class PipelineTestHelper {
     /**
      * Load script with name with empty binding
      * @param name path of the script
-     * @return loaded and run script
+     * @return the return value of the script
      */
-    Script loadScript(String name) {
-        this.loadScript(name, new Binding())
+    Object loadScript(String name) {
+        return this.loadScript(name, new Binding())
     }
 
     /**
      * Load and run script with given binding context
      * @param scriptName path of the script
      * @param binding
-     * @return loaded and run script
+     * @return the return value of the script
      */
-    Script loadScript(String scriptName, Binding binding) {
+    Object loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding, "Binding cannot be null.")
         Objects.requireNonNull(gse, "GroovyScriptEngine is not initialized: Initialize the helper by calling init().")
         Class scriptClass = gse.loadScriptByName(scriptName)
@@ -301,16 +329,20 @@ class PipelineTestHelper {
         return runScript(script)
     }
 
-    protected Script runScript(Script script) {
-        script.run()
-        return script
+    /**
+     * Run the script
+     * @param script
+     * @return the return value of the script
+     */
+    protected Object runScript(Script script) {
+        return script.run()
     }
 
     /**
      * Sets global variables defined in loaded libraries on the binding
      * @param binding
      */
-    void setGlobalVars(Binding binding) {
+    protected void setGlobalVars(Binding binding) {
         libLoader.libRecords.values().stream()
                         .flatMap { it.definedGlobalVars.entrySet().stream() }
                         .forEach { e ->
@@ -322,9 +354,8 @@ class PipelineTestHelper {
                     this.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
                                     { args -> m.doMethodInvoke(e.value, args) })
                 }
-            } else {
-                binding.setVariable(e.key, e.value)
             }
+            binding.setVariable(e.key, e.value)
         }
     }
 
@@ -333,8 +364,8 @@ class PipelineTestHelper {
      * @param args parameter types
      * @param closure method implementation, can be null
      */
-    void registerAllowedMethod(String name, List<Class> args, Closure closure) {
-        allowedMethodCallbacks.put(method(name, args.toArray(new Class[args.size()])), closure)
+    void registerAllowedMethod(String name, List<Class> args = [], Closure closure) {
+        allowedMethodCallbacks.put(method(name, args.toArray(new Class[args?.size()])), closure)
     }
 
     /**
@@ -369,8 +400,9 @@ class PipelineTestHelper {
     }
 
     /**
-     *
-     * @param libraryDescription
+     * Register library description
+     * See {@link LibraryConfiguration} for its description
+     * @param libraryDescription to add
      */
     void registerSharedLibrary(LibraryConfiguration libraryDescription) {
         Objects.requireNonNull(libraryDescription)
@@ -394,6 +426,27 @@ class PipelineTestHelper {
         callStack.stream().filter { call ->
             call.methodName == name
         }.count()
+    }
+
+    /**
+     * Call closure by handling spreading of parameter default values
+     *
+     * @param closure to call
+     * @param args array of arguments passed to this closure call. Is null by default.
+     * @return result of the closure call
+     */
+    Object callClosure(Closure closure, Object[] args = null) {
+        // When we use a library method, we should not spread the argument because we define a closure with a single
+        // argument. The arguments will be spread in this closure (See PipelineTestHelper#setGlobalVars)
+        // For other cases, we spread it before calling
+        // Note : InvokerHelper.invokeClosure(intercepted.value, args) is similar to closure.call(*args)
+        if (!args) {
+            return closure.call()
+        } else if (args.size() > closure.maximumNumberOfParameters) {
+            return closure.call(args)
+        } else {
+            return closure.call(*args)
+        }
     }
 
 }

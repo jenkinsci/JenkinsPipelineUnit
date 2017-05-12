@@ -20,18 +20,19 @@ class TestParallelJob extends BasePipelineTest {
                         submoduleCfg                     : [],
                         userRemoteConfigs                : [[
                                                                             credentialsId: 'gitlab_git_ssh',
-                                                                            url          : "github.com/lesfurets/pipeline-test-helper.git"
+                                                                            url          : 'github.com/lesfurets/JenkinsPipelineUnit.git'
                                                             ]]
         ])
     }
 
     @Test
-    void name() throws Exception {
+    void should_execute_parallel_with_errors() throws Exception {
         def script = loadScript("job/parallelJob.jenkins")
-        script.execute()
-        printCallStack()
-
+        try{
+            script.execute()
+        } finally {
+            printCallStack()
+        }
         assertJobStatusFailure()
-
     }
 }

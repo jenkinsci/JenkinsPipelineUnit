@@ -1,14 +1,14 @@
 package com.lesfurets.jenkins
 
-import org.junit.Before
-import org.junit.Test
-
-import com.lesfurets.jenkins.unit.BasePipelineTest
-
 import static com.lesfurets.jenkins.unit.MethodCall.callArgsToString
 import static org.junit.Assert.assertTrue
 
-class TestExampleJob extends BasePipelineTest {
+import org.junit.Before
+import org.junit.Test
+
+import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
+
+class TestExampleJobCPS extends BasePipelineTestCPS {
 
     @Override
     @Before
@@ -16,7 +16,7 @@ class TestExampleJob extends BasePipelineTest {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
         def scmBranch = "feature_test"
-        helper.registerAllowedMethod("sh", [Map.class], {c -> 'bcc19744'})
+        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744fc4876848f3a21aefc92960ea4c716cf"})
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
                         branches                         : [[name: scmBranch]]

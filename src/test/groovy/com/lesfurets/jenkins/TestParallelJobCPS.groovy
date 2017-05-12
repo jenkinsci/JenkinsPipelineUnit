@@ -5,9 +5,7 @@ import org.junit.Test
 
 import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
 
-class TestSerializationCPS extends BasePipelineTestCPS {
-
-
+class TestParallelJobCPS extends BasePipelineTestCPS {
 
     @Override
     @Before
@@ -28,27 +26,14 @@ class TestSerializationCPS extends BasePipelineTestCPS {
         ])
     }
 
-    @Test(expected = Exception.class)
-    void testException() throws Exception {
-        def script = loadScript('job/serialize.jenkins')
-        try {
-            script.execute()
-        } catch (e) {
-            throw e
-        } finally {
-            printCallStack()
-        }
-    }
-
     @Test
-    void testSerialization() throws Exception {
-        def script = loadScript('job/serializeCPS.jenkins')
-        try {
+    void should_execute_parallel_with_errors() throws Exception {
+        def script = loadScript("job/parallelJob.jenkins")
+        try{
             script.execute()
-        } catch (e) {
-            throw e
         } finally {
             printCallStack()
         }
+        assertJobStatusFailure()
     }
 }

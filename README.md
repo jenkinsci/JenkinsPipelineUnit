@@ -42,21 +42,21 @@ Let's say you wrote this awesome pipeline script, which builds and tests your pr
  ```groovy
 def execute() {
     node() {
-        def utils = load "src/main/jenkins/lib/utils.jenkins"
-        stage('Checkout') {
+        def utils = load "src/test/jenkins/lib/utils.jenkins"
+        String revision = stage('Checkout') {
             checkout scm
-            String revision = utils.currentRevision()
-            gitlabBuilds(builds: ["build", "test"]) {
-                stage("build") {
-                    gitlabCommitStatus("build") {
-                        sh "mvn clean package -DskipTests -DgitRevision=$revision"
-                    }
+            return utils.currentRevision()
+        }
+        gitlabBuilds(builds: ["build", "test"]) {
+            stage("build") {
+                gitlabCommitStatus("build") {
+                    sh "mvn clean package -DskipTests -DgitRevision=$revision"
                 }
+            }
 
-                stage("test") {
-                    gitlabCommitStatus("test") {
-                        sh "mvn verify -DgitRevision=$revision"
-                    }
+            stage("test") {
+                gitlabCommitStatus("test") {
+                    sh "mvn verify -DgitRevision=$revision"
                 }
             }
         }
@@ -69,7 +69,7 @@ return this
 Now using the Jenkins Pipeline Unit you can unit test if it does the job :
 
 ```groovy
-import com.lesfurets.jenkins.helpers.BasePipelineTest
+import com.lesfurets.jenkins.unit.BasePipelineTest
 
 class TestExampleJob extends BasePipelineTest {
         
@@ -88,23 +88,42 @@ class TestExampleJob extends BasePipelineTest {
 This test will print the call stack of the execution :
 
 ```text
-exampleJob.run()
-exampleJob.execute()
-  exampleJob.node(groovy.lang.Closure)
-     exampleJob.load(src/main/jenkins/lib/utils.jenkins)
-        utils.run()
-     exampleJob.stage(Checkout, groovy.lang.Closure)
-        exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}]})
-        utils.currentRevision()
-           utils.sh({returnStdout=true, script=git rev-parse HEAD})
-        exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
-           exampleJob.stage(build, groovy.lang.Closure)
-              exampleJob.gitlabCommitStatus(build, groovy.lang.Closure)
-                 exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
-           exampleJob.stage(test, groovy.lang.Closure)
-              exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
-                 exampleJob.sh(mvn verify -DgitRevision=bcc19744fc4876848f3a21aefc92960ea4c716cf)
+   exampleJob.run()
+   exampleJob.execute()
+      exampleJob.node(groovy.lang.Closure)
+         exampleJob.load(src/test/jenkins/lib/utils.jenkins)
+            utils.run()
+         exampleJob.stage(Checkout, groovy.lang.Closure)
+            exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}], doGenerateSubmoduleConfigurations=false, extensions=[], submoduleCfg=[], userRemoteConfigs=[{credentialsId=gitlab_git_ssh, url=github.com/lesfurets/JenkinsPipelineUnit.git}]})
+            utils.currentRevision()
+               utils.sh({returnStdout=true, script=git rev-parse HEAD})
+         exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
+            exampleJob.stage(build, groovy.lang.Closure)
+               exampleJob.gitlabCommitStatus(build, groovy.lang.Closure)
+                  exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744)
+            exampleJob.stage(test, groovy.lang.Closure)
+               exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
+                  exampleJob.sh(mvn verify -DgitRevision=bcc19744)
 ```
+
+### Mock Jenkins variables
+
+You can define both environment variables and job execution parameters.
+
+```groovy
+    @Override
+    @Before
+    void setUp() throws Exception {
+        super.setUp()
+        // Assigns false to a job parameter ENABLE_TEST_STAGE 
+        binding.setVariable('ENABLE_TEST_STAGE', 'false')
+        // Defines the previous execution status
+        binding.getVariable('currentBuild').previousBuild = [result: 'UNSTABLE']
+    }
+```
+
+The test helper already provides basic variables such as a very simple currentBuild definition.
+You can redefine them as you wish. 
 
 ### Mock Jenkins commands
 
@@ -115,8 +134,9 @@ You can register interceptors to mock Jenkins commands, which may or may not ret
     @Before
     void setUp() throws Exception {
         super.setUp()
-        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744fc4876848f3a21aefc92960ea4c716cf"})
+        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744"})
         helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
+        helper.registerAllowedMethod("timestamps", [], { println 'Printing timestamp' })
         helper.registerAllowedMethod(method("readFile", String.class), { file ->
             return Files.contentOf(new File(file), Charset.forName("UTF-8"))
         })
@@ -256,7 +276,7 @@ node() {
 ```
 
 This pipeline is using a shared library called `commons`.
-Now lets test it:
+Now let's test it:
 
 ```groovy
     String clonePath = 'path/to/clone'
