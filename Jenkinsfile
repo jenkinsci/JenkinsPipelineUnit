@@ -1,6 +1,6 @@
 #!groovy
 
-def deployBranches = [ "master", "develop" ]
+def deployBranches = [ "master" ]
 def phase = "verify"
 
 stage ('Build') {

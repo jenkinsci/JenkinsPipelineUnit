@@ -20,7 +20,7 @@ class TestJenkinsFile extends BasePipelineTest {
 
     @Parameterized.Parameters(name = "Test branch {0} phase {1}")
     static Collection<Object[]> data() {
-        return [['develop', 'deploy'],
+        return [['develop', 'verify'],
                 ['master', 'deploy'],
                 ['feature_', 'verify']
         ].collect { it as Object[] }
