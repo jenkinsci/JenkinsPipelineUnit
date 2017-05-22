@@ -3,9 +3,9 @@ package com.lesfurets.jenkins
 import org.junit.Before
 import org.junit.Test
 
-import com.lesfurets.jenkins.unit.BaseRegressionTest
+import com.lesfurets.jenkins.unit.cps.BaseRegressionTestCPS
 
-class TestRegression extends BaseRegressionTest {
+class TestRegression extends BaseRegressionTestCPS {
 
     @Override
     @Before

@@ -1,4 +1,5 @@
    exampleJob.run()
+      exampleJob.sleep(20)
    exampleJob.execute()
       exampleJob.node(groovy.lang.Closure)
          exampleJob.load(src/test/jenkins/lib/utils.jenkins)
@@ -12,6 +13,7 @@
          exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
             exampleJob.stage(build, groovy.lang.Closure)
                exampleJob.gitlabCommitStatus(build, groovy.lang.Closure)
+                  exampleJob.sleep(20)
                   exampleJob.sh(mvn clean package -DskipTests -DgitRevision=bcc19744)
             exampleJob.stage(test, groovy.lang.Closure)
                exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
