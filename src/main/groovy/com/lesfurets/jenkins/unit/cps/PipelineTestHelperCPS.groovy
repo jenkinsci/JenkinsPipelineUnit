@@ -4,6 +4,7 @@ import com.cloudbees.groovy.cps.Continuation
 import com.cloudbees.groovy.cps.CpsTransformer
 import com.cloudbees.groovy.cps.Envs
 import com.cloudbees.groovy.cps.ObjectInputStreamWithLoader
+import com.cloudbees.groovy.cps.TransformerConfiguration
 import com.cloudbees.groovy.cps.impl.CpsCallableInvocation
 import com.lesfurets.jenkins.unit.PipelineTestHelper
 
@@ -17,7 +18,9 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
         // Set script base class
         gse.getConfig().setScriptBaseClass(scriptBaseClass.getName())
         // Add transformer for CPS compilation
-        gse.getConfig().addCompilationCustomizers(new CpsTransformer())
+        def transformer = new CpsTransformer()
+        transformer.setConfiguration(new TransformerConfiguration().withClosureType(MockClosure.class))
+        gse.getConfig().addCompilationCustomizers(transformer)
         return this
     }
 

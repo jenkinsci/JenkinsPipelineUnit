@@ -10,6 +10,7 @@ def execute() {
         gitlabBuilds(builds: ["build", "test"]) {
             stage("build") {
                 gitlabCommitStatus("build") {
+                    sleep 20
                     sh "mvn clean package -DskipTests -DgitRevision=$revision"
                 }
             }
@@ -23,5 +24,7 @@ def execute() {
         }
     }
 }
+
+sleep 20
 
 return this
