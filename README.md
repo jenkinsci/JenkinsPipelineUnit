@@ -4,6 +4,8 @@ Jenkins Pipeline Unit is a testing framework for unit testing Jenkins pipelines,
 [Groovy Pipeline DSL](https://jenkins.io/doc/book/pipeline/).
 
 [![Build Status](https://travis-ci.org/lesfurets/JenkinsPipelineUnit.svg?branch=master)](https://travis-ci.org/lesfurets/JenkinsPipelineUnit)
+[![Build status](https://ci.appveyor.com/api/projects/status/yx76jwkdgjtky9xu?svg=true)](https://ci.appveyor.com/project/ozangunalp/jenkinspipelineunit)
+
 
 If you use Jenkins as your CI workhorse (like us @ [lesfurets.com](https://www.lesfurets.com)) and you enjoy writing _pipeline-as-code_,
 you already know that pipeline code is very powerful but can get pretty complex.
