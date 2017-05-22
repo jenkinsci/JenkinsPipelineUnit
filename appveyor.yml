@@ -4,7 +4,7 @@ build:
   verbosity: detailed
 
 build_script:
-  - gradlew.bat --info assemble
+  - gradlew.bat --info assemble -x sign
 
 test_script:
   - gradlew.bat --info verify -x sign
@@ -17,9 +17,7 @@ branches:
 
 environment:
   matrix:
-  - JAVA_HOME: C:\Program Files\Java\jdk1.7.0
   - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
-  - JAVA_HOME: C:\Program Files (x86)\Java\jdk1.7.0
   - JAVA_HOME: C:\Program Files (x86)\Java\jdk1.8.0
 
 cache:
