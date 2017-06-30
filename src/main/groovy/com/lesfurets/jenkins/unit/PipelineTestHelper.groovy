@@ -52,7 +52,7 @@ class PipelineTestHelper {
     /**
      * Default imports for scripts loaded by this helper
      */
-    Map<String, String> imports = [ 'Library' : 'com.lesfurets.jenkins.unit.global.lib.Library']
+    Map<String, String> imports = ['Library': 'com.lesfurets.jenkins.unit.global.lib.Library']
 
     /**
      * Global Shared Libraries to be loaded with scripts if necessary
@@ -93,7 +93,7 @@ class PipelineTestHelper {
                 }
             }
         }
-        return this.loadScript(name, delegate.binding)
+        return this.runScript(name, ((Script) delegate).binding)
     }
 
     /**
@@ -214,9 +214,9 @@ class PipelineTestHelper {
      * Complete this list in need with {@link #registerAllowedMethod}
      */
     protected Map<MethodSignature, Closure> allowedMethodCallbacks = [
-            (method("load", String.class))                : loadInterceptor,
-            (method("parallel", Map.class))               : parallelInterceptor,
-            (method("libraryResource", String.class))     : libraryResourceInterceptor,
+                    (method("load", String.class))           : loadInterceptor,
+                    (method("parallel", Map.class))          : parallelInterceptor,
+                    (method("libraryResource", String.class)): libraryResourceInterceptor,
     ]
 
     PipelineTestHelper() {
@@ -303,21 +303,21 @@ class PipelineTestHelper {
     }
 
     /**
-     * Load script with name with empty binding
+     * Load the script with name and empty binding, returning the Script
      * @param name path of the script
-     * @return the return value of the script
+     * @return Script object
      */
-    Object loadScript(String name) {
+    Script loadScript(String name) {
         return this.loadScript(name, new Binding())
     }
 
     /**
-     * Load and run script with given binding context
-     * @param scriptName path of the script
+     * Load the script with given binding context without running, returning the Script
+     * @param scriptName
      * @param binding
-     * @return the return value of the script
+     * @return Script object
      */
-    Object loadScript(String scriptName, Binding binding) {
+    Script loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding, "Binding cannot be null.")
         Objects.requireNonNull(gse, "GroovyScriptEngine is not initialized: Initialize the helper by calling init().")
         Class scriptClass = gse.loadScriptByName(scriptName)
@@ -326,7 +326,35 @@ class PipelineTestHelper {
         script.metaClass.invokeMethod = getMethodInterceptor()
         script.metaClass.static.invokeMethod = getMethodInterceptor()
         script.metaClass.methodMissing = getMethodMissingInterceptor()
-        return runScript(script)
+        return script
+    }
+
+    /**
+     * Load and run the script, returning the result value;
+     * @param scriptName
+     * @param binding
+     * @return the return value of the script
+     */
+    Object runScript(String scriptName, Binding binding) {
+        return runScriptInternal(loadScript(scriptName, binding))
+    }
+
+    /**
+     * Load and run the script, returning the result value;
+     * @param scriptName
+     * @return the return value of the script
+     */
+    Object runScript(String scriptName) {
+        return runScriptInternal(loadScript(scriptName, new Binding()))
+    }
+
+    /**
+     * Run the given script object
+     * @param Script object
+     * @return the return value of the script
+     */
+    Object runScript(Script script) {
+        return this.runScriptInternal(script)
     }
 
     /**
@@ -334,7 +362,7 @@ class PipelineTestHelper {
      * @param script
      * @return the return value of the script
      */
-    protected Object runScript(Script script) {
+    protected Object runScriptInternal(Script script) {
         return script.run()
     }
 
@@ -386,7 +414,7 @@ class PipelineTestHelper {
      */
     void registerAllowedMethod(MethodSignature methodSignature, Function callback) {
         this.registerAllowedMethod(methodSignature,
-                        callback != null ? { params -> return callback.apply(params)} : null)
+                        callback != null ? { params -> return callback.apply(params) } : null)
     }
 
     /**
@@ -396,7 +424,7 @@ class PipelineTestHelper {
      */
     void registerAllowedMethod(MethodSignature methodSignature, Consumer callback) {
         this.registerAllowedMethod(methodSignature,
-                        callback != null ? { params -> return callback.accept(params)} : null)
+                        callback != null ? { params -> return callback.accept(params) } : null)
     }
 
     /**

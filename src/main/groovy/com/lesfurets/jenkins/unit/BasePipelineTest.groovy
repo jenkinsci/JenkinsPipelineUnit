@@ -88,15 +88,36 @@ abstract class BasePipelineTest {
     }
 
     /**
-     * Loads and runs the script by its name/path
+     * Loads without running the script by its name/path, returning the Script
      * @param scriptName script name or path
-     * @return the return value of the script
+     * @return script object
      */
-    Object loadScript(String scriptName) {
+    Script loadScript(String scriptName) {
         if (!helper.isInitialized()) {
             throw new IllegalStateException("Helper is not initialized: Call setUp() before tests.")
         }
         return helper.loadScript(scriptName, this.binding)
+    }
+
+    /**
+     * Loads and runs the script by its name/path
+     * @param scriptName script name or path
+     * @return the return value of the script
+     */
+    Object runScript(String scriptName) {
+        if (!helper.isInitialized()) {
+            throw new IllegalStateException("Helper is not initialized: Call setUp() before tests.")
+        }
+        return helper.runScript(scriptName, this.binding)
+    }
+
+    /**
+     * Run the script object
+     * @param script Script object
+     * @return the return value of the script
+     */
+    Object runScript(Script script) {
+        return helper.runScript(script)
     }
 
     void printCallStack() {

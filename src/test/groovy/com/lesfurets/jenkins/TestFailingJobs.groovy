@@ -21,7 +21,7 @@ class TestFailingJobs extends BasePipelineTestCPS {
 
     @Test(expected = GroovyCastException)
     void should_fail_nonCpsCallingCps() throws Exception {
-        def script = loadScript("job/shouldFail/nonCpsCallingCps.jenkins")
+        def script = runScript("job/shouldFail/nonCpsCallingCps.jenkins")
         printCallStack()
     }
 
@@ -34,7 +34,7 @@ class TestFailingJobs extends BasePipelineTestCPS {
     @Test(expected = UnsupportedOperationException)
     @Ignore
     void should_fail_forEach() throws Exception {
-        def script = loadScript("job/shouldFail/forEach.jenkins")
+        def script = runScript("job/shouldFail/forEach.jenkins")
         printCallStack()
     }
 }

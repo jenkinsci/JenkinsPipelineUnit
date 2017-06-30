@@ -42,7 +42,7 @@ class TestSerializationCPS extends BasePipelineTestCPS {
 
     @Test
     void testSerialization() throws Exception {
-        def script = loadScript('job/serializeCPS.jenkins')
+        def script = runScript('job/serializeCPS.jenkins')
         try {
             script.execute()
         } catch (e) {

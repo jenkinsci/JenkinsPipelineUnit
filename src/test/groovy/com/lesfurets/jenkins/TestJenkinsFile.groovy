@@ -50,7 +50,7 @@ class TestJenkinsFile extends BasePipelineTest {
 
     @Test
     void name() throws Exception {
-        loadScript("Jenkinsfile")
+        runScript("Jenkinsfile")
         printCallStack()
         assertThat(helper.callStack.stream()
                         .filter { c -> c.methodName == "sh" }

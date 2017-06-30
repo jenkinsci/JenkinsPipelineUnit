@@ -33,7 +33,7 @@ class TestSerialization extends BasePipelineTest {
     @Test
 //                    (expected = Exception.class)
     void testException() throws Exception {
-        def script = loadScript('job/serialize.jenkins')
+        def script = runScript('job/serialize.jenkins')
         try {
             script.execute()
         } catch (e) {
