@@ -45,7 +45,7 @@ class MethodCall {
         } else if (arg instanceof Collection) {
             return arg.collect { k -> toStringWithClosures(k) }
         } else if (arg instanceof Map) {
-            return ((Map) arg).sort().collectEntries { k, v ->
+            return ((Map) arg).collectEntries { k, v ->
                 [k, v instanceof Closure ? Closure.class.name : toStringWithClosures(v)]
             }
         } else if (arg instanceof Script) {
