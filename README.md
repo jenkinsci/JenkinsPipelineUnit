@@ -186,16 +186,12 @@ You have a dedicated method you can call if you extend `BaseRegressionTest`:
     void testNonReg() throws Exception {
         def script = loadScript("job/exampleJob.jenkins")
         script.execute()
-        super.testNonRegression("example", false)
+        super.testNonRegression('example')
     }
 ```
 
 This will compare the current callstack of the job to the one you have in a text callstack reference file.
-To overwrite this file with new callstack, just set the `updateReference` to true when calling testNonRegression:
-
-```groovy
-super.testNonRegression("example", true)
-```
+To update this file with new callstack, just set this JVM argument when running your tests: `-Dpipeline.stack.write=true`
 
 You then can go ahead and commit this change in your SCM to check in the change.
 

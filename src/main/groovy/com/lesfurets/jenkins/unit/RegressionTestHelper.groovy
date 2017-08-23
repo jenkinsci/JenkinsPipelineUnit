@@ -19,23 +19,29 @@ class RegressionTestHelper {
     expected: %d, actual %d."""
 
     public static final String METHOD_CALL_NOT_EXISTS = "Method call '%s' does not exist on second stack"
+    public static final String PIPELINE_STACK_WRITE = 'pipeline.stack.write'
 
-    static void testNonRegression(PipelineTestHelper helper, String targetFileName, boolean writeReference) {
+    static void testNonRegression(PipelineTestHelper helper, String targetFileName) {
         targetFileName += '.txt'
         def referenceFile = new File(targetFileName)
-
-        if (writeReference) {
-            println "Saving stack into $targetFileName"
-            referenceFile.withWriter { out ->
-                helper.callStack.each {
-                    out.println(it)
-                }
-            }
-            fail('Please disable the write before commiting')
+        def pipelineStackWrite = System.getProperty(PIPELINE_STACK_WRITE)
+        if (pipelineStackWrite && Boolean.valueOf(pipelineStackWrite)) {
+            writeStackToFile(referenceFile, helper)
         }
 
         String callStack = helper.callStack.join('\n') + '\n'
-        assertThat(callStack.normalize()).isEqualTo(referenceFile.text.normalize())
+        assertThat(callStack.normalize())
+                        .as('If you intended to update the callstack, use JVM parameter -D%s=true', PIPELINE_STACK_WRITE)
+                        .isEqualTo(referenceFile.text.normalize())
+    }
+
+    private static writeStackToFile(File referenceFile, PipelineTestHelper helper) {
+        println "Saving stack into ${referenceFile.path}"
+        referenceFile.withWriter { out ->
+            helper.callStack.each {
+                out.println(it)
+            }
+        }
     }
 
     /**
