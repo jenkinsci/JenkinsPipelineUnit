@@ -4,3 +4,4 @@ target
 build
 .gradle
 *.swp
+out
