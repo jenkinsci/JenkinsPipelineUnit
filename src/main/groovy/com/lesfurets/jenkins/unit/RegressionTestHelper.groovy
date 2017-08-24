@@ -37,6 +37,9 @@ class RegressionTestHelper {
 
     private static writeStackToFile(File referenceFile, PipelineTestHelper helper) {
         println "Saving stack into ${referenceFile.path}"
+        if (!new File(referenceFile.parent).exists()) {
+            new File(referenceFile.parent).mkdirs()
+        }
         referenceFile.withWriter { out ->
             helper.callStack.each {
                 out.println(it)
