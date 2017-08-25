@@ -151,17 +151,12 @@ task deploy(dependsOn: [build, uploadArchives, closeAndReleaseRepository])
 
 // Release commits and tag
 task writeVersion(type: SetVersionTask)
-task tagVersion(type: GitTagTask)
-task commitRelease(type: GitCommitTask)
-task commitNextDevVersion(type: GitCommitTask) {
+task commitRelease(type: GitCommitTask, dependsOn: [writeVersion])
+task tagVersion(type: GitTagTask, dependsOn: [writeVersion, commitRelease])
+task writeNextSnapshot(type: SetNextSnapshotVersionTask)
+task commitNextDevVersion(type: GitCommitTask, dependsOn: [writeNextSnapshot]) {
     message = "Next dev version"
 }
 
-task nextSnapshot(type: SetNextSnapshotVersionTask)
-commitNextDevVersion.dependsOn(nextSnapshot)
-
-commitRelease.dependsOn(writeVersion)
-tagVersion.dependsOn(writeVersion, commitRelease)
-
 task release(dependsOn: [writeVersion, tagVersion, commitRelease])
-task nextDevVersion(dependsOn: [nextSnapshot, commitNextDevVersion])
+task nextDevVersion(dependsOn: [writeNextSnapshot, commitNextDevVersion])
