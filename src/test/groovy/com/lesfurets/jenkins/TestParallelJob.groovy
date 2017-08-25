@@ -27,7 +27,7 @@ class TestParallelJob extends BasePipelineTest {
 
     @Test
     void should_execute_parallel_with_errors() throws Exception {
-        def script = loadScript("job/parallelJob.jenkins")
+        def script = runScript("job/parallelJob.jenkins")
         try{
             script.execute()
         } finally {

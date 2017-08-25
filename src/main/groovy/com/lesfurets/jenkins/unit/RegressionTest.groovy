@@ -10,14 +10,13 @@ trait RegressionTest {
      *
      * Pattern: <RegressionTest.callStackPath>/<ClassTestSimpleName><_subname>.txt
      * @param subname optional subname, used in the reference callstack filename
-     * @param writeReference true to update the reference callstack
      */
-    void testNonRegression(String subname = '', boolean writeReference) {
+    void testNonRegression(String subname = '') {
         String targetFileName = "${callStackPath}${this.class.simpleName}"
         if (subname) {
             targetFileName += "_${subname}"
         }
-        RegressionTestHelper.testNonRegression(helper, targetFileName, writeReference)
+        RegressionTestHelper.testNonRegression(helper, targetFileName)
     }
 
 }

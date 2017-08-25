@@ -22,7 +22,7 @@ class TestUtilsLibCPS extends BasePipelineTestCPS {
 
     @Test
     void should_return_name_with_uppercase_underscore() throws Exception {
-        Script commons = loadScript("lib/utils.jenkins")
+        Script commons = runScript("lib/utils.jenkins")
         assertThat(commons.cleanName('some name')).isEqualTo("SOME_NAME")
         assertThat(helper.methodCallCount("cleanName")).isEqualTo(1)
         printCallStack()
@@ -36,7 +36,7 @@ class TestUtilsLibCPS extends BasePipelineTestCPS {
             return Files.contentOf(new File(file), Charset.forName("UTF-8"))
         })
         // when
-        Script commons = helper.loadScript("lib/utils.jenkins")
+        Script commons = helper.runScript("lib/utils.jenkins")
         def pomVersion = commons.versionForPom('src/test/resources/test-pom.xml', 'lesfurets.version')
         // then
         assertThat(pomVersion).isEqualTo("5.14.9")
@@ -45,7 +45,7 @@ class TestUtilsLibCPS extends BasePipelineTestCPS {
     @Test
     void testCurrentRevision() {
         // given
-        Script commons = loadScript("lib/utils.jenkins")
+        Script commons = runScript("lib/utils.jenkins")
         helper.registerAllowedMethod(method('sh', Map.class), { map ->
             if (map.script == 'git rev-parse HEAD') {
                 return '29480a51'
@@ -61,7 +61,7 @@ class TestUtilsLibCPS extends BasePipelineTestCPS {
 
     @Test
     void testRepositoryBranchSplitRefsRemotes() throws Exception {
-        Script commons = helper.loadScript("lib/utils.jenkins", new Binding())
+        Script commons = helper.runScript("lib/utils.jenkins", new Binding())
 
         String[] branchs = ["refs/remotes/origin/AMX-11701_pc_cleanup_garanties ",
                             "refs/remotes/origin/AMX-12378_responsive_SEA_pages ",
@@ -78,7 +78,7 @@ class TestUtilsLibCPS extends BasePipelineTestCPS {
 
     @Test
     void should_propagate_closure_result() throws Exception {
-        Script commons = loadScript("lib/utils.jenkins")
+        Script commons = runScript("lib/utils.jenkins")
         // given
         def expectedRevision = '29480a51'
         helper.registerAllowedMethod(method('sh', Map.class), { map ->

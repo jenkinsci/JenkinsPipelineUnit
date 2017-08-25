@@ -65,7 +65,7 @@ class TestSharedLibraryCPS extends BasePipelineTestCPS {
                         .build()
         helper.registerSharedLibrary(library)
         try {
-            def script = loadScript("job/library/${script}.jenkins")
+            def script = runScript("job/library/${script}.jenkins")
             script.execute()
             printCallStack()
         } catch (e) {

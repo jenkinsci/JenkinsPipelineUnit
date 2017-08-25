@@ -25,7 +25,7 @@ class TestExampleJob extends BasePipelineTest {
 
     @Test
     void should_execute_without_errors() throws Exception {
-        def script = loadScript("job/exampleJob.jenkins")
+        def script = runScript("job/exampleJob.jenkins")
         script.execute()
         printCallStack()
         assertJobStatusSuccess()
@@ -33,7 +33,7 @@ class TestExampleJob extends BasePipelineTest {
 
     @Test
     void should_print_property_value() {
-        def script = loadScript('job/exampleJob.jenkins')
+        def script = runScript('job/exampleJob.jenkins')
         script.execute()
 
         def value = 'value'

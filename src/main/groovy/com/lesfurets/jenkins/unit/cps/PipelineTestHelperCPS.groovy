@@ -34,9 +34,9 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
     }
 
     @Override
-    protected Object runScript(Script script) {
+    protected Object runScriptInternal(Script script) {
         try {
-            super.runScript(script)
+            super.runScriptInternal(script)
         } catch (CpsCallableInvocation inv) {
             return inv.invoke(null, null, Continuation.HALT).run().yield.replay()
         }

@@ -7,11 +7,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-import com.lesfurets.jenkins.unit.BasePipelineTest
+import com.lesfurets.jenkins.unit.BaseRegressionTest
 import com.lesfurets.jenkins.unit.MethodCall
 
 @RunWith(Parameterized.class)
-class TestJenkinsFile extends BasePipelineTest {
+class TestJenkinsFile extends BaseRegressionTest {
 
     @Parameterized.Parameter
     public String branch
@@ -50,8 +50,8 @@ class TestJenkinsFile extends BasePipelineTest {
 
     @Test
     void name() throws Exception {
-        loadScript("Jenkinsfile")
-        printCallStack()
+        runScript("Jenkinsfile")
+        super.testNonRegression(branch)
         assertThat(helper.callStack.stream()
                         .filter { c -> c.methodName == "sh" }
                         .map(MethodCall.&callArgsToString)

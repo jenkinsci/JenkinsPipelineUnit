@@ -1,17 +1,16 @@
 package com.lesfurets.gradle
 
 import org.gradle.api.BuildCancelledException
-import org.gradle.api.DefaultTask
 import org.gradle.api.internal.TaskInternal
 import org.gradle.api.specs.Spec
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.VersionNumber
 
-class SetNextSnapshotVersionTask extends DefaultTask {
+class SetNextSnapshotVersionTask extends AbstractVersionTask {
 
+    private static final String VERSION_TEMPLATE = "%d.%d%s"
 
-    public static final String SNAPSHOT = '-SNAPSHOT'
+    public static final String SNAPSHOT = 'SNAPSHOT'
 
     @Override
     Spec<? super TaskInternal> getOnlyIf() {
@@ -26,17 +25,18 @@ class SetNextSnapshotVersionTask extends DefaultTask {
             throw new BuildCancelledException("Project version is already at snapshot : ${project.version}")
         }
         // verify next snapshot version format
-        String newVersion = project.version + SNAPSHOT
-        def version = VersionNumber.parse(newVersion)
-        if (version == VersionNumber.UNKNOWN) {
-            throw new BuildCancelledException("Unknown version format: ${newVersion}")
-        }
-        if (version != project.version) {
-            String contents = project.buildFile.getText("UTF-8")
-            contents = contents.replaceFirst("version = \"${project.version}\"", "version = \"${newVersion}\"")
-            project.version = newVersion
-            project.buildFile.write(contents, "UTF-8")
-        }
+        def currentVersion = VersionNumber.parse(project.version.toString())
+        String newVersion = formatVersionWithoutMicro(incrementVersionWithSnapshot(currentVersion))
+        writeVersion(newVersion)
+    }
+
+    VersionNumber incrementVersionWithSnapshot(VersionNumber versionNumber) {
+        return new VersionNumber(versionNumber.major, versionNumber.minor+1, 0, SNAPSHOT)
+    }
+
+    String formatVersionWithoutMicro(VersionNumber versionNumber) {
+        return String.format(VERSION_TEMPLATE, versionNumber.major, versionNumber.minor,
+                        versionNumber.qualifier == null ? "" : "-" + versionNumber.qualifier)
     }
 
 }

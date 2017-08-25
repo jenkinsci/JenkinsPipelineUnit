@@ -8,7 +8,7 @@ class TestHelperInitialization extends BasePipelineTest {
 
     @Test(expected = IllegalStateException)
     void non_initialized_helper() throws Exception {
-        loadScript('jobs/exampleJob.jenkins')
+        runScript('jobs/exampleJob.jenkins')
     }
 
     @Test(expected = NullPointerException)

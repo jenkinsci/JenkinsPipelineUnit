@@ -29,9 +29,9 @@ class TestRegression extends BaseRegressionTestCPS {
 
     @Test
     void testNonReg() throws Exception {
-        def script = loadScript("job/exampleJob.jenkins")
+        def script = runScript("job/exampleJob.jenkins")
         script.execute()
-        super.testNonRegression("example", false)
+        super.testNonRegression("example")
     }
 
 }
