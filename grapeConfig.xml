@@ -1,0 +1,6 @@
+<ivysettings>
+  <settings defaultResolver="downloadGrapes"/>
+  <resolvers>
+    <ibiblio name="downloadGrapes" root="${grape.home}" m2compatible="true" usepoms="false"/>
+  </resolvers>
+</ivysettings>
