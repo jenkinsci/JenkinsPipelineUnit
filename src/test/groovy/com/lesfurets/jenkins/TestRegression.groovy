@@ -1,5 +1,6 @@
 package com.lesfurets.jenkins
 
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -32,6 +33,21 @@ class TestRegression extends BaseRegressionTestCPS {
         def script = runScript("job/exampleJob.jenkins")
         script.execute()
         super.testNonRegression("example")
+    }
+
+    @Test
+    void testNonRegression_ExpectedFileIsCreatedIfItDidNotExist() throws Exception {
+        final expectedFile = new File("src/test/resources/callstacks/TestRegression_missing.txt")
+        if (expectedFile.isFile()) {
+            expectedFile.delete()
+        }
+        def script = runScript("job/exampleJob.jenkins")
+        script.execute()
+
+        super.testNonRegression("missing")
+
+        Assert.assertTrue("The file '${expectedFile}' should have been created", expectedFile.isFile())
+        expectedFile.delete()
     }
 
 }

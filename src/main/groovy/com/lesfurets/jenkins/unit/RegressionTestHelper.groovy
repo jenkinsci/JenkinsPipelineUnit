@@ -25,7 +25,7 @@ class RegressionTestHelper {
         targetFileName += '.txt'
         def referenceFile = new File(targetFileName)
         def pipelineStackWrite = System.getProperty(PIPELINE_STACK_WRITE)
-        if (pipelineStackWrite && Boolean.valueOf(pipelineStackWrite)) {
+        if (!referenceFile.isFile() || (pipelineStackWrite && Boolean.valueOf(pipelineStackWrite))) {
             writeStackToFile(referenceFile, helper)
         }
 
