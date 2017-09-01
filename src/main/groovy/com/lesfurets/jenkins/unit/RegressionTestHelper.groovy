@@ -32,9 +32,9 @@ class RegressionTestHelper {
         String callStack = helper.callStack.join('\n') + '\n'
         final expected = referenceFile.text.normalize()
         final actual = callStack.normalize()
+        final actualFileName = targetFileName + ".actual"
+        final actualFile = new File(actualFileName)
         if (!expected.equals(actual)) {
-            final actualFileName = targetFileName + ".actual"
-            final actualFile = new File(actualFileName)
             writeStackToFile(actualFile, helper)
         }
         assertThat(actual)
