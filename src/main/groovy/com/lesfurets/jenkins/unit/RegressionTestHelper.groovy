@@ -32,6 +32,11 @@ class RegressionTestHelper {
         String callStack = helper.callStack.join('\n') + '\n'
         final expected = referenceFile.text.normalize()
         final actual = callStack.normalize()
+        if (!expected.equals(actual)) {
+            final actualFileName = targetFileName + ".actual"
+            final actualFile = new File(actualFileName)
+            writeStackToFile(actualFile, helper)
+        }
         assertThat(actual)
                         .as('If you intended to update the callstack, use JVM parameter -D%s=true', PIPELINE_STACK_WRITE)
                         .isEqualTo(expected)

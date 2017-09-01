@@ -50,4 +50,27 @@ class TestRegression extends BaseRegressionTestCPS {
         expectedFile.delete()
     }
 
+    @Test
+    void testNonRegression_writesActualFileOnFailure() throws Exception {
+        final expectedFile = new File("src/test/resources/callstacks/TestRegression_example.txt.actual")
+        if (expectedFile.isFile()) {
+            expectedFile.delete()
+        }
+        def script = runScript("job/exampleJob.jenkins")
+        helper.registerAllowedMethod("sh", [Map.class], {c -> 'bcc19742'})
+        script.execute()
+
+        boolean thrown = false
+        try {
+            super.testNonRegression("example")
+        }
+        catch (final AssertionError ignored) {
+            thrown = true;
+        }
+
+        Assert.assertTrue("testNonRegression should have thrown an AssertionError", thrown)
+        Assert.assertTrue("The file '${expectedFile}' should have been created", expectedFile.isFile())
+        expectedFile.delete()
+    }
+
 }
