@@ -34,6 +34,9 @@ class RegressionTestHelper {
         final actual = callStack.normalize()
         final actualFileName = targetFileName + ".actual"
         final actualFile = new File(actualFileName)
+        if (actualFile.isFile()) {
+            actualFile.delete()
+        }
         if (!expected.equals(actual)) {
             writeStackToFile(actualFile, helper)
         }

@@ -73,4 +73,16 @@ class TestRegression extends BaseRegressionTestCPS {
         expectedFile.delete()
     }
 
+    @Test
+    void testNonRegression_deletesActualFileFirst() throws Exception {
+        final expectedFile = new File("src/test/resources/callstacks/TestRegression_example.txt.actual")
+        expectedFile.text = "temporary text"
+        def script = runScript("job/exampleJob.jenkins")
+        script.execute()
+
+        super.testNonRegression("example")
+
+        Assert.assertFalse("The file '${expectedFile}' should have been deleted", expectedFile.isFile())
+    }
+
 }
