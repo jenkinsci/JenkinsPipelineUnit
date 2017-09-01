@@ -30,9 +30,10 @@ class RegressionTestHelper {
         }
 
         String callStack = helper.callStack.join('\n') + '\n'
+        final expected = referenceFile.text.normalize()
         assertThat(callStack.normalize())
                         .as('If you intended to update the callstack, use JVM parameter -D%s=true', PIPELINE_STACK_WRITE)
-                        .isEqualTo(referenceFile.text.normalize())
+                        .isEqualTo(expected)
     }
 
     private static writeStackToFile(File referenceFile, PipelineTestHelper helper) {
