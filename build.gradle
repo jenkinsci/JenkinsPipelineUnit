@@ -19,10 +19,10 @@ version = "1.2-SNAPSHOT"
 
 // Grape configuration is used to test @Grape annotation in unit tests using grapeConfig.xml
 configurations {
-    grape
+    grape { // Note our simple use case does not use or support transitive dependencies
+        transitive = false
+    }
 }
-// Note our simple use case does not use or support transitive dependencies
-configurations.grape.transitive = false
 
 dependencies {
     compile     group: 'org.codehaus.groovy',   name: 'groovy-all',     version: '2.4.6'
@@ -65,26 +65,12 @@ signing {
 }
 
 // Copy the resolved grapes configuration to a maven2 like directory structure (no transitive dependencies)
-task copyGrapes(type: Task) {
-    inputs.files(configurations.grape)
-    outputs.dir("$buildDir/grapes")
-    doLast {
-        configurations.grape.allDependencies.each { dependency ->
-            def g = dependency.group.split(/\./).join('/')
-            def a = dependency.name
-            def v = dependency.version
-            def path = "$buildDir/grapes/$g/$a/$v"
-            configurations.grape.files { it == dependency }.each { filename ->
-                copy {
-                    into path
-                    from filename
-                }
-            }
-        }
-    }
+task copyGrapesDependencies(type: CopyDependenciesToMavenTreeTask) {
+    configuration = configurations.grape
+    outputDir = "$buildDir/grapes"
 }
 
-test.dependsOn copyGrapes
+test.dependsOn copyGrapesDependencies
 
 test {
     systemProperty "grape.config", "$projectDir/grapeConfig.xml"
