@@ -17,6 +17,13 @@ group = "com.lesfurets"
 archivesBaseName = "jenkins-pipeline-unit"
 version = "1.2-SNAPSHOT"
 
+// Grape configuration is used to test @Grape annotation in unit tests using grapeConfig.xml
+configurations {
+    grape { // Note our simple use case does not use or support transitive dependencies
+        transitive = false
+    }
+}
+
 dependencies {
     compile     group: 'org.codehaus.groovy',   name: 'groovy-all',     version: '2.4.6'
     compile     group: 'com.cloudbees',         name: 'groovy-cps',     version: '1.12'
@@ -25,6 +32,7 @@ dependencies {
     compile     group: 'org.assertj',           name: 'assertj-core',   version: '3.4.1'
     testCompile group: 'org.assertj',           name: 'assertj-core',   version: '3.4.1'
     testCompile group: 'junit',                 name: 'junit',          version: '4.11'
+    grape       group: 'org.apache.commons',    name: 'commons-math3',  version: '3.4.1'
 }
 
 // Get external properties from file
@@ -56,7 +64,20 @@ signing {
     sign configurations.archives
 }
 
+// Copy the resolved grapes configuration to a maven2 like directory structure (no transitive dependencies)
+task copyGrapesDependencies(type: CopyDependenciesToMavenTreeTask) {
+    configuration = configurations.grape
+    outputDir = "$buildDir/grapes"
+}
+
+test.dependsOn copyGrapesDependencies
+
 test {
+    systemProperty "grape.config", "$projectDir/grapeConfig.xml"
+    systemProperty "grape.home", file("$buildDir/grapes").toURI()
+    // Settings for debugging @Grape() resolution in test cases
+    //systemProperty "groovy.grape.report.downloads", "true"
+    //systemProperty "ivy.message.logger.level", "4"
     testLogging {
         events "PASSED", "FAILED", "SKIPPED"
     }
