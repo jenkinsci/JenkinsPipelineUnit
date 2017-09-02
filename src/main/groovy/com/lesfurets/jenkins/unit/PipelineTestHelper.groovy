@@ -1,5 +1,7 @@
 package com.lesfurets.jenkins.unit
 
+import java.util.regex.Matcher
+
 import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 import java.lang.reflect.Method
@@ -74,6 +76,11 @@ class PipelineTestHelper {
      * Loader for shared global libraries
      */
     protected LibraryLoader libLoader
+
+    /**
+     * Step mocks indexed by signature
+     */
+    Map<MethodSignature, StepMock> allMocks = [:]
 
     /**
      * Method interceptor for method 'load' to load scripts via encapsulated GroovyScriptEngine
@@ -388,12 +395,69 @@ class PipelineTestHelper {
     }
 
     /**
+     * Register the method to be allowed when running the pipeline.
      * @param name method name
      * @param args parameter types
      * @param closure method implementation, can be null
+     * If the closure is null, then every parameter of the step which are of type Closure will be executed when the
+     * step is called
      */
     void registerAllowedMethod(String name, List<Class> args = [], Closure closure) {
         allowedMethodCallbacks.put(method(name, args.toArray(new Class[args?.size()])), closure)
+    }
+
+    /**
+     * Register the method to be allowed when running the pipeline.
+     * All step parameters of type Closure will be executed
+     * @param name method name
+     * @param args parameter types
+     */
+    void registerAllowedMethod(String name, List<Class> args = []) {
+        allowedMethodCallbacks.put(method(name, args.toArray(new Class[args?.size()])), null)
+    }
+
+    /**
+     * Creates a mock for method and register it.
+     * This mock allows you to change the mock behaviour depending on the step parameters
+     * @param methodSignature signature of the step to mock
+     * @param matcherClosure TODO
+     * @return the step mock. This mock can then be configured, using
+     * You can later get this mock by using {@link #getMock(com.lesfurets.jenkins.unit.MethodSignature)}
+     *
+     * Here is how you can mock everything:
+     * helper.registerMockForMethod(new MethodSignature('sh', Map), { String rule, Map shArgs -> shArgs.script =~ rule })
+     *     .mockWithString('git rev-parse HEAD', 'bcc19744')
+     *     .mockWithString('whoami', 'jenkins')
+     * But then, you can still get your mock to add some other behaviours
+     * helper.getMock('sh', Map).mockWithString('ls', 'Jenkinsfile')
+     */
+    StepMock registerMockForMethod(MethodSignature methodSignature, Closure<Matcher> matcherClosure) {
+        if (allMocks[methodSignature]) {
+            println "Warning, the existing mock for $methodSignature will be replaced"
+        }
+        allMocks[methodSignature] = new StepMock(methodSignature, this, matcherClosure)
+        return allMocks[methodSignature]
+    }
+
+    /**
+     * Return the step mock configured by {@link #registerMockForMethod(com.lesfurets.jenkins.unit.MethodSignature, groovy.lang.Closure)}
+     * @param signature signature of the step mock
+     * @return the declared mock if exists, else null
+     * @see {@link #getMock(java.lang.String, java.lang.Class[])}
+     */
+    StepMock getMock(MethodSignature signature) {
+        return allMocks[signature]
+    }
+
+    /**
+     * Return the step mock configured by {@link #registerMockForMethod(com.lesfurets.jenkins.unit.MethodSignature, groovy.lang.Closure)}
+     * @param methodName step name to mock
+     * @param arguments argument types
+     * @return the declared mock if exists, else null
+     * @see {@link #getMock(com.lesfurets.jenkins.unit.MethodSignature)}
+     */
+    StepMock getMock(String methodName, Class... arguments) {
+        return getMock(new MethodSignature(methodName, arguments))
     }
 
     /**

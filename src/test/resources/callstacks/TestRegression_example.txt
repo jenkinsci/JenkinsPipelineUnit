@@ -19,3 +19,6 @@
                exampleJob.gitlabCommitStatus(test, groovy.lang.Closure)
                   exampleJob.println(value)
                   exampleJob.sh(mvn verify -DgitRevision=bcc19744)
+                  exampleJob.sh({script=ls, returnStdout=true})
+                  exampleJob.println(Jenkinsfile
+build.gradle)
