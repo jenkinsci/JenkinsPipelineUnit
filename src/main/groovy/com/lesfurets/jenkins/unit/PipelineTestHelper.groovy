@@ -382,6 +382,9 @@ class PipelineTestHelper {
                     this.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
                                     { args -> m.doMethodInvoke(e.value, args) })
                 }
+                script.metaClass.invokeMethod = getMethodInterceptor()
+                script.metaClass.static.invokeMethod = getMethodInterceptor()
+                script.metaClass.methodMissing = getMethodMissingInterceptor()
             }
             binding.setVariable(e.key, e.value)
         }
