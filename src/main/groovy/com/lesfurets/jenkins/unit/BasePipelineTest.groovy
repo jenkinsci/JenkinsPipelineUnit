@@ -32,7 +32,7 @@ abstract class BasePipelineTest {
     }
 
     BasePipelineTest() {
-        helper = HelperSingleton.getSingletonInstance()
+        helper = HelperSingleton.singletonInstance
     }
 
     void setUp() throws Exception {

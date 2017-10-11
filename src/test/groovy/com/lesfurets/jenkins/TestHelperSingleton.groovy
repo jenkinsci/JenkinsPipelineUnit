@@ -3,6 +3,7 @@ package com.lesfurets.jenkins
 import com.lesfurets.jenkins.unit.BasePipelineTest
 import com.lesfurets.jenkins.unit.HelperSingleton
 import com.lesfurets.jenkins.unit.PipelineTestHelper
+import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -54,6 +55,11 @@ class TestHelperSingleton extends BasePipelineTest {
             exception = true
         }
         assertThat(false).isEqualTo(exception)
+    }
+
+    @AfterClass
+    static void tearDown() {
+        HelperSingleton.invalidate()
     }
 
 }
