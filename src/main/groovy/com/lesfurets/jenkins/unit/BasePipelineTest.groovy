@@ -49,6 +49,8 @@ abstract class BasePipelineTest {
             helper.init()
 
             registerDefaultAllowedMethods()
+        } else {
+            helper.callStack.clear()
         }
 
         binding.setVariable('currentBuild', [result: 'SUCCESS'])
