@@ -32,19 +32,29 @@ abstract class BasePipelineTest {
     }
 
     BasePipelineTest() {
-        helper = new PipelineTestHelper()
+        helper = HelperSingleton.getSingletonInstance()
     }
 
     void setUp() throws Exception {
-        helper.with {
-            it.scriptRoots = this.scriptRoots
-            it.scriptExtension = this.scriptExtension
-            it.baseClassloader = this.baseClassLoader
-            it.imports += this.imports
-            it.baseScriptRoot = this.baseScriptRoot
-            return it
-        }.init()
 
+        if (!helper.isInitialized()) {
+            helper.with {
+                it.scriptRoots = this.scriptRoots
+                it.scriptExtension = this.scriptExtension
+                it.baseClassloader = this.baseClassLoader
+                it.imports += this.imports
+                it.baseScriptRoot = this.baseScriptRoot
+            }
+
+            helper.init()
+
+            registerDefaultAllowedMethods()
+        }
+
+        binding.setVariable('currentBuild', [result: 'SUCCESS'])
+    }
+
+    void registerDefaultAllowedMethods() {
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
         helper.registerAllowedMethod("node", [String.class, Closure.class], null)
@@ -74,8 +84,6 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("string", [Map.class], stringInterceptor)
         helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
         helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE') })
-
-        binding.setVariable('currentBuild', [result: 'SUCCESS'])
     }
 
     /**

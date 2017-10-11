@@ -259,7 +259,7 @@ class PipelineTestHelper {
      *
      * @return true if internal GroovyScriptEngine is set
      */
-    protected boolean isInitialized() {
+    boolean isInitialized() {
         return gse != null
     }
 
