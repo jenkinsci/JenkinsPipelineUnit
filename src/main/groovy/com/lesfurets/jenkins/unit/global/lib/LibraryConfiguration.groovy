@@ -18,7 +18,7 @@ class LibraryConfiguration {
     String targetPath
 
     LibraryConfiguration validate() {
-        if (name && defaultVersion && retriever && targetPath)
+        if (name && retriever && targetPath && ((retriever instanceof LocalSource) || defaultVersion))
             return this
         throw new IllegalStateException("LibraryConfiguration is not properly initialized ${this.toString()}")
     }
