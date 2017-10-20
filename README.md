@@ -163,7 +163,7 @@ The helper registers every method call to provide a stacktrace of the mock execu
 
 @Test
 void should_execute_without_errors() throws Exception {
-    loadScript("Jenkinsfile")
+    runScript("Jenkinsfile")
     assertThat(helper.callStack.findAll { call ->
         call.methodName == "sh"
     }.any { call ->
@@ -289,7 +289,7 @@ Now let's test it:
                     .build()
     helper.registerSharedLibrary(library)
     
-    loadScript("job/library/exampleJob.jenkins")
+    runScript("job/library/exampleJob.jenkins")
     printCallStack()
 ```
 
