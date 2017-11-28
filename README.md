@@ -216,9 +216,9 @@ class TestExampleJob extends BasePipelineTest {
     @Override
     @Before
     void setUp() throws Exception {
-        helper.baseScriptRoot = 'jenkinsJobs'
-        helper.roots += 'src/main/groovy'
-        helper.extension = 'pipeline'
+        baseScriptRoot = 'jenkinsJobs'
+        scriptRoots += 'src/main/groovy'
+        scriptExtension = 'pipeline'
         super.setUp()
     }
     
