@@ -181,3 +181,6 @@ task commitNextDevVersion(type: GitCommitTask, dependsOn: [writeNextSnapshot]) {
 
 task release(dependsOn: [writeVersion, tagVersion, commitRelease])
 task nextDevVersion(dependsOn: [writeNextSnapshot, commitNextDevVersion])
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
