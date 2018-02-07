@@ -87,17 +87,19 @@ class LibraryLoader {
                 groovyClassLoader.addURL(resourcesPath.toUri().toURL())
 
                 if (varsPath.toFile().exists()) {
-                    Files.list(varsPath)
-                                    .map { it.toFile() }
-                                    .filter ({File it -> it.name.endsWith('.groovy') } as Predicate<File>)
-                                    .map { FilenameUtils.getBaseName(it.name) }
-                                    .filter ({String it -> !globalVars.containsValue(it) } as Predicate<String>)
-                                    .forEach ({ String it ->
-                        def clazz = groovyClassLoader.loadClass(it)
-                        // instanciate by invokeConstructor to avoid interception
-                        Object var = DefaultGroovyMethods.newInstance(clazz)
-                        globalVars.put(it, var)
-                    } as Consumer<String>)
+                    def ds = Files.list(varsPath)
+                    ds.map { it.toFile() }
+                      .filter ({File it -> it.name.endsWith('.groovy') } as Predicate<File>)
+                      .map { FilenameUtils.getBaseName(it.name) }
+                      .filter ({String it -> !globalVars.containsValue(it) } as Predicate<String>)
+                      .forEach ({ String it ->
+                          def clazz = groovyClassLoader.loadClass(it)
+                          // instantiate by invokeConstructor to avoid interception
+                          Object var = DefaultGroovyMethods.newInstance(clazz)
+                          globalVars.put(it, var)
+                      } as Consumer<String>)
+                    // prevent fd leak on the DirectoryStream from Files.list()
+                    ds.close()
                 }
             }
             record.definedGlobalVars = globalVars
