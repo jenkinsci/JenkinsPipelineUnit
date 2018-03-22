@@ -183,8 +183,8 @@ Let's say you have a simple script and you'd like to check it behaviour if a ste
 // Jenkinsfile
 // ...
 node() {
-  git('some_repo_url')
-  sh "make"
+    git('some_repo_url')
+    sh "make"
 }
 ```
 
@@ -192,21 +192,18 @@ You can mock `sh` step to just update the pipeline status to `FAILURE`.
 To verify your pipeline is failing you need to check the status with `BasePipelineTest.assertJobStatusFailure()`
 ```groovy
 class TestCase extends BasePipelineTest {
-  // testcase
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
   void check_build_status() throws Exception {
       helper.registerAllowedMethod("sh", [String.class], {cmd-> 
-        // cmd.contains is helpfull to filter sh call which should fail the pipeline
-        if (cmd.contains("make")) { 
-          binding.getVariable('currentBuild').result = 'FAILURE'
-        }
-     })
-    loadScript("Jenkinsfile")
-    assertJobStatusFailure()
+          // cmd.contains is helpfull to filter sh call which should fail the pipeline
+          if (cmd.contains("make")) { 
+              binding.getVariable('currentBuild').result = 'FAILURE'
+          }
+      })
+      loadScript("Jenkinsfile")
+      assertJobStatusFailure()
   }
+}
 ```
 
 
@@ -228,15 +225,15 @@ Here is a simple example to verify exception type and the message:
 import org.junit.Rule
 import org.junit.rules.ExpectedException
 class TestCase extends BasePipelineTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-  @Test
-  void verify_exception() throws Exception {
-    loadScript("Jenkinsfile")
-    thrown.expect(Exception)
-    thrown.expectMessage("error message");
-  }
+    @Test
+    void verify_exception() throws Exception {
+        loadScript("Jenkinsfile")
+        thrown.expect(Exception)
+        thrown.expectMessage("error message");
+    }
 }
 ```
 
