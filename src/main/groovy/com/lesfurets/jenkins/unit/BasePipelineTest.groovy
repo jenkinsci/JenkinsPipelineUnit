@@ -1,6 +1,7 @@
 package com.lesfurets.jenkins.unit
 
 import static org.assertj.core.api.Assertions.assertThat
+import com.lesfurets.jenkins.unit.LibClassLoader
 
 abstract class BasePipelineTest {
 

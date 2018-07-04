@@ -31,6 +31,13 @@ class LibraryLoader {
     }
 
     /**
+     * Return class loader for all libraries
+     */
+    GroovyClassLoader getGroovyClassLoader() {
+        return groovyClassLoader
+    }
+
+    /**
      * Loads all implicit library configurations
      */
     void loadImplicitLibraries() {

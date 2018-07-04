@@ -387,7 +387,49 @@ libraryJob.run()
         libraryJob.libraryResource(net/courtanet/jenkins/request.json)
         libraryJob.sh(curl -H 'Content-Type: application/json' -X POST -d '{"name" : "Ben"}' http://acme.com)
 ```
+#### Loading library dynamically
+There is a partial support of dynamic library loading.
+It does't implement all the features, however sometimes it could be useful.
 
+Pipeline example:
+```
+def lib = library 'commons'
+
+// by the moment you call library method it enables vars
+sayHello 'World'
+
+// creates an instance of a library's class
+def utils = net.courtanet.jenkins.Utils.new()
+
+```
+
+Test class example:
+```groovy
+    String clonePath = 'path/to/clone'
+
+    def library = library()
+                    .name('commons')
+                    .retriever(gitSource('git@gitlab.admin.courtanet.net:devteam/lesfurets-jenkins-shared.git'))
+                    .targetPath(clonePath)
+                    .defaultVersion("master")
+                    .allowOverride(true)
+                    .implicit(false)
+                    .build()
+
+    helper.registerSharedLibrary(library)
+
+    // Registration fo pipeline method 'library'
+    // should be after you register the shared library
+    // so unfortenatly you cannot move it to the super class
+    helper.registerAllowedMethod("library", [String.class], {String expression ->
+        helper.getLibLoader().loadLibrary(expression)
+        println helper.getLibLoader().libRecords
+        return new LibClassLoader(helper,null)
+    })
+
+    loadScript("job/library/exampleJob.jenkins")
+    printCallStack()
+```
 ## Note on CPS
 
 If you already fiddled with Jenkins pipeline DSL, you experienced strange errors during execution on Jenkins.

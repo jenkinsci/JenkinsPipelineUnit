@@ -75,6 +75,11 @@ class PipelineTestHelper {
      */
     protected LibraryLoader libLoader
 
+    // Return libLoader
+    LibraryLoader getLibLoader() {
+        return this.libLoader
+    }
+
     /**
      * Method interceptor for method 'load' to load scripts via encapsulated GroovyScriptEngine
      */

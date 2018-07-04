@@ -1,5 +1,7 @@
 package com.lesfurets.jenkins
 
+import com.lesfurets.jenkins.unit.LibClassLoader
+
 import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
 import static com.lesfurets.jenkins.unit.global.lib.LocalSource.localSource
 import static org.assertj.core.api.Assertions.assertThat
@@ -50,6 +52,7 @@ class TestSharedLibrary extends BasePipelineTest {
          ['libraryJob_feature', true, false, false],
          ['libraryJob_feature', false, false, true],
          ['libraryJob_feature2', true, false, true],
+         ['libraryJob_inline_library', false, false, true],
         ].collect { it as Object[] }
     }
 
@@ -64,6 +67,13 @@ class TestSharedLibrary extends BasePipelineTest {
                         .retriever(localSource(sharedLibs))
                         .build()
         helper.registerSharedLibrary(library)
+
+        helper.registerAllowedMethod("library", [String.class], {String expression ->
+            helper.getLibLoader().loadLibrary(expression)
+            println helper.getLibLoader().libRecords
+            return new LibClassLoader(helper,null)
+        })
+
         try {
             def script = runScript("job/library/${script}.jenkins")
             script.execute()
