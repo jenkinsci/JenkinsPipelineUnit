@@ -32,6 +32,7 @@ class LibraryLoader {
 
     /**
      * Return class loader for all libraries
+     * @return return class loader
      */
     GroovyClassLoader getGroovyClassLoader() {
         return groovyClassLoader

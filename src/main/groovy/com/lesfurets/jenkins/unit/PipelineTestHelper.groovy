@@ -75,7 +75,13 @@ class PipelineTestHelper {
      */
     protected LibraryLoader libLoader
 
-    // Return libLoader
+
+    /**
+    * Get library loader object
+    *
+    * @return return library loader
+    * @see LibraryLoader
+    */
     LibraryLoader getLibLoader() {
         return this.libLoader
     }

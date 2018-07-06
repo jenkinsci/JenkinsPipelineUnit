@@ -50,6 +50,7 @@ class TestSharedLibraryCPS extends BasePipelineTestCPS {
          ['libraryJob_feature', true, false, false],
          ['libraryJob_feature', false, false, true],
          ['libraryJob_feature2', true, false, true],
+         ['libraryJob_inline_library', false, false, true],
         ].collect { it as Object[] }
     }
 

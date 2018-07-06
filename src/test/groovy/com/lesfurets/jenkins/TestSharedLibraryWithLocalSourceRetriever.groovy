@@ -70,7 +70,6 @@ class TestSharedLibrary extends BasePipelineTest {
 
         helper.registerAllowedMethod("library", [String.class], {String expression ->
             helper.getLibLoader().loadLibrary(expression)
-            println helper.getLibLoader().libRecords
             return new LibClassLoader(helper,null)
         })
 
