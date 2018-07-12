@@ -39,4 +39,13 @@ class InterceptingGCL extends GroovyClassLoader {
         interceptClassMethods(clazz.metaClass, helper)
         return clazz
     }
+
+    @Override
+    Class<?> loadClass(String name) throws ClassNotFoundException {
+        Class<?> clazz = super.loadClass(name)
+        clazz.metaClass.invokeMethod = helper.getMethodInterceptor()
+        clazz.metaClass.static.invokeMethod = helper.getMethodInterceptor()
+        clazz.metaClass.methodMissing = helper.getMethodMissingInterceptor()
+        return clazz
+    }
 }
