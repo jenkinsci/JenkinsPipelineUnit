@@ -34,7 +34,7 @@ class InterceptingGCL extends GroovyClassLoader {
 
     @Override
     Class parseClass(GroovyCodeSource codeSource, boolean shouldCacheSource)
-                    throws CompilationFailedException {
+            throws CompilationFailedException {
         Class clazz = super.parseClass(codeSource, shouldCacheSource)
         interceptClassMethods(clazz.metaClass, helper)
         return clazz
@@ -42,10 +42,32 @@ class InterceptingGCL extends GroovyClassLoader {
 
     @Override
     Class<?> loadClass(String name) throws ClassNotFoundException {
-        Class<?> clazz = super.loadClass(name)
-        clazz.metaClass.invokeMethod = helper.getMethodInterceptor()
-        clazz.metaClass.static.invokeMethod = helper.getMethodInterceptor()
-        clazz.metaClass.methodMissing = helper.getMethodMissingInterceptor()
-        return clazz
+        // Source from: groovy-all-2.4.6-sources.jar!/groovy/lang/GroovyClassLoader.java:710
+        Class cls = null
+        // try groovy file
+        try {
+            URL source = resourceLoader.loadGroovySource(name);
+            // if recompilation fails, we want cls==null
+            cls = recompile(source, name, null);
+        } catch (IOException ioe) {
+        } finally {
+            if (cls == null) {
+                removeClassCacheEntry(name);
+            } else {
+                setClassCacheEntry(cls);
+            }
+        }
+
+        if (cls == null) {
+            // no class found, there should have been an exception before now
+            throw new AssertionError(true);
+        }
+
+        // Copy from this.parseClass(GroovyCodeSource, boolean)
+        cls.metaClass.invokeMethod = helper.getMethodInterceptor()
+        cls.metaClass.static.invokeMethod = helper.getMethodInterceptor()
+        cls.metaClass.methodMissing = helper.getMethodMissingInterceptor()
+
+        return cls;
     }
 }
