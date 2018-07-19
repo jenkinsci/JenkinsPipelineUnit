@@ -43,8 +43,8 @@ class InterceptingGCL extends GroovyClassLoader {
         }
 
         if (cls == null) {
-            // no class found, there should have been an exception before now
-            throw new AssertionError(true);
+            // no class found, using parent's method
+            return super.loadClass(name)
         }
 
         // Copy from this.parseClass(GroovyCodeSource, boolean)
