@@ -29,7 +29,7 @@ class RegressionTestHelper {
             writeStackToFile(referenceFile, helper)
         }
 
-        String callStack = helper.callStack.join('\n') + '\n'
+        String callStack = prepareCallStack(helper.callStack)
         assertThat(callStack.normalize())
                         .as('If you intended to update the callstack, use JVM parameter -D%s=true', PIPELINE_STACK_WRITE)
                         .isEqualTo(referenceFile.text.normalize())
@@ -40,11 +40,16 @@ class RegressionTestHelper {
         if (!new File(referenceFile.parent).exists()) {
             new File(referenceFile.parent).mkdirs()
         }
+        String callStack = prepareCallStack(helper.callStack)
         referenceFile.withWriter { out ->
-            helper.callStack.each {
-                out.println(it)
-            }
+            out.print(callStack)
         }
+    }
+
+    private static String prepareCallStack(def callStack) {
+        return callStack.join(System.lineSeparator())
+                    .replaceAll(/(\d{2}:\d{2}:\d+)/, '%TIME%')
+                    .replaceAll(/([@][0-9a-f]+)/, '%HASH%')
     }
 
     /**
