@@ -29,7 +29,7 @@ class RegressionTestHelper {
             writeStackToFile(referenceFile, helper)
         }
 
-        String callStack = prepareCallStack(helper.callStack)
+        String callStack = prepareCallStack(helper.callStack) + System.lineSeparator()
         assertThat(callStack.normalize())
                         .as('If you intended to update the callstack, use JVM parameter -D%s=true', PIPELINE_STACK_WRITE)
                         .isEqualTo(referenceFile.text.normalize())
@@ -42,7 +42,7 @@ class RegressionTestHelper {
         }
         String callStack = prepareCallStack(helper.callStack)
         referenceFile.withWriter { out ->
-            out.print(callStack)
+            out.println(callStack)
         }
     }
 
