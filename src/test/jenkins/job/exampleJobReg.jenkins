@@ -1,0 +1,11 @@
+import java.util.UUID
+
+def execute() {
+    node() {
+        sh "Testing random UUID ${UUID.randomUUID()}"
+        sh "[${new Date().format("HH:mm:SS")}] log message with time"
+        sh "And hash ${new Object()}"
+    }
+}
+
+return this

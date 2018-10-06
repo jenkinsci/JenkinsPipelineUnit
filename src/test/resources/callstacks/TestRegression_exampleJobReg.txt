@@ -1,0 +1,6 @@
+   exampleJobReg.run()
+   exampleJobReg.execute()
+      exampleJobReg.node(groovy.lang.Closure)
+         exampleJobReg.sh(Testing random UUID %UUID%)
+         exampleJobReg.sh([%TIME%] log message with time)
+         exampleJobReg.sh(And hash java.lang.Object%HASH%)

@@ -34,4 +34,11 @@ class TestRegression extends BaseRegressionTestCPS {
         super.testNonRegression("example")
     }
 
+    @Test
+    void testNonRegWithReplacements() throws Exception {
+        def script = runScript("job/exampleJobReg.jenkins")
+        script.execute()
+        super.testNonRegression("exampleJobReg")
+    }
+
 }
