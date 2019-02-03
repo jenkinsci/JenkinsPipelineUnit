@@ -326,6 +326,18 @@ class PipelineTestHelper {
         script.metaClass.invokeMethod = getMethodInterceptor()
         script.metaClass.static.invokeMethod = getMethodInterceptor()
         script.metaClass.methodMissing = getMethodMissingInterceptor()
+
+        // find and replace script method closure with any matching allowed method closure
+        script.metaClass.methods.forEach { scriptMethod ->
+            Map.Entry<MethodSignature, Closure> matchingAllowedMethod = allowedMethodCallbacks.find { methodSignature, closure ->
+                def scriptMethodArgsToString = scriptMethod.parameterTypes*.cachedClass.join(', ')
+                methodSignature.name == scriptMethod.name && methodSignature.argsToString() == scriptMethodArgsToString
+            }
+            if (matchingAllowedMethod) {
+                // a matching method was registered, replace script method execution call with the registered closure (mock)
+                script.metaClass."$scriptMethod.name" = matchingAllowedMethod.value
+            }
+        }
         return script
     }
 
