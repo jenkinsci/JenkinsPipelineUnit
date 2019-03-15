@@ -176,6 +176,67 @@ void should_execute_without_errors() throws Exception {
 
 This will check as well `mvn verify` has been called during the job execution. 
 
+
+### Check Pipeline status
+Let's say you have a simple script and you'd like to check it behaviour if a step is failing
+```groovy
+// Jenkinsfile
+// ...
+node() {
+    git('some_repo_url')
+    sh "make"
+}
+```
+
+You can mock `sh` step to just update the pipeline status to `FAILURE`.
+To verify your pipeline is failing you need to check the status with `BasePipelineTest.assertJobStatusFailure()`
+```groovy
+class TestCase extends BasePipelineTest {
+  @Test
+  void check_build_status() throws Exception {
+      helper.registerAllowedMethod("sh", [String.class], {cmd-> 
+          // cmd.contains is helpfull to filter sh call which should fail the pipeline
+          if (cmd.contains("make")) { 
+              binding.getVariable('currentBuild').result = 'FAILURE'
+          }
+      })
+      loadScript("Jenkinsfile")
+      assertJobStatusFailure()
+  }
+}
+```
+
+
+### Check Pipeline exceptions
+Sometimes it is usefult to verify exactly exception is thrown during the pipeline run.
+For exapmle by one of your `SharedLib` module
+
+To do so you can use `org.junit.rules.ExpectedException`
+```groovy
+import org.junit.Rule
+import org.junit.rules.ExpectedException
+// ...
+@Rule
+public ExpectedException thrown = ExpectedException.none();
+```
+
+Here is a simple example to verify exception type and the message:
+```groovy
+import org.junit.Rule
+import org.junit.rules.ExpectedException
+class TestCase extends BasePipelineTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Test
+    void verify_exception() throws Exception {
+        loadScript("Jenkinsfile")
+        thrown.expect(Exception)
+        thrown.expectMessage("error message");
+    }
+}
+```
+
 ### Compare the callstacks with a previous implementation
 
 One other use of the callstacks is to check your pipeline executions for possible regressions.
