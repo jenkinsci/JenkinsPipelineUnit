@@ -3,90 +3,82 @@ package com.lesfurets.jenkins.unit
 class DeclarativePipelineHarness {
     BasePipelineTest base
 
-    Map<String, CallStack> callStacks = [:]
-    Map<String, IdentifiedCallStack<?>> identifiedCallStacks = [:]
+    Map<String, CallStack> stepCallStacks = [:]
+    Map<String, ParameterizedCallStack<?>> parameterizedStepCallStacks = [:]
 
-    DeclarativePipelineHarness(base) {
+    Object lastClosureStepParameter = null
+
+    List<String> allowedClosureSteps
+    Map<String, Class<Object>> allowedParameterizedClosureSteps
+
+    DeclarativePipelineHarness(BasePipelineTest base, List<String> closureSteps, Map<String, Class<Object>> parameterizedClosureSteps) {
         this.base = base
-        registerCallStack('pipeline')
-        registerCallStack('options')
-        registerCallStack('parameters')
-        registerCallStack('environment')
-        registerCallStack('triggers')
-        registerCallStack('tools')
-        registerCallStack('input')
+        this.allowedClosureSteps = closureSteps
+        this.allowedParameterizedClosureSteps = parameterizedClosureSteps
 
-        registerCallStack('agent')
-        registerCallStack('docker')
-        registerCallStack('dockerfile')
-        registerCallStack('node')
-
-        registerCallStack('stages')
-        registerCallStack('parallel')
-        registerCallStack('script')
-        registerCallStack('steps')
-
-        registerCallStack('when')
-        registerCallStack('allOf')
-        registerCallStack('anyOf')
-        registerCallStack('expression')
-
-        //Register post methods
-        registerCallStack('post')
-        registerCallStack('always')
-        registerCallStack('cleanup')
-        registerCallStack('success')
-        registerCallStack('failure')
-        registerCallStack('regression')
-        registerCallStack('changed')
-        registerCallStack('fixed')
-        registerCallStack('aborted')
-        registerCallStack('unstable')
-        registerCallStack('unsuccessful')
-
-        registerIdentifiedCallStack('stage', String.class)
-        registerIdentifiedCallStack('node', String.class)
-        registerIdentifiedCallStack('withCredentials', Object.class)
-        registerIdentifiedCallStack('withEnv', List.class)
-        registerIdentifiedCallStack('dir', String.class)
+        allowedClosureSteps.forEach { it -> registerClosureStep(it)}
+        allowedParameterizedClosureSteps.entrySet().forEach { entry -> registerParameterizedClosureStep(entry.key, entry.value)}
     }
 
-    void runCall(String name, Integer idx = 0, Boolean doClear = true) {
-        CallStack callStack = callStacks[name]
+    DeclarativePipelineHarness runClosureStep(String name, Integer idx = 0, Boolean doClear = true) {
+        CallStack callStack = stepCallStacks[name]
         if(callStack== null) {
             throw new RuntimeException("No such call stack ${name}")
         }
         callStack.run(idx, doClear)
+        return this
     }
 
-    public <T> void runIdentified(String name, T value, Boolean doClear = true) {
-        IdentifiedCallStack<Object> callStack = identifiedCallStacks[name]
+    public <T> DeclarativePipelineHarness runParameterizedClosureStep(String name, T value, Boolean doClear = true) {
+        ParameterizedCallStack<Object> callStack = parameterizedStepCallStacks[name]
         if(callStack== null) {'pipeline'
             throw new RuntimeException("No such call stack ${name}")
         }
-        callStack.run(value, doClear)
+        this.lastClosureStepParameter = callStack.run(value, doClear)
+        return this
     }
 
-    Object runIdentifiedByIndex(String name, Integer idx = 0, Boolean doClear = true) {
-        IdentifiedCallStack<Object> callStack = identifiedCallStacks[name]
+    DeclarativePipelineHarness runParameterizedClosureStepByIndex(String name, Integer idx = 0, Boolean doClear = true) {
+        ParameterizedCallStack<Object> callStack = parameterizedStepCallStacks[name]
         if(callStack== null) {
             throw new RuntimeException("No such call stack ${name}")
         }
-        return callStack.run(idx, doClear)
+        this.lastClosureStepParameter = callStack.run(idx, doClear)
+        return this
     }
 
-    void registerCallStack(String name) {
-        callStacks.put(name, new CallStack(name, base.helper))
+    DeclarativePipelineHarness runStage(String name) {
+        return this
+                .runClosureStep('pipeline')
+                .runClosureStep('stages')
+                .runParameterizedClosureStep('stage', name)
     }
 
-    public <T> void registerIdentifiedCallStack(String name, Class<T> clazz) {
-        identifiedCallStacks.put(name, new IdentifiedCallStack<T>(name, base.helper, clazz))
+    DeclarativePipelineHarness runParallelSubStage(String parentName, String childName) {
+        return this
+                .runClosureStep('pipeline')
+                .runClosureStep('stages')
+                .runParameterizedClosureStep('stage', parentName)
+                .runClosureStep('parallel')
+                .runParameterizedClosureStep('stage', childName)
+    }
+
+    Object getLastClosureStepParameterValue() {
+        return lastClosureStepParameter
+    }
+
+    void registerClosureStep(String name) {
+        stepCallStacks.put(name, new CallStack(name, base.helper))
+    }
+
+    public <T> void registerParameterizedClosureStep(String name, Class<T> clazz) {
+        parameterizedStepCallStacks.put(name, new ParameterizedCallStack<T>(name, base.helper, clazz))
     }
 
     void clearAllCalls() {
         base.helper.clearCallStack()
-        callStacks.values().forEach { it.clearCalls() }
-        identifiedCallStacks.values().forEach { it.clearCalls() }
+        stepCallStacks.values().forEach { it.clearCalls() }
+        parameterizedStepCallStacks.values().forEach { it.clearCalls() }
     }
 
 
@@ -117,14 +109,15 @@ class DeclarativePipelineHarness {
         }
     }
 
-    class IdentifiedCallStack<T> {
+    class ParameterizedCallStack<T> {
         String name
         PipelineTestHelper helper
         Class<T> clazz
 
         List<T> values = []
         List<Closure> calls = []
-        IdentifiedCallStack(name, helper, clazz) {
+
+        ParameterizedCallStack(name, helper, clazz) {
             this.name = name
             this.helper = helper
             this.clazz = clazz

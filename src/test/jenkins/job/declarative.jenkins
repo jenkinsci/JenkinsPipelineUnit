@@ -1,0 +1,23 @@
+pipeline {
+    stages {
+        stage("init") {
+            steps {
+                sh "echo 'hello world'"
+            }
+        }
+        stage("parallel build") {
+            parallel {
+                stage("build 1") {
+                    steps {
+                        sh "echo 'hello build 1'"
+                    }
+                }
+                stage("build 2") {
+                    steps {
+                        sh "echo 'hello build 2'"
+                    }
+                }
+            }
+        }
+    }
+}

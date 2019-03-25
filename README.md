@@ -17,7 +17,7 @@ You can mock built-in Jenkins commands, job configurations, see the stacktrace o
 
 ### Add to your project as test dependency
 
-Maven: 
+Maven:
 
 ```xml
     <dependency>
@@ -40,7 +40,7 @@ You can write your tests in Groovy or Java 8, using the test framework you prefe
 The easiest entry point is extending the abstract class `BasePipelineTest`, which initializes the framework with JUnit.
 
 Let's say you wrote this awesome pipeline script, which builds and tests your project :
- 
+
  ```groovy
 def execute() {
     node() {
@@ -74,9 +74,9 @@ Now using the Jenkins Pipeline Unit you can unit test if it does the job :
 import com.lesfurets.jenkins.unit.BasePipelineTest
 
 class TestExampleJob extends BasePipelineTest {
-        
+
         //...
-        
+
         @Test
         void should_execute_without_errors() throws Exception {
             def script = loadScript("job/exampleJob.jenkins")
@@ -117,7 +117,7 @@ You can define both environment variables and job execution parameters.
     @Before
     void setUp() throws Exception {
         super.setUp()
-        // Assigns false to a job parameter ENABLE_TEST_STAGE 
+        // Assigns false to a job parameter ENABLE_TEST_STAGE
         binding.setVariable('ENABLE_TEST_STAGE', 'false')
         // Defines the previous execution status
         binding.getVariable('currentBuild').previousBuild = [result: 'UNSTABLE']
@@ -125,7 +125,7 @@ You can define both environment variables and job execution parameters.
 ```
 
 The test helper already provides basic variables such as a very simple currentBuild definition.
-You can redefine them as you wish. 
+You can redefine them as you wish.
 
 ### Mock Jenkins commands
 
@@ -145,8 +145,8 @@ You can register interceptors to mock Jenkins commands, which may or may not ret
     }
 ```
 
-The test helper already includes some mocks, but the list is far from complete. 
-You need to _register allowed methods_ if you want to override these mocks and add others. 
+The test helper already includes some mocks, but the list is far from complete.
+You need to _register allowed methods_ if you want to override these mocks and add others.
 Note that you need to provide a method signature and a callback (closure or lambda) in order to allow a method.
 Any method call which is not recognized will throw an exception.
 
@@ -174,7 +174,7 @@ void should_execute_without_errors() throws Exception {
 
 ```
 
-This will check as well `mvn verify` has been called during the job execution. 
+This will check as well `mvn verify` has been called during the job execution.
 
 
 ### Check Pipeline status
@@ -194,9 +194,9 @@ To verify your pipeline is failing you need to check the status with `BasePipeli
 class TestCase extends BasePipelineTest {
   @Test
   void check_build_status() throws Exception {
-      helper.registerAllowedMethod("sh", [String.class], {cmd-> 
+      helper.registerAllowedMethod("sh", [String.class], {cmd->
           // cmd.contains is helpfull to filter sh call which should fail the pipeline
-          if (cmd.contains("make")) { 
+          if (cmd.contains("make")) {
               binding.getVariable('currentBuild').result = 'FAILURE'
           }
       })
@@ -258,7 +258,7 @@ You then can go ahead and commit this change in your SCM to check in the change.
 
 ## Configuration
 
-The abstract class `BasePipelineTest` configures the helper with useful conventions: 
+The abstract class `BasePipelineTest` configures the helper with useful conventions:
 
 - It looks for pipeline scripts in your project in root (`./.`) and `src/main/jenkins` paths.
 - Jenkins pipelines let you load other scripts from a parent script with `load` command.
@@ -282,7 +282,7 @@ class TestExampleJob extends BasePipelineTest {
         scriptExtension = 'pipeline'
         super.setUp()
     }
-    
+
 }
 
 ```
@@ -302,12 +302,12 @@ This will work fine for such a project structure:
 
 ## Testing Shared Libraries
 
-With [Shared Libraries](https://jenkins.io/doc/book/pipeline/shared-libraries/) Jenkins lets you share common code 
+With [Shared Libraries](https://jenkins.io/doc/book/pipeline/shared-libraries/) Jenkins lets you share common code
 on pipelines across different repositories of your organization.
-Shared libraries are configured via a settings interface in Jenkins and imported 
+Shared libraries are configured via a settings interface in Jenkins and imported
 with `@Library` annotation in your scripts.
 
-Testing pipeline scripts using external libraries is not trivial because the shared library code 
+Testing pipeline scripts using external libraries is not trivial because the shared library code
 is checked in another repository.
 JenkinsPipelineUnit lets you test shared libraries and pipelines depending on these libraries.
 
@@ -349,23 +349,23 @@ Now let's test it:
                     .implicit(false)
                     .build()
     helper.registerSharedLibrary(library)
-    
+
     runScript("job/library/exampleJob.jenkins")
     printCallStack()
 ```
 
 Notice how we defined the shared library and registered it to the helper.
-Library definition is done via a fluent API which lets you set the same configurations as in 
+Library definition is done via a fluent API which lets you set the same configurations as in
 [Jenkins Global Pipeline Libraries](https://jenkins.io/doc/book/pipeline/shared-libraries/#using-libraries).
 
 The `retriever` and `targetPath` fields tell the framework how to fetch the sources of the library, in which local path.
 The framework comes with two naive but useful retrievers, `gitSource` and `localSource`.
 You can write your own retriever by implementing the `SourceRetriever` interface.
 
-Note that properties `defaultVersion`, `allowOverride` and `implicit` are optional with 
+Note that properties `defaultVersion`, `allowOverride` and `implicit` are optional with
 default values `master`, `true` and `false`.
 
-Now if we execute this test, the framework will fetch the sources from the Git repository and 
+Now if we execute this test, the framework will fetch the sources from the Git repository and
 load classes, scripts, global variables and resources found in the library.
 The callstack of this execution will look like the following:
 
@@ -385,24 +385,46 @@ libraryJob.run()
         libraryJob.sh(curl -H 'Content-Type: application/json' -X POST -d '{"name" : "Ben"}' http://acme.com)
 ```
 
+## Declarative Pipeline Support
+
+Declarative pipelines are supported via a test harness.  The tests use closures in the file as units of isolation.  Effectively,
+your tests describe which part of the jenkinsfile your test is verifying and don't interract with the rest of the file.  Here is an example that
+verifies that sh was invoked during the "init" stage.
+
+```
+@Test
+void runAStage() {
+    super.jenkinsfile.run()
+    harness
+        .runStage('init')
+        .runClosureStep('steps')
+
+    def call = helper.callStack.find { it.methodName == 'sh' }
+    assertThat(call.args.toList()).isEqualTo(['echo \'hello world\''])
+}
+```
+
+There is [a unit test that serves as a complete example](src/test/groovy/com/lesfurets/jenkins/TestBaseDeclarativePipelineTest.groovy).
+
+
 ## Note on CPS
 
 If you already fiddled with Jenkins pipeline DSL, you experienced strange errors during execution on Jenkins.
 This is because Jenkins does not directly execute your pipeline in Groovy,
 but transforms the pipeline code into an intermediate format to in order to run Groovy code in
 [Continuation Passing Style](https://en.wikipedia.org/wiki/Continuation-passing_style) (CPS).
- 
-The usual errors are partly due to the 
-[the sandboxing Jenkins applies](https://wiki.jenkins-ci.org/display/JENKINS/Script+Security+Plugin#ScriptSecurityPlugin-GroovySandboxing) 
+
+The usual errors are partly due to the
+[the sandboxing Jenkins applies](https://wiki.jenkins-ci.org/display/JENKINS/Script+Security+Plugin#ScriptSecurityPlugin-GroovySandboxing)
 for security reasons, and partly due to the
 [serializability Jenkins imposes](https://github.com/jenkinsci/pipeline-plugin/blob/master/TUTORIAL.md#serializing-local-variables).
 
 Jenkins requires that at each execution step, the whole script context is serializable, in order to stop and resume the job execution.
-To simulate this aspect, CPS versions of the helpers transform your scripts into the CPS format and check if at each step your script context is serializable. 
+To simulate this aspect, CPS versions of the helpers transform your scripts into the CPS format and check if at each step your script context is serializable.
 
 To use this _*experimental*_ feature, you can use the abstract class `BasePipelineTestCPS` instead of `BasePipelineTest`.
 You may see some changes in the call stacks that the helper registers.
-Note also that the serialization used to test is not the same as what Jenkins uses. 
+Note also that the serialization used to test is not the same as what Jenkins uses.
 You may find some incoherence in that level.
 
 ## Contributing
