@@ -195,7 +195,7 @@ class TestCase extends BasePipelineTest {
   @Test
   void check_build_status() throws Exception {
       helper.registerAllowedMethod("sh", [String.class], {cmd-> 
-          // cmd.contains is helpfull to filter sh call which should fail the pipeline
+          // cmd.contains is helpful to filter sh call which should fail the pipeline
           if (cmd.contains("make")) { 
               binding.getVariable('currentBuild').result = 'FAILURE'
           }
