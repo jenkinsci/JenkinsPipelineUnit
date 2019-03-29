@@ -46,7 +46,6 @@ class TestSharedLibraryWithProjectSourceRetrieverCPS extends BasePipelineTestCPS
     @Parameters(name = "Test {0} allowOverride:{1} implicit:{2} expected:{3}")
     static Collection<Object[]> data() {
         return [['libraryJob', false, false, false],
-         ['libraryJob', false, false,  false],
          ['libraryJob_implicit', false, false, true],
          ['libraryJob_implicit', false, true, false],
 
