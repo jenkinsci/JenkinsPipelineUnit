@@ -3,9 +3,9 @@
 Jenkins Pipeline Unit is a testing framework for unit testing Jenkins pipelines, written in
 [Groovy Pipeline DSL](https://jenkins.io/doc/book/pipeline/).
 
-[![Build Status](https://travis-ci.org/lesfurets/JenkinsPipelineUnit.svg?branch=master)](https://travis-ci.org/lesfurets/JenkinsPipelineUnit)
+[![Build Status](https://travis-ci.org/jenkinsci/JenkinsPipelineUnit.svg?branch=master)](https://travis-ci.org/jenkinsci/JenkinsPipelineUnit)
 [![Build status](https://ci.appveyor.com/api/projects/status/yx76jwkdgjtky9xu?svg=true)](https://ci.appveyor.com/project/ozangunalp/jenkinspipelineunit)
-
+[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/JenkinsPipelineUnit)
 
 If you use Jenkins as your CI workhorse (like us @ [lesfurets.com](https://www.lesfurets.com)) and you enjoy writing _pipeline-as-code_,
 you already know that pipeline code is very powerful but can get pretty complex.
@@ -163,7 +163,7 @@ The helper registers every method call to provide a stacktrace of the mock execu
 
 @Test
 void should_execute_without_errors() throws Exception {
-    loadScript("Jenkinsfile")
+    runScript("Jenkinsfile")
     assertThat(helper.callStack.findAll { call ->
         call.methodName == "sh"
     }.any { call ->
@@ -175,6 +175,67 @@ void should_execute_without_errors() throws Exception {
 ```
 
 This will check as well `mvn verify` has been called during the job execution. 
+
+
+### Check Pipeline status
+Let's say you have a simple script and you'd like to check it behaviour if a step is failing
+```groovy
+// Jenkinsfile
+// ...
+node() {
+    git('some_repo_url')
+    sh "make"
+}
+```
+
+You can mock `sh` step to just update the pipeline status to `FAILURE`.
+To verify your pipeline is failing you need to check the status with `BasePipelineTest.assertJobStatusFailure()`
+```groovy
+class TestCase extends BasePipelineTest {
+  @Test
+  void check_build_status() throws Exception {
+      helper.registerAllowedMethod("sh", [String.class], {cmd-> 
+          // cmd.contains is helpful to filter sh call which should fail the pipeline
+          if (cmd.contains("make")) { 
+              binding.getVariable('currentBuild').result = 'FAILURE'
+          }
+      })
+      loadScript("Jenkinsfile")
+      assertJobStatusFailure()
+  }
+}
+```
+
+
+### Check Pipeline exceptions
+Sometimes it is usefult to verify exactly exception is thrown during the pipeline run.
+For exapmle by one of your `SharedLib` module
+
+To do so you can use `org.junit.rules.ExpectedException`
+```groovy
+import org.junit.Rule
+import org.junit.rules.ExpectedException
+// ...
+@Rule
+public ExpectedException thrown = ExpectedException.none();
+```
+
+Here is a simple example to verify exception type and the message:
+```groovy
+import org.junit.Rule
+import org.junit.rules.ExpectedException
+class TestCase extends BasePipelineTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Test
+    void verify_exception() throws Exception {
+        loadScript("Jenkinsfile")
+        thrown.expect(Exception)
+        thrown.expectMessage("error message");
+    }
+}
+```
 
 ### Compare the callstacks with a previous implementation
 
@@ -216,9 +277,9 @@ class TestExampleJob extends BasePipelineTest {
     @Override
     @Before
     void setUp() throws Exception {
-        helper.baseScriptRoot = 'jenkinsJobs'
-        helper.roots += 'src/main/groovy'
-        helper.extension = 'pipeline'
+        baseScriptRoot = 'jenkinsJobs'
+        scriptRoots += 'src/main/groovy'
+        scriptExtension = 'pipeline'
         super.setUp()
     }
     
@@ -289,7 +350,7 @@ Now let's test it:
                     .build()
     helper.registerSharedLibrary(library)
     
-    loadScript("job/library/exampleJob.jenkins")
+    runScript("job/library/exampleJob.jenkins")
     printCallStack()
 ```
 
