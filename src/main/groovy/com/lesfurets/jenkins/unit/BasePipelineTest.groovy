@@ -73,7 +73,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("gatlingArchive", [], null)
         helper.registerAllowedMethod("string", [Map.class], stringInterceptor)
         helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
-        helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE') })
+        helper.registerAllowedMethod("error", [String.class], { msg ->
+            updateBuildStatus('FAILURE')
+            throw new Exception(msg)
+        })
 
         binding.setVariable('currentBuild', [result: 'SUCCESS'])
     }
