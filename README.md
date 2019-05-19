@@ -23,7 +23,7 @@ Maven:
     <dependency>
       <groupId>com.lesfurets</groupId>
       <artifactId>jenkins-pipeline-unit</artifactId>
-      <version>1.0</version>
+      <version>1.1</version>
       <scope>test</scope>
     </dependency>
 ```
@@ -31,7 +31,7 @@ Maven:
 Gradle:
 
 ```groovy
-testCompile group:'com.lesfurets', name:'jenkins-pipeline-unit', version:'1.0'
+testCompile group:'com.lesfurets', name:'jenkins-pipeline-unit', version:'1.1'
 ```
 
 ### Start writing tests
