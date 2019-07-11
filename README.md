@@ -208,8 +208,8 @@ class TestCase extends BasePipelineTest {
 
 
 ### Check Pipeline exceptions
-Sometimes it is usefult to verify exactly exception is thrown during the pipeline run.
-For exapmle by one of your `SharedLib` module
+Sometimes it is useful to verify exactly that exception is thrown during the pipeline run.
+For example by one of your `SharedLib` module
 
 To do so you can use `org.junit.rules.ExpectedException`
 ```groovy
@@ -389,7 +389,7 @@ libraryJob.run()
 
 If you already fiddled with Jenkins pipeline DSL, you experienced strange errors during execution on Jenkins.
 This is because Jenkins does not directly execute your pipeline in Groovy,
-but transforms the pipeline code into an intermediate format to in order to run Groovy code in
+but transforms the pipeline code into an intermediate format in order to run Groovy code in
 [Continuation Passing Style](https://en.wikipedia.org/wiki/Continuation-passing_style) (CPS).
  
 The usual errors are partly due to the 
