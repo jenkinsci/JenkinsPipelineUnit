@@ -17,6 +17,9 @@ group = "com.lesfurets"
 archivesBaseName = "jenkins-pipeline-unit"
 version = "1.2-SNAPSHOT"
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 // Grape configuration is used to test @Grape annotation in unit tests using grapeConfig.xml
 configurations {
     grape { // Note our simple use case does not use or support transitive dependencies
@@ -181,6 +184,3 @@ task commitNextDevVersion(type: GitCommitTask, dependsOn: [writeNextSnapshot]) {
 
 task release(dependsOn: [writeVersion, tagVersion, commitRelease])
 task nextDevVersion(dependsOn: [writeNextSnapshot, commitNextDevVersion])
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
