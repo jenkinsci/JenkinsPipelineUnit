@@ -1,0 +1,7 @@
+node() {
+    customMethodWithArguments('stringArg', 42, ['collectionArg', 42])
+}
+
+def customMethodWithArguments(String arg1, int arg2, Collection arg3) {
+    echo "executing custom method with arguments closure (arguments: '${arg1}', '${arg2}', '${arg3}')" as String
+}
