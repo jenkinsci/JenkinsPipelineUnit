@@ -19,6 +19,8 @@ def execute() {
                 gitlabCommitStatus("test") {
                     println properties.key
                     sh "mvn verify -DgitRevision=$revision"
+                    String lsResult = sh script:'ls', returnStdout:true
+                    println lsResult
                 }
             }
         }

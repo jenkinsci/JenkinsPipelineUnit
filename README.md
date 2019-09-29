@@ -129,6 +129,7 @@ You can redefine them as you wish.
 
 ### Mock Jenkins commands
 
+#### Basic mock
 You can register interceptors to mock Jenkins commands, which may or may not return a result.
 
 ```groovy
@@ -155,7 +156,39 @@ You can take a look at the `BasePipelineTest` class to have the short list of al
 Some tricky methods such as `load` and `parallel` are implemented directly in the helper.
 If you want to override those, make sure that you extend the `PipelineTestHelper` class.
 
-### Analyze the mock execution
+#### Advanced mock with StepMock
+In some cases, you want to reuse the mock you declared for a step and extend them to add an other behaviour 
+in other conditions. For such situations, you could use the StepMock class. You can then choose which step 
+parameter is defining how the mock is supposed to behave. Then for this parameter, you can bind a unique mock
+response which will be used when this parameter matches a regexp.
+This response could either be:
+* a string
+* a mock file
+* a closure
+
+To do that, you must first declare you prefer to use this StepMock strategy. Instead of the `registerAllowedMethod`,
+do following:
+```groovy
+// Here we declare that `sh` result depends on the 'script' parameter
+helper.registerMockForMethod(new MethodSignature('sh', Map), { String rule, Map shArgs -> shArgs.script =~ rule })
+
+// then we declare the mock for a `git rev-parse HEAD`, with a simple String
+helper.getMock('sh', Map).mockWithString('git rev-parse HEAD', 'bcc19744')
+
+// we can use a mock file as well
+helper.getMock('sh', Map).mockWithFile('ls', this.class, 'ls.txt')
+
+// let's mock a echo bash command, thanks to a closure
+helper.getMock('sh', Map).mockWithClosure('^echo ', {args -> println args.script[5..-1]})
+
+// If you get a foreign StepMock from a scope you cannot modify, you can remove a rule as well:
+helper.getMock('sh', Map).removeRule('ls')
+```
+
+Note that you can chain `mockWithFile`, `mockWithString`, `mockWithClosure`, as well 
+as `registerMockForMethod` can as well be chained with these three methods.
+
+### Analyze the mock executicon
 
 The helper registers every method call to provide a stacktrace of the mock execution.
 
