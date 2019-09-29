@@ -94,7 +94,28 @@ abstract class BasePipelineTest {
     }
 
     void setVariables() {
-        binding.setVariable('currentBuild', [result: 'SUCCESS'])
+        binding.setVariable('currentBuild', [
+            absoluteUrl: 'http://example.com/dummy',
+            buildVariables: [:],
+            changeSets: [],
+            currentResult: 'SUCCESS',
+            description: 'dummy',
+            displayName: '#1',
+            duration: 1,
+            durationString: '1 ms',
+            fullDisplayName: 'dummy #1',
+            fullProjectName: 'dummy',
+            id: '1',
+            keepLog: false,
+            nextBuild: null,
+            number: 1,
+            previousBuild: null,
+            projectName: 'dummy',
+            result: 'SUCCESS',
+            startTimeInMillis: 1,
+            timeInMillis: 1,
+            upstreamBuilds: [],
+        ])
     }
 
     /**
