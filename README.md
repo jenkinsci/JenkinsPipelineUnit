@@ -129,7 +129,7 @@ You can redefine them as you wish.
 
 ### Mock Jenkins commands
 
-You can register interceptors to mock Jenkins commands, which may or may not return a result.
+You can register interceptors to mock pipeline methods, including Jenkins commands, which may or may not return a result.
 
 ```groovy
     @Override
@@ -141,6 +141,9 @@ You can register interceptors to mock Jenkins commands, which may or may not ret
         helper.registerAllowedMethod("timestamps", [], { println 'Printing timestamp' })
         helper.registerAllowedMethod(method("readFile", String.class), { file ->
             return Files.contentOf(new File(file), Charset.forName("UTF-8"))
+        })
+        helper.registerAllowedMethod("customMethodWithArguments", [String, int, Collection], { String stringArg, int intArg, Collection collectionArg ->
+            return println "executing mock closure with arguments (arguments: '${stringArg}', '${intArg}', '${collectionArg}')"
         })
     }
 ```
