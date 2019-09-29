@@ -31,32 +31,37 @@ abstract class BasePipelineTest {
         return res
     }
 
+    BasePipelineTest(PipelineTestHelper helper) {
+        this.helper = helper
+    }
+
     BasePipelineTest() {
-        helper = HelperSingleton.singletonInstance
+        this(new PipelineTestHelper())
     }
 
     void setUp() throws Exception {
-
         if (!helper.isInitialized()) {
-            helper.with {
-                it.scriptRoots = this.scriptRoots
-                it.scriptExtension = this.scriptExtension
-                it.baseClassloader = this.baseClassLoader
-                it.imports += this.imports
-                it.baseScriptRoot = this.baseScriptRoot
-            }
-
-            helper.init()
-
-            registerDefaultAllowedMethods()
+            initHelper()
         } else {
             helper.callStack.clear()
         }
 
-        binding.setVariable('currentBuild', [result: 'SUCCESS'])
+        registerAllowedMethods()
+        setVariables()
     }
 
-    void registerDefaultAllowedMethods() {
+    PipelineTestHelper initHelper() {
+        helper.with {
+            it.scriptRoots = this.scriptRoots
+            it.scriptExtension = this.scriptExtension
+            it.baseClassloader = this.baseClassLoader
+            it.imports += this.imports
+            it.baseScriptRoot = this.baseScriptRoot
+            return it
+        }.init()
+    }
+
+    void registerAllowedMethods() {
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
         helper.registerAllowedMethod("node", [String.class, Closure.class], null)
@@ -86,6 +91,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("string", [Map.class], stringInterceptor)
         helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
         helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE') })
+    }
+
+    void setVariables() {
+        binding.setVariable('currentBuild', [result: 'SUCCESS'])
     }
 
     /**

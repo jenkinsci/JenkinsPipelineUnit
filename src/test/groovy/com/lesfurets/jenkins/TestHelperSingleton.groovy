@@ -1,9 +1,7 @@
 package com.lesfurets.jenkins
 
 import com.lesfurets.jenkins.unit.BasePipelineTest
-import com.lesfurets.jenkins.unit.HelperSingleton
 import com.lesfurets.jenkins.unit.PipelineTestHelper
-import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -14,9 +12,11 @@ import static org.assertj.core.api.Assertions.assertThat
 
 class TestHelperSingleton extends BasePipelineTest {
 
+    static PipelineTestHelper HELPER
+
     @BeforeClass
     static void beforeClass() {
-        HelperSingleton.singletonInstance = new PipelineTestHelper()
+        HELPER = new PipelineTestHelper()
 
         String sharedLibs = this.class.getResource('/libs').getFile()
 
@@ -28,7 +28,11 @@ class TestHelperSingleton extends BasePipelineTest {
                 .retriever(localSource(sharedLibs))
                 .build()
 
-        HelperSingleton.singletonInstance.registerSharedLibrary(library)
+        HELPER.registerSharedLibrary(library)
+    }
+
+    TestHelperSingleton() {
+        super(HELPER)
     }
 
     @Override
@@ -43,7 +47,7 @@ class TestHelperSingleton extends BasePipelineTest {
 
         assertThat(helper.isInitialized())
 
-        assertThat(helper == HelperSingleton.singletonInstance)
+        assertThat(helper == HELPER)
 
         boolean exception = false
         try {
@@ -55,11 +59,6 @@ class TestHelperSingleton extends BasePipelineTest {
             exception = true
         }
         assertThat(false).isEqualTo(exception)
-    }
-
-    @AfterClass
-    static void tearDown() {
-        HelperSingleton.invalidate()
     }
 
 }
