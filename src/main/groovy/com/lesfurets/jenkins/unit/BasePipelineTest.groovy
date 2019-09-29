@@ -63,7 +63,7 @@ abstract class BasePipelineTest {
 
     void registerAllowedMethods() {
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
-        helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("stage", [String.class], null)
         helper.registerAllowedMethod("node", [String.class, Closure.class], null)
         helper.registerAllowedMethod("node", [Closure.class], null)
         helper.registerAllowedMethod("sh", [String.class], null)
