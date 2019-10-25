@@ -23,7 +23,7 @@ Maven:
     <dependency>
       <groupId>com.lesfurets</groupId>
       <artifactId>jenkins-pipeline-unit</artifactId>
-      <version>1.0</version>
+      <version>1.1</version>
       <scope>test</scope>
     </dependency>
 ```
@@ -31,7 +31,7 @@ Maven:
 Gradle:
 
 ```groovy
-testCompile group:'com.lesfurets', name:'jenkins-pipeline-unit', version:'1.0'
+testCompile group:'com.lesfurets', name:'jenkins-pipeline-unit', version:'1.1'
 ```
 
 ### Start writing tests
@@ -129,7 +129,7 @@ You can redefine them as you wish.
 
 ### Mock Jenkins commands
 
-You can register interceptors to mock Jenkins commands, which may or may not return a result.
+You can register interceptors to mock pipeline methods, including Jenkins commands, which may or may not return a result.
 
 ```groovy
     @Override
@@ -141,6 +141,9 @@ You can register interceptors to mock Jenkins commands, which may or may not ret
         helper.registerAllowedMethod("timestamps", [], { println 'Printing timestamp' })
         helper.registerAllowedMethod(method("readFile", String.class), { file ->
             return Files.contentOf(new File(file), Charset.forName("UTF-8"))
+        })
+        helper.registerAllowedMethod("customMethodWithArguments", [String, int, Collection], { String stringArg, int intArg, Collection collectionArg ->
+            return println "executing mock closure with arguments (arguments: '${stringArg}', '${intArg}', '${collectionArg}')"
         })
     }
 ```
@@ -208,8 +211,8 @@ class TestCase extends BasePipelineTest {
 
 
 ### Check Pipeline exceptions
-Sometimes it is usefult to verify exactly exception is thrown during the pipeline run.
-For exapmle by one of your `SharedLib` module
+Sometimes it is useful to verify exactly that exception is thrown during the pipeline run.
+For example by one of your `SharedLib` module
 
 To do so you can use `org.junit.rules.ExpectedException`
 ```groovy
@@ -389,7 +392,7 @@ libraryJob.run()
 
 If you already fiddled with Jenkins pipeline DSL, you experienced strange errors during execution on Jenkins.
 This is because Jenkins does not directly execute your pipeline in Groovy,
-but transforms the pipeline code into an intermediate format to in order to run Groovy code in
+but transforms the pipeline code into an intermediate format in order to run Groovy code in
 [Continuation Passing Style](https://en.wikipedia.org/wiki/Continuation-passing_style) (CPS).
  
 The usual errors are partly due to the 

@@ -7,12 +7,15 @@ class PipelineTestHelperTest {
 
     @Test
     void testRegisterAllowedMethodWithoutArgs() {
+        // given:
         def helper = new PipelineTestHelper()
-        def closure = { println 'withoutArgs'}
+        def closure = { println 'withoutArgs' }
         helper.registerAllowedMethod('withoutArgs', closure)
 
+        // when:
         Map.Entry<MethodSignature, Closure> allowedMethodEntry = helper.getAllowedMethodEntry('withoutArgs')
 
+        // then:
         Assertions.assertThat(allowedMethodEntry.getKey().getArgs().size()).isEqualTo(0)
         Assertions.assertThat(allowedMethodEntry.getValue()).isEqualTo(closure)
     }
@@ -21,7 +24,7 @@ class PipelineTestHelperTest {
     void testRegisterAllowedMethodEmptyArgs() {
         // given:
         def helper = new PipelineTestHelper()
-        def closure = { println 'emptyArgsList'}
+        def closure = { println 'emptyArgsList' }
         helper.registerAllowedMethod('emptyArgsList', closure)
 
         // when:

@@ -31,11 +31,26 @@ abstract class BasePipelineTest {
         return res
     }
 
+    BasePipelineTest(PipelineTestHelper helper) {
+        this.helper = helper
+    }
+
     BasePipelineTest() {
-        helper = new PipelineTestHelper()
+        this(new PipelineTestHelper())
     }
 
     void setUp() throws Exception {
+        if (!helper.isInitialized()) {
+            initHelper()
+        } else {
+            helper.callStack.clear()
+        }
+
+        registerAllowedMethods()
+        setVariables()
+    }
+
+    PipelineTestHelper initHelper() {
         helper.with {
             it.scriptRoots = this.scriptRoots
             it.scriptExtension = this.scriptExtension
@@ -44,15 +59,17 @@ abstract class BasePipelineTest {
             it.baseScriptRoot = this.baseScriptRoot
             return it
         }.init()
+    }
 
-        helper.registerAllowedMethod('build', [Map.class], null)
-        helper.registerAllowedMethod('cron', [String.class], null)
-        helper.registerAllowedMethod('ws', [String.class, Closure.class], null)
-        helper.registerAllowedMethod('addShortText', [Map.class], null)
-        helper.registerAllowedMethod('addHtmlBadge', [Map.class], null)
-        helper.registerAllowedMethod('choice', [Map.class], null)
+    void registerAllowedMethods() {
+        helper.registerAllowedMethod("build", [Map.class], null)
+        helper.registerAllowedMethod("cron", [String.class], null)
+        helper.registerAllowedMethod("ws", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("addShortText", [Map.class], null)
+        helper.registerAllowedMethod("addHtmlBadge", [Map.class], null)
+        helper.registerAllowedMethod("choice", [Map.class], null)
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
-        helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("stage", [String.class], null)
         helper.registerAllowedMethod("node", [String.class, Closure.class], null)
         helper.registerAllowedMethod("node", [Closure.class], null)
         helper.registerAllowedMethod("sh", [String.class], null)
@@ -80,8 +97,40 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("string", [Map.class], stringInterceptor)
         helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
         helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE') })
+        helper.registerAllowedMethod("unstable", [String.class], { updateBuildStatus('UNSTABLE') })
+        helper.registerAllowedMethod("warnError", [String.class, Closure.class], { Closure c ->
+            try {
+                c.delegate = delegate
+                helper.callClosure(c)
+            } catch (ignored) {
+                updateBuildStatus('UNSTABLE')
+            }
+        })
+    }
 
-        binding.setVariable('currentBuild', [result: 'SUCCESS'])
+    void setVariables() {
+        binding.setVariable('currentBuild', [
+            absoluteUrl: 'http://example.com/dummy',
+            buildVariables: [:],
+            changeSets: [],
+            currentResult: 'SUCCESS',
+            description: 'dummy',
+            displayName: '#1',
+            duration: 1,
+            durationString: '1 ms',
+            fullDisplayName: 'dummy #1',
+            fullProjectName: 'dummy',
+            id: '1',
+            keepLog: false,
+            nextBuild: null,
+            number: 1,
+            previousBuild: null,
+            projectName: 'dummy',
+            result: 'SUCCESS',
+            startTimeInMillis: 1,
+            timeInMillis: 1,
+            upstreamBuilds: [],
+        ])
     }
 
     /**

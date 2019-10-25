@@ -259,7 +259,7 @@ class PipelineTestHelper {
      *
      * @return true if internal GroovyScriptEngine is set
      */
-    protected boolean isInitialized() {
+    boolean isInitialized() {
         return gse != null
     }
 
@@ -323,9 +323,7 @@ class PipelineTestHelper {
         Class scriptClass = gse.loadScriptByName(scriptName)
         setGlobalVars(binding)
         Script script = InvokerHelper.createScript(scriptClass, binding)
-        script.metaClass.invokeMethod = getMethodInterceptor()
-        script.metaClass.static.invokeMethod = getMethodInterceptor()
-        script.metaClass.methodMissing = getMethodMissingInterceptor()
+        InterceptingGCL.interceptClassMethods(script.metaClass, this)
         return script
     }
 
