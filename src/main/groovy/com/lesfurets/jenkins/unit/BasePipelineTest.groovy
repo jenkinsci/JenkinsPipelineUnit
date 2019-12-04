@@ -62,6 +62,12 @@ abstract class BasePipelineTest {
     }
 
     void registerAllowedMethods() {
+        helper.registerAllowedMethod("build", [Map.class], null)
+        helper.registerAllowedMethod("cron", [String.class], null)
+        helper.registerAllowedMethod("ws", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("addShortText", [Map.class], null)
+        helper.registerAllowedMethod("addHtmlBadge", [Map.class], null)
+        helper.registerAllowedMethod("choice", [Map.class], null)
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
         helper.registerAllowedMethod("stage", [String.class], null)
         helper.registerAllowedMethod("node", [String.class, Closure.class], null)
