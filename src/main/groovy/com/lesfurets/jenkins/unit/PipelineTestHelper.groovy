@@ -275,6 +275,30 @@ class PipelineTestHelper {
     }
 
     /**
+     * Clone argments for registerMethodCall so they are recorded
+     * at the time the method is called in case of changes to an
+     * arg variable later in the pipeline.
+     *
+     * @param args original args passed to the method call
+     * @return cloned args
+     */
+    private Object[] cloneArgs(Object[] args) {
+
+        List argsCloned = []
+        args.each {
+            try {
+                // Try the clone
+                argsCloned << it?.clone()
+            }
+            catch(e) {
+                // Cannot clone it, get a string representation at this point.
+                argsCloned << it.toString()
+            }
+        }
+        return argsCloned as Object[]
+    }
+
+    /**
      * Register method call to call stack
      * @param target target object
      * @param stackDepth depth in stack
@@ -285,7 +309,7 @@ class PipelineTestHelper {
         MethodCall call = new MethodCall()
         call.target = target
         call.methodName = name
-        call.args = args
+        call.args = cloneArgs(args)
         call.stackDepth = stackDepth
         callStack.add(call)
     }
