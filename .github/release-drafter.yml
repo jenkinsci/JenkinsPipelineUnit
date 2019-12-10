@@ -1,0 +1,5 @@
+# See https://github.com/jenkinsci/.github/blob/master/.github/release-drafter.adoc
+_extends: jenkinsci/.github
+version-template: $MAJOR.$MINOR
+tag-template: v$NEXT_MINOR_VERSION
+name-template: Release $NEXT_MINOR_VERSION
