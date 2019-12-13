@@ -13,6 +13,14 @@ you already know that pipeline code is very powerful but can get pretty complex.
 This testing framework lets you write unit tests on the configuration and conditional logic of the pipeline code, by providing a mock execution of the pipeline.
 You can mock built-in Jenkins commands, job configurations, see the stacktrace of the whole execution and even track regressions.
 
+# Table of Contents
+1. [Usage](#usage)
+1. [Configuration](#configuration)
+1. [Testing Shared Libraries](#testing-shared-libraries)
+1. [Note On CPS](#note-on-cps)
+1. [Contributing](#contributing)
+1. [Demos and Examples](#demos-and-examples)
+
 ## Usage
 
 ### Add to your project as test dependency
@@ -457,8 +465,10 @@ It addresses some of the requirements traced in [JENKINS-33925](https://issues.j
 If you are willing to contribute please don't hesitate to discuss in issues and open a pull-request.
 
 ## Demos and Examples
-* https://github.com/macg33zr/pipelineUnit
-* https://github.com/mkobit/jenkins-pipeline-shared-library-example
-* https://github.com/SpencerMalone/JenkinsPipelineIntegration
-* https://github.com/stchar/pipeline-sharedlib-testharness
-* https://github.com/stchar/pipeline-dsl-seed
+| URL | Frameworks and Tools | Test Subject | Test Layers |
+|-----|----------------------|--------------|-------------|
+| https://github.com/macg33zr/pipelineUnit | Spock, Gradle(Groovy)  | JenkinsFile, scripted pipeline, SharedLibrary | UnitTest |
+| https://github.com/mkobit/jenkins-pipeline-shared-library-example | Spock, Gradle (Kotlin), Junit | SharedLibrary | Integration, Unit|
+| https://github.com/stchar/pipeline-sharedlib-testharness          | Junit, Gradle(Groovy) | SharedLibrary | Integration, Unit |
+| https://github.com/stchar/pipeline-dsl-seed                       | Junit, Spock, Gradle(Groovy) | scripted pipeline | Integration(jobdsl), Unit |
+| https://github.com/SpencerMalone/JenkinsPipelineIntegration       | Spock, Gradle(Groovy) | SharedLibrary | Integration |
