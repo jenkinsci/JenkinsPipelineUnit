@@ -283,6 +283,25 @@ abstract class BasePipelineTest {
                      .collect(joining('\n'))
     }
 
+    /**
+     * Instantiate a Script object with given closure and run it
+     * @param Closure script content
+     * @return the return value of the script
+     */
+    Object runScript(Closure scriptRun) {
+        final Script script = new Script(binding) {
+            @Override
+            Object run() {
+                scriptRun.call(this)
+                return null
+            }
+        }
+        script.metaClass.invokeMethod = helper.getMethodInterceptor()
+        script.metaClass.static.invokeMethod = helper.getMethodInterceptor()
+        script.metaClass.methodMissing = helper.getMethodMissingInterceptor()
+        return runScript(script)
+    }
+
     void printCallStack() {
         if (!Boolean.parseBoolean(System.getProperty("printstack.disabled"))) {
             println callStackDump()
