@@ -5,6 +5,8 @@ import org.junit.Before
 import org.junit.Test
 
 import static com.lesfurets.jenkins.unit.MethodCall.callArgsToString
+import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
+import static com.lesfurets.jenkins.unit.global.lib.ProjectSource.projectSource
 import static org.junit.Assert.assertTrue
 
 class TestRunClosure extends BasePipelineTest {
@@ -42,6 +44,22 @@ class TestRunClosure extends BasePipelineTest {
         helper.registerAllowedMethod("customMethod", [Map.class], null)
         runScript({ script ->
             script.customMethod test: 'value'
+        })
+    }
+
+    @Test
+    void should_use_library_sayHello() {
+        String sharedLibs = this.class.getResource('/libs/commons@master').getFile()
+        def library = library().name('commons')
+                .defaultVersion('<notNeeded>')
+                .targetPath('<notNeeded>')
+                .implicit(true)
+                .retriever(projectSource(sharedLibs))
+                .build()
+        helper.registerSharedLibrary(library)
+        runScript({ script ->
+
+            script.sayHello()
         })
     }
 }
