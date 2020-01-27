@@ -16,10 +16,9 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     }
 
     @Test void jenkinsfile_success() throws Exception {
-        def script = loadScript('Declarative_Jenkinsfile')
+        def script = runScript('Declarative_Jenkinsfile')
         printCallStack()
         assertJobStatusSuccess()
-        assertThat(script.currentBuild.result).isEqualTo('SUCCESS')
         assertCallStackContains('pipeline unit tests PASSED')
         assertCallStackContains('pipeline unit tests completed')
     }
@@ -28,7 +27,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         helper.registerAllowedMethod('sh', [String.class], { String cmd ->
             updateBuildStatus('FAILURE')
         })
-        loadScript('Declarative_Jenkinsfile')
+        runScript('Declarative_Jenkinsfile')
         printCallStack()
         assertJobStatusFailure()
         assertCallStack()
@@ -37,14 +36,14 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     }
 
     @Test void should_params() throws Exception {
-        loadScript('Params_Jenkinsfile')
+        runScript('Params_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Hello Mr Jenkins')
     }
 
     @Test void when_branch() throws Exception {
         addEnvVar('BRANCH_NAME', 'production')
-        loadScript('Branch_Jenkinsfile')
+        runScript('Branch_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Deploying')
         assertJobStatusSuccess()
@@ -52,14 +51,14 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
 
     @Test void when_branch_not() throws Exception {
         addEnvVar('BRANCH_NAME', 'master')
-        loadScript('Branch_Jenkinsfile')
+        runScript('Branch_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Skipping stage Example Deploy')
         assertJobStatusSuccess()
     }
 
     @Test void should_agent() throws Exception {
-        loadScript('Agent_Jenkinsfile')
+        runScript('Agent_Jenkinsfile')
         printCallStack()
         assertJobStatusSuccess()
         assertCallStack().contains('openjdk:8-jre')
@@ -68,16 +67,22 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
 
     @Test void should_credentials() throws Exception {
         addCredential('my-prefined-secret-text', 'something_secret')
-        loadScript('Credentials_Jenkinsfile')
+        runScript('Credentials_Jenkinsfile')
         printCallStack()
         assertJobStatusSuccess()
         assertCallStack().contains('AN_ACCESS_KEY:something_secret')
     }
 
+    @Test void should_parallel() throws Exception {
+        runScript('Parallel_Jenkinsfile')
+        printCallStack()
+        assertJobStatusSuccess()
+    }
+
     @Test(expected = MissingPropertyException)
     void should_non_valid_fail() throws Exception {
         try {
-            loadScript('Non_Valid_Jenkinsfile')
+            runScript('Non_Valid_Jenkinsfile')
         } catch (e) {
             e.printStackTrace()
             throw e

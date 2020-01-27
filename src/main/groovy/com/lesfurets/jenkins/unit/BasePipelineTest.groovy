@@ -136,6 +136,7 @@ abstract class BasePipelineTest {
             timeInMillis: 1,
             upstreamBuilds: [],
         ])
+        binding.setVariable('env',[:])
     }
 
     /**
