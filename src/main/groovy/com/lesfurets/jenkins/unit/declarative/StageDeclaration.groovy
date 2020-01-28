@@ -33,12 +33,17 @@ class StageDeclaration extends GenericPipelineDeclaration {
 
     def execute(Object delegate) {
         String name = this.name
+        if(parallel) {
+            parallel.execute(delegate)
+        }
         if (!when || when.execute(delegate)) {
             super.execute(delegate)
             // TODO handle credentials
-            Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, delegate, delegate)
-            Closure cl = { stage("$name", stageBody) }
-            executeWith(delegate, cl)
+            if(steps) {
+                Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, delegate, delegate)
+                Closure cl = { stage("$name", stageBody) }
+                executeWith(delegate, cl)
+            }
             if (post) {
                 this.post.execute(delegate)
             }

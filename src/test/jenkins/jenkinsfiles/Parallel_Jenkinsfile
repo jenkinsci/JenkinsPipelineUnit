@@ -9,12 +9,7 @@ pipeline {
                         label "windows"
                     }
                     steps {
-                        bat "run-tests.bat"
-                    }
-                    post {
-                        always {
-                            junit "**/TEST-*.xml"
-                        }
+                        sh "run-tests.exe"
                     }
                 }
                 stage('Test On Linux') {
@@ -23,11 +18,6 @@ pipeline {
                     }
                     steps {
                         sh "run-tests.sh"
-                    }
-                    post {
-                        always {
-                            junit "**/TEST-*.xml"
-                        }
                     }
                 }
             }

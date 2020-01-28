@@ -21,8 +21,11 @@ class ParallelDeclaration extends GenericPipelineDeclaration {
         this.stages.put(name, DeclarativePipeline.createComponent(StageDeclaration, closure).with{it.name = name;it} )
     }
 
-    Object execute(Object delegate) {
-
+    def execute(Object delegate) {
+        super.execute(delegate)
+        this.stages.entrySet().forEach { e ->
+            e.value.execute(delegate)
+        }
     }
 
 }
