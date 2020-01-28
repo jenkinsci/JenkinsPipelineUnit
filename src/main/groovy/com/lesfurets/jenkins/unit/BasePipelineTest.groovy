@@ -67,7 +67,12 @@ abstract class BasePipelineTest {
     }
 
     void registerAllowedMethods() {
-        helper.registerAllowedMethod("build", [Map.class], null)
+        helper.registerAllowedMethod("build", [Map.class], {
+            [
+                getNumber:{100500},
+                getDescription:{"Dummy build description"}
+            ]
+        })
         helper.registerAllowedMethod("cron", [String.class], null)
         helper.registerAllowedMethod("ws", [String.class, Closure.class], null)
         helper.registerAllowedMethod("addShortText", [Map.class], null)
@@ -233,4 +238,40 @@ abstract class BasePipelineTest {
         assertCallStack().contains(text)
     }
 
+
+    /**
+     * Helper for adding a params value in tests
+     */
+    void addParam(String name, Object val, Boolean overWrite = false) {
+        Map params = binding.getVariable('params') as Map
+        if (params == null) {
+            params = [:]
+            binding.setVariable('params', params)
+        }
+        if (params[name] == null || overWrite) {
+            params[name] = val
+        }
+    }
+
+
+    /**
+     * Helper for adding a environment value in tests
+     */
+    void addEnvVar(String name, String val) {
+        Map env = binding.getVariable('env') as Map
+        if (env == null) {
+            env = [:]
+            binding.setVariable('env', env)
+        }
+        env[name] = val
+    }
+
+    void addCredential(String key, String val) {
+        Map credentials = binding.getVariable('credentials') as Map
+        if (credentials == null) {
+            credentials = [:]
+            binding.setVariable('credentials', credentials)
+        }
+        credentials[key] = val
+    }
 }

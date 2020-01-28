@@ -29,6 +29,9 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
         helper.registerAllowedMethod('pollSCM', [String.class], null)
         helper.registerAllowedMethod('cron', [String.class], null)
         helper.registerAllowedMethod('timestamps', [], null)
+
+        helper.registerAllowedMethod('skipDefaultCheckout', [], null)
+
         helper.registerAllowedMethod('script', [Closure.class], null)
 
         helper.registerAllowedMethod('timeout', [Integer.class, Closure.class], null)
@@ -68,42 +71,5 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
         helper.registerAllowedMethod('credentials', [String], { String credName ->
             return binding.getVariable('credentials')[credName]
         })
-
-    }
-
-    /**
-     * Helper for adding a params value in tests
-     */
-    void addParam(String name, Object val, Boolean overWrite = false) {
-        Map params = binding.getVariable('params') as Map
-        if (params == null) {
-            params = [:]
-            binding.setVariable('params', params)
-        }
-        if (params[name] == null || overWrite) {
-            params[name] = val
-        }
-    }
-
-
-    /**
-     * Helper for adding a environment value in tests
-     */
-    void addEnvVar(String name, String val) {
-        Map env = binding.getVariable('env') as Map
-        if (env == null) {
-            env = [:]
-            binding.setVariable('env', env)
-        }
-        env[name] = val
-    }
-
-    void addCredential(String key, String val) {
-        Map credentials = binding.getVariable('credentials') as Map
-        if (credentials == null) {
-            credentials = [:]
-            binding.setVariable('credentials', credentials)
-        }
-        credentials[key] = val
     }
 }

@@ -32,7 +32,6 @@ abstract class GenericPipelineDeclaration {
 
     def execute(Object delegate) {
         // set environment
-        println "this.environment = ${this.environment}"
         if (this.environment) {
             def env = delegate.binding.env
             def cl = this.environment.rehydrate(env, delegate, this)
