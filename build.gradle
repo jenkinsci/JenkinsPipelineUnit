@@ -69,6 +69,7 @@ task copyGrapesDependencies(type: CopyDependenciesToMavenTreeTask) {
 test.dependsOn copyGrapesDependencies
 
 test {
+    inputs.files ("$projectDir/src/test/jenkins", "$projectDir/grapeConfig.xml")
     systemProperty "grape.config", "$projectDir/grapeConfig.xml"
     systemProperty "grape.home", file("$buildDir/grapes").toURI()
     // Settings for debugging @Grape() resolution in test cases
