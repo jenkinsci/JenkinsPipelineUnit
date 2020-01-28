@@ -17,6 +17,7 @@ You can mock built-in Jenkins commands, job configurations, see the stacktrace o
 # Table of Contents
 1. [Usage](#usage)
 1. [Configuration](#configuration)
+1. [Declarative Pipeline](#declarative-pipeline)
 1. [Testing Shared Libraries](#testing-shared-libraries)
 1. [Note On CPS](#note-on-cps)
 1. [Contributing](#contributing)
@@ -311,6 +312,49 @@ This will work fine for such a project structure:
          └── groovy
              └── TestExampleJob.groovy
 ```
+## Declarative Pipeline
+There is an experimental support of declarative pipeline.
+To try this feature you need to use `DeclarativePipelineTest` class instead of `BasePipelineTest`
+
+```groovy
+// Jenkinsfile
+pipeline {
+    agent none
+    stages {
+        stage('Example Build') {
+            agent { docker 'maven:3-alpine' }
+            steps {
+                echo 'Hello, Maven'
+                sh 'mvn --version'
+            }
+        }
+        stage('Example Test') {
+            agent { docker 'openjdk:8-jre' }
+            steps {
+                echo 'Hello, JDK'
+                sh 'java -version'
+            }
+        }
+    }
+}
+```
+
+```groovy
+import com.lesfurets.jenkins.unit.declarative
+
+class TestExampleDeclarativeJob extends DeclarativePipelineTest {
+        @Test
+        void should_execute_without_errors() throws Exception {
+            def script = runScript("Jenkinsfile")
+            assertJobStatusSuccess()
+            printCallStack()
+        }
+}
+```
+
+### DeclarativePipelineTest
+It extends `BasePipelineTest` functionality so you can verify your decalrative job the same way
+like it was a scripted pipeline
 
 ## Testing Shared Libraries
 
