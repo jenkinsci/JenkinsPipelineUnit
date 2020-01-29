@@ -1,0 +1,26 @@
+pipeline {
+    agent none
+    stages {
+        stage('Run Tests') {
+            failFast true
+            parallel {
+                stage('Test On Windows') {
+                    agent {
+                        label "windows"
+                    }
+                    steps {
+                        sh "run-tests.exe"
+                    }
+                }
+                stage('Test On Linux') {
+                    agent {
+                        label "linux"
+                    }
+                    steps {
+                        sh "run-tests.sh"
+                    }
+                }
+            }
+        }
+    }
+}
