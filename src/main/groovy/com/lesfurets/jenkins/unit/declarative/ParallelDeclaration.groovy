@@ -6,7 +6,6 @@ import static groovy.lang.Closure.DELEGATE_ONLY
 class ParallelDeclaration extends GenericPipelineDeclaration {
 
     boolean failFast
-    Map<String, StageDeclaration> stages = [:]
 
     ParallelDeclaration(boolean failFast) {
         this.failFast = failFast

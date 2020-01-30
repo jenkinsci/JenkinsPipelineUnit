@@ -79,6 +79,12 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void should_sub_stages() throws Exception {
+        runScript('ComplexStages_Jenkinsfile')
+        printCallStack()
+        assertJobStatusSuccess()
+    }
+
     @Test(expected = MissingPropertyException)
     void should_non_valid_fail() throws Exception {
         try {

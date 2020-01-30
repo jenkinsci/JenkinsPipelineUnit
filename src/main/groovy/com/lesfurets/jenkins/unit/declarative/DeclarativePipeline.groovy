@@ -6,7 +6,6 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
 
     def properties = [:]
     List<Closure> options = []
-    Map<String, StageDeclaration> stages = [:]
 
     Closure triggers
     Closure parameters
@@ -62,9 +61,7 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         options.add(closure)
     }
 
-    def stages(@DelegatesTo(DeclarativePipeline) Closure closure) {
-        closure.call()
-    }
+
 
     def triggers(@DelegatesTo(DeclarativePipeline) Closure closure) {
         this.triggers = closure
@@ -74,10 +71,7 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         this.parameters = closure
     }
 
-    def stage(String name,
-              @DelegatesTo(strategy = DELEGATE_ONLY, value = StageDeclaration) Closure closure) {
-        this.stages.put(name, createComponent(StageDeclaration, closure).with { it.name = name; it })
-    }
+
 
     def execute(Object delegate) {
         super.execute(delegate)

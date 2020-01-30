@@ -9,6 +9,7 @@ abstract class GenericPipelineDeclaration {
     Closure environment
     Closure tools
     PostDeclaration post
+    Map<String, StageDeclaration> stages = [:]
 
     def agent(Object o) {
         this.agent = new AgentDeclaration().with { it.label = o; it }
@@ -28,6 +29,15 @@ abstract class GenericPipelineDeclaration {
 
     def post(@DelegatesTo(strategy = DELEGATE_ONLY, value = PostDeclaration) Closure closure) {
         this.post = createComponent(PostDeclaration, closure)
+    }
+
+    def stages(@DelegatesTo(DeclarativePipeline) Closure closure) {
+        closure.call()
+    }
+
+    def stage(String name,
+              @DelegatesTo(strategy = DELEGATE_ONLY, value = StageDeclaration) Closure closure) {
+        this.stages.put(name, createComponent(StageDeclaration, closure).with { it.name = name; it })
     }
 
     def execute(Object delegate) {
