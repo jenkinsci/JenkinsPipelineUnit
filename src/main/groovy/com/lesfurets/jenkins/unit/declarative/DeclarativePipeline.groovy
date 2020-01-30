@@ -10,26 +10,6 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
     Closure triggers
     Closure parameters
 
-    static <T> T executeOn(@DelegatesTo.Target Object delegate,
-                     @DelegatesTo(strategy = DELEGATE_ONLY) Closure<T> closure) {
-        if (closure) {
-            def cl = closure.rehydrate(delegate, delegate, delegate)
-            cl.resolveStrategy = DELEGATE_ONLY
-            return cl.call()
-        }
-        return null
-    }
-
-    static <T> T executeWith(@DelegatesTo.Target Object delegate,
-                       @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
-        if (closure) {
-            def cl = closure.rehydrate(delegate, delegate, delegate)
-            cl.resolveStrategy = DELEGATE_FIRST
-            return cl.call()
-        }
-        return null
-    }
-
     static <T> T createComponent(Class<T> componentType,
                                  @DelegatesTo(strategy = DELEGATE_ONLY, value = T) Closure closure) {
         def componentInstance = componentType.newInstance()
@@ -70,8 +50,6 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
     def parameters(@DelegatesTo(DeclarativePipeline) Closure closure) {
         this.parameters = closure
     }
-
-
 
     def execute(Object delegate) {
         super.execute(delegate)

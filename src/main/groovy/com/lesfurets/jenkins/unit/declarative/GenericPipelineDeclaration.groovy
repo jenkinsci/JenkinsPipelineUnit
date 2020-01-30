@@ -11,6 +11,26 @@ abstract class GenericPipelineDeclaration {
     PostDeclaration post
     Map<String, StageDeclaration> stages = [:]
 
+    static <T> T executeOn(@DelegatesTo.Target Object delegate,
+                     @DelegatesTo(strategy = DELEGATE_ONLY) Closure<T> closure) {
+        if (closure) {
+            def cl = closure.rehydrate(delegate, delegate, delegate)
+            cl.resolveStrategy = DELEGATE_ONLY
+            return cl.call()
+        }
+        return null
+    }
+
+    static <T> T executeWith(@DelegatesTo.Target Object delegate,
+                       @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
+        if (closure) {
+            def cl = closure.rehydrate(delegate, delegate, delegate)
+            cl.resolveStrategy = DELEGATE_FIRST
+            return cl.call()
+        }
+        return null
+    }
+
     def agent(Object o) {
         this.agent = new AgentDeclaration().with { it.label = o; it }
     }
@@ -44,8 +64,12 @@ abstract class GenericPipelineDeclaration {
         // set environment
         if (this.environment) {
             def env = delegate.binding.env
+            // let access env and currentBuild properties in environment closure
+            env.env = env
+            env.currentBuild = delegate.binding.currentBuild
+
             def cl = this.environment.rehydrate(env, delegate, this)
-            cl.resolveStrategy = DELEGATE_FIRST
+            cl.resolveStrategy = Closure.DELEGATE_FIRST
             cl.call()
         }
     }
