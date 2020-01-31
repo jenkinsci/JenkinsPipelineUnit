@@ -41,8 +41,6 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         options.add(closure)
     }
 
-
-
     def triggers(@DelegatesTo(DeclarativePipeline) Closure closure) {
         this.triggers = closure
     }

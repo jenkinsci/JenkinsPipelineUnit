@@ -99,7 +99,12 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("pipelineTriggers", [List.class], null)
         helper.registerAllowedMethod("properties", [List.class], null)
         helper.registerAllowedMethod("dir", [String.class, Closure.class], null)
+        helper.registerAllowedMethod('archive', [String.class], null)
+        helper.registerAllowedMethod('archive', [Map.class], null)
         helper.registerAllowedMethod("archiveArtifacts", [Map.class], null)
+        helper.registerAllowedMethod('archiveArtifacts', [String.class], null)
+        helper.registerAllowedMethod('copyArtifacts', [Map.class], {true})
+        helper.registerAllowedMethod('specific', [String.class], null)
         helper.registerAllowedMethod("junit", [String.class], null)
         helper.registerAllowedMethod("readFile", [String.class], null)
         helper.registerAllowedMethod("disableConcurrentBuilds", [], null)
@@ -108,6 +113,8 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
         helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE') })
         helper.registerAllowedMethod("unstable", [String.class], { updateBuildStatus('UNSTABLE') })
+        helper.registerAllowedMethod('sshPublisher', [Map.class], {true})
+        helper.registerAllowedMethod('cifsPublisher', [Map.class], {true})
         helper.registerAllowedMethod("warnError", [String.class, Closure.class], { Closure c ->
             try {
                 c.delegate = delegate
@@ -116,6 +123,10 @@ abstract class BasePipelineTest {
                 updateBuildStatus('UNSTABLE')
             }
         })
+        helper.registerAllowedMethod('cleanWs', [], null)
+        helper.registerAllowedMethod('skipDefaultCheckout', [], null)
+        helper.registerAllowedMethod('timeout', [Map.class], null)
+        helper.registerAllowedMethod('retry', [Integer.class, Closure.class], null)
     }
 
     void setVariables() {
