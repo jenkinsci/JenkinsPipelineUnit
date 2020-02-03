@@ -6,30 +6,9 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
 
     def properties = [:]
     List<Closure> options = []
-    Map<String, StageDeclaration> stages = [:]
 
     Closure triggers
     Closure parameters
-
-    static <T> T executeOn(@DelegatesTo.Target Object delegate,
-                     @DelegatesTo(strategy = DELEGATE_ONLY) Closure<T> closure) {
-        if (closure) {
-            def cl = closure.rehydrate(delegate, delegate, delegate)
-            cl.resolveStrategy = DELEGATE_ONLY
-            return cl.call()
-        }
-        return null
-    }
-
-    static <T> T executeWith(@DelegatesTo.Target Object delegate,
-                       @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
-        if (closure) {
-            def cl = closure.rehydrate(delegate, delegate, delegate)
-            cl.resolveStrategy = DELEGATE_FIRST
-            return cl.call()
-        }
-        return null
-    }
 
     static <T> T createComponent(Class<T> componentType,
                                  @DelegatesTo(strategy = DELEGATE_ONLY, value = T) Closure closure) {
@@ -62,21 +41,12 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         options.add(closure)
     }
 
-    def stages(@DelegatesTo(DeclarativePipeline) Closure closure) {
-        closure.call()
-    }
-
     def triggers(@DelegatesTo(DeclarativePipeline) Closure closure) {
         this.triggers = closure
     }
 
     def parameters(@DelegatesTo(DeclarativePipeline) Closure closure) {
         this.parameters = closure
-    }
-
-    def stage(String name,
-              @DelegatesTo(strategy = DELEGATE_ONLY, value = StageDeclaration) Closure closure) {
-        this.stages.put(name, createComponent(StageDeclaration, closure).with { it.name = name; it })
     }
 
     def execute(Object delegate) {

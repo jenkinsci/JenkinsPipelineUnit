@@ -39,6 +39,9 @@ class StageDeclaration extends GenericPipelineDeclaration {
         if (!when || when.execute(delegate)) {
             super.execute(delegate)
             // TODO handle credentials
+            this.stages.entrySet().forEach { e ->
+                e.value.execute(delegate)
+            }
             if(steps) {
                 Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, delegate, delegate)
                 Closure cl = { stage("$name", stageBody) }

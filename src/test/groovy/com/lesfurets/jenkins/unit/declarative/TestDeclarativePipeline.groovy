@@ -18,9 +18,9 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     @Test void jenkinsfile_success() throws Exception {
         def script = runScript('Declarative_Jenkinsfile')
         printCallStack()
-        assertJobStatusSuccess()
         assertCallStackContains('pipeline unit tests PASSED')
         assertCallStackContains('pipeline unit tests completed')
+        assertJobStatusSuccess()
     }
 
     @Test void jenkinsfile_failure() throws Exception {
@@ -39,6 +39,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         runScript('Params_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Hello Mr Jenkins')
+        assertJobStatusSuccess()
     }
 
     @Test void when_branch() throws Exception {
@@ -60,22 +61,41 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     @Test void should_agent() throws Exception {
         runScript('Agent_Jenkinsfile')
         printCallStack()
-        assertJobStatusSuccess()
         assertCallStack().contains('openjdk:8-jre')
         assertCallStack().contains('maven:3-alpine')
+        assertJobStatusSuccess()
     }
 
     @Test void should_credentials() throws Exception {
         addCredential('my-prefined-secret-text', 'something_secret')
         runScript('Credentials_Jenkinsfile')
         printCallStack()
-        assertJobStatusSuccess()
         assertCallStack().contains('AN_ACCESS_KEY:something_secret')
+        assertJobStatusSuccess()
     }
 
     @Test void should_parallel() throws Exception {
         runScript('Parallel_Jenkinsfile')
         printCallStack()
+        assertCallStack().contains('sh(run-tests.exe)')
+        assertCallStack().contains('sh(run-tests.sh)')
+        assertJobStatusSuccess()
+    }
+
+    @Test void should_sub_stages() throws Exception {
+        runScript('ComplexStages_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('mvn build')
+        assertCallStack().contains('mvn --version')
+        assertCallStack().contains('java -version')
+        assertJobStatusSuccess()
+    }
+
+    @Test void should_environment() throws Exception {
+        runScript('Environment_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('echo(LEVAR1 LE NEW VALUE)')
+        assertCallStack().contains('echo(LEVAR2 A COPY OF LE NEW VALUE in build#1)')
         assertJobStatusSuccess()
     }
 
