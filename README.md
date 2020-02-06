@@ -440,7 +440,85 @@ libraryJob.run()
         libraryJob.libraryResource(net/courtanet/jenkins/request.json)
         libraryJob.sh(curl -H 'Content-Type: application/json' -X POST -d '{"name" : "Ben"}' http://acme.com)
 ```
-#### Loading library dynamically
+### Library Source Retrivers
+There are a few types of `SourceRetriever` implementation in addition to previously
+discribed `GitSource` you can use for different applications
+
+#### ProjectSource Retriver
+`ProjectSource` retriver is useful if you write tests for the library itself.
+So it lets you to load the library files directly from project root folder (where `src`, `vars`, ... are loacted)
+
+```
+$ tree -L 1 .
+.
+├── resources
+├── src
+└── vars
+└── test
+└── build.gradle
+```
+
+Then you need you can use `projectSource` to point library files location
+* `projectSource()` with no args looking for files in project root
+* `.defaultVersion('<notNeeded>')` means you can load it in pipelines
+   using `commons@master` or `commons@features` which would use the same code base
+```groovy
+    // TestCase file
+    // you need to import static method
+    import static com.lesfurets.jenkins.unit.global.lib.ProjectSource.projectSource
+
+    class TestCase extends BasePipelineTest {
+        ...
+        void setUp() throws Exception {
+            ...
+            def library = library().name('commons')
+                            .defaultVersion('<notNeeded>')
+                            .allowOverride(true)
+                            .implicit(true)
+                            .targetPath('<notNeeded>')
+                            .retriever(projectSource())
+                            .build()
+            helper.registerSharedLibrary(library)
+            ...
+        }
+        ...
+    }
+```
+
+#### LocalSource Retriver
+`LocalSource` retriver is useful if you want to verify how well your library integrates
+with the pipelines. For example you may use pre-copied library files of different versions.
+
+```groovy
+    import static com.lesfurets.jenkins.unit.global.lib.LocalSource.localSource
+
+    class TestCase extends BasePipelineTest {
+        ...
+        void setUp() throws Exception {
+            ...
+            def library = library().name('commons')
+                            .defaultVersion("master")
+                            .allowOverride(true)
+                            .implicit(false)
+                            .targetPath('<notNeeded>')
+                            .retriever(localSource('/var/tmp/'))
+                            .build()
+            helper.registerSharedLibrary(library)
+        }
+        ...
+```
+
+The retriver assumes that library files are located at
+`/var/tmp/commons@master` folder
+```
+$ tree -L 1 /var/tmp/commons@master
+/var/tmp/commons@master
+├── resources
+├── src
+└── vars
+```
+
+### Loading library dynamically
 There is a partial support of dynamic library loading.
 It does't implement all the features, however sometimes it could be useful.
 
