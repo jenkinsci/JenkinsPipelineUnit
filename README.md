@@ -26,22 +26,39 @@ You can mock built-in Jenkins commands, job configurations, see the stacktrace o
 ## Usage
 
 ### Add to your project as test dependency
-
+**Note:** Starting from `1.2` artifacts are published to `https://repo.jenkins-ci.org/releases`
 Maven:
-
 ```xml
-    <dependency>
-      <groupId>com.lesfurets</groupId>
-      <artifactId>jenkins-pipeline-unit</artifactId>
-      <version>1.1</version>
-      <scope>test</scope>
-    </dependency>
+    <repositories>
+        <repository>
+        <id>jenkins-ci-releases</id>
+        <url>https://repo.jenkins-ci.org/releases/</url>
+        </repository>
+        ...
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.lesfurets</groupId>
+            <artifactId>jenkins-pipeline-unit</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        ...
+    </dependencies>
 ```
 
 Gradle:
-
 ```groovy
-testCompile group:'com.lesfurets', name:'jenkins-pipeline-unit', version:'1.1'
+repositories {
+  maven { url 'https://repo.jenkins-ci.org/releases/' }
+  ...
+}
+
+dependencies {
+    testImplementation "com.lesfurets:jenkins-pipeline-unit:1.3"
+    ...
+}
 ```
 
 ### Start writing tests
@@ -213,7 +230,7 @@ class TestCase extends BasePipelineTest {
               binding.getVariable('currentBuild').result = 'FAILURE'
           }
       })
-      loadScript("Jenkinsfile")
+      runScript("Jenkinsfile")
       assertJobStatusFailure()
   }
 }
@@ -243,7 +260,7 @@ class TestCase extends BasePipelineTest {
 
     @Test
     void verify_exception() throws Exception {
-        loadScript("Jenkinsfile")
+        runScript("Jenkinsfile")
         thrown.expect(Exception)
         thrown.expectMessage("error message");
     }
@@ -313,7 +330,7 @@ This will work fine for such a project structure:
              └── TestExampleJob.groovy
 ```
 ## Declarative Pipeline
-There is an experimental support of declarative pipeline.
+There is an experimental support of declarative pipeline in `1.3`
 To try this feature you need to use `DeclarativePipelineTest` class instead of `BasePipelineTest`
 
 ```groovy
@@ -440,7 +457,85 @@ libraryJob.run()
         libraryJob.libraryResource(net/courtanet/jenkins/request.json)
         libraryJob.sh(curl -H 'Content-Type: application/json' -X POST -d '{"name" : "Ben"}' http://acme.com)
 ```
-#### Loading library dynamically
+### Library Source Retrivers
+There are a few types of `SourceRetriever` implementation in addition to previously
+discribed `GitSource` you can use for different applications
+
+#### ProjectSource Retriver
+`ProjectSource` retriver is useful if you write tests for the library itself.
+So it lets you to load the library files directly from project root folder (where `src`, `vars`, ... are loacted)
+
+```
+$ tree -L 1 .
+.
+├── resources
+├── src
+└── vars
+└── test
+└── build.gradle
+```
+
+Then you need you can use `projectSource` to point library files location
+* `projectSource()` with no args looking for files in project root
+* `.defaultVersion('<notNeeded>')` means you can load it in pipelines
+   using `commons@master` or `commons@features` which would use the same code base
+```groovy
+    // TestCase file
+    // you need to import static method
+    import static com.lesfurets.jenkins.unit.global.lib.ProjectSource.projectSource
+
+    class TestCase extends BasePipelineTest {
+        ...
+        void setUp() throws Exception {
+            ...
+            def library = library().name('commons')
+                            .defaultVersion('<notNeeded>')
+                            .allowOverride(true)
+                            .implicit(true)
+                            .targetPath('<notNeeded>')
+                            .retriever(projectSource())
+                            .build()
+            helper.registerSharedLibrary(library)
+            ...
+        }
+        ...
+    }
+```
+
+#### LocalSource Retriver
+`LocalSource` retriver is useful if you want to verify how well your library integrates
+with the pipelines. For example you may use pre-copied library files of different versions.
+
+```groovy
+    import static com.lesfurets.jenkins.unit.global.lib.LocalSource.localSource
+
+    class TestCase extends BasePipelineTest {
+        ...
+        void setUp() throws Exception {
+            ...
+            def library = library().name('commons')
+                            .defaultVersion("master")
+                            .allowOverride(true)
+                            .implicit(false)
+                            .targetPath('<notNeeded>')
+                            .retriever(localSource('/var/tmp/'))
+                            .build()
+            helper.registerSharedLibrary(library)
+        }
+        ...
+```
+
+The retriver assumes that library files are located at
+`/var/tmp/commons@master` folder
+```
+$ tree -L 1 /var/tmp/commons@master
+/var/tmp/commons@master
+├── resources
+├── src
+└── vars
+```
+
+### Loading library dynamically
 There is a partial support of dynamic library loading.
 It does't implement all the features, however sometimes it could be useful.
 
