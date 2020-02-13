@@ -26,22 +26,39 @@ You can mock built-in Jenkins commands, job configurations, see the stacktrace o
 ## Usage
 
 ### Add to your project as test dependency
-
+**Note:** Starting from `1.2` artifacts are published to `https://repo.jenkins-ci.org/releases`
 Maven:
-
 ```xml
-    <dependency>
-      <groupId>com.lesfurets</groupId>
-      <artifactId>jenkins-pipeline-unit</artifactId>
-      <version>1.1</version>
-      <scope>test</scope>
-    </dependency>
+    <repositories>
+        <repository>
+        <id>jenkins-ci-releases</id>
+        <url>https://repo.jenkins-ci.org/releases/</url>
+        </repository>
+        ...
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.lesfurets</groupId>
+            <artifactId>jenkins-pipeline-unit</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        ...
+    </dependencies>
 ```
 
 Gradle:
-
 ```groovy
-testCompile group:'com.lesfurets', name:'jenkins-pipeline-unit', version:'1.1'
+repositories {
+  maven { url 'https://repo.jenkins-ci.org/releases/' }
+  ...
+}
+
+dependencies {
+    testImplementation "com.lesfurets:jenkins-pipeline-unit:1.3"
+    ...
+}
 ```
 
 ### Start writing tests
@@ -213,7 +230,7 @@ class TestCase extends BasePipelineTest {
               binding.getVariable('currentBuild').result = 'FAILURE'
           }
       })
-      loadScript("Jenkinsfile")
+      runScript("Jenkinsfile")
       assertJobStatusFailure()
   }
 }
@@ -243,7 +260,7 @@ class TestCase extends BasePipelineTest {
 
     @Test
     void verify_exception() throws Exception {
-        loadScript("Jenkinsfile")
+        runScript("Jenkinsfile")
         thrown.expect(Exception)
         thrown.expectMessage("error message");
     }
@@ -313,7 +330,7 @@ This will work fine for such a project structure:
              └── TestExampleJob.groovy
 ```
 ## Declarative Pipeline
-There is an experimental support of declarative pipeline.
+There is an experimental support of declarative pipeline in `1.3`
 To try this feature you need to use `DeclarativePipelineTest` class instead of `BasePipelineTest`
 
 ```groovy
