@@ -89,7 +89,8 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("cron", [String.class], null)
         helper.registerAllowedMethod('deleteDir', [], null)
         helper.registerAllowedMethod("dir", [String.class, Closure.class]) { String path, Closure body ->
-            body()
+            c.delegate = delegate
+            helper.callClosure(c)
         }
         helper.registerAllowedMethod("disableConcurrentBuilds", [], null)
         helper.registerAllowedMethod("echo", [String.class]) { String message ->
