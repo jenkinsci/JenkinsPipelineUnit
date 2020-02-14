@@ -113,7 +113,8 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("properties", [List.class], null)
         helper.registerAllowedMethod("readFile", [String.class], null)
         helper.registerAllowedMethod('retry', [Integer.class, Closure.class]) { Integer count, Closure body ->
-            body()
+            c.delegate = delegate
+            helper.callClosure(c)
         }
         helper.registerAllowedMethod("sh", [Map.class], null)
         helper.registerAllowedMethod("sh", [String.class], null)
