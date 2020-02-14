@@ -87,7 +87,9 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('cleanWs', [], null)
         helper.registerAllowedMethod('copyArtifacts', [Map.class], {true})
         helper.registerAllowedMethod("cron", [String.class], null)
-        helper.registerAllowedMethod("dir", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("dir", [String.class, Closure.class]) { String path, Closure body ->
+            body()
+        }
         helper.registerAllowedMethod("disableConcurrentBuilds", [], null)
         helper.registerAllowedMethod("echo", [String.class]) { String message ->
             println(message)
