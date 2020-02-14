@@ -87,6 +87,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('cleanWs', [], null)
         helper.registerAllowedMethod('copyArtifacts', [Map.class], {true})
         helper.registerAllowedMethod("cron", [String.class], null)
+        helper.registerAllowedMethod('deleteDir', [], null)
         helper.registerAllowedMethod("dir", [String.class, Closure.class]) { String path, Closure body ->
             body()
         }
@@ -104,6 +105,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("input", [String.class], null)
         helper.registerAllowedMethod("junit", [String.class], null)
         helper.registerAllowedMethod("logRotator", [Map.class], null)
+        helper.registerAllowedMethod('mail', [Map.class], null)
         helper.registerAllowedMethod("node", [Closure.class], null)
         helper.registerAllowedMethod("node", [String.class, Closure.class], null)
         helper.registerAllowedMethod("pipelineTriggers", [List.class], null)
@@ -115,8 +117,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("sh", [Map.class], null)
         helper.registerAllowedMethod("sh", [String.class], null)
         helper.registerAllowedMethod('skipDefaultCheckout', [], null)
+        helper.registerAllowedMethod('sleep', [], null)
         helper.registerAllowedMethod('specific', [String.class], null)
         helper.registerAllowedMethod('sshPublisher', [Map.class], {true})
+        helper.registerAllowedMethod('stash', [Map.class], null)
         helper.registerAllowedMethod("stage", [String.class], null)
         helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
         helper.registerAllowedMethod("step", [Map.class], null)
@@ -124,6 +128,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('timeout', [Map.class], null)
         helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
         helper.registerAllowedMethod("unstable", [String.class], { updateBuildStatus('UNSTABLE') })
+        helper.registerAllowedMethod('unstash', [Map.class], null)
         helper.registerAllowedMethod("warnError", [String.class, Closure.class], { Closure c ->
             try {
                 c.delegate = delegate
@@ -133,6 +138,7 @@ abstract class BasePipelineTest {
             }
         })
         helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
+        helper.registerAllowedMethod('writeFile', [Map.class], null)
         helper.registerAllowedMethod("ws", [String.class, Closure.class], null)
     }
 
