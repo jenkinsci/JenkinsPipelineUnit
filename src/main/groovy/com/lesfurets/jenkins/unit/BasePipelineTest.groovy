@@ -89,7 +89,9 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("cron", [String.class], null)
         helper.registerAllowedMethod("dir", [String.class, Closure.class], null)
         helper.registerAllowedMethod("disableConcurrentBuilds", [], null)
-        helper.registerAllowedMethod("echo", [String.class], null)
+        helper.registerAllowedMethod("echo", [String.class]) { String message ->
+            println(message)
+        }
         helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE') })
         helper.registerAllowedMethod("gatlingArchive", [], null)
         helper.registerAllowedMethod("gitlabBuilds", [Map.class, Closure.class], null)
