@@ -4,7 +4,7 @@ jdk:
   - openjdk8
 install: true
 script:
-  ./gradlew verify
+  ./gradlew test
 cache:
   directories:
   - $HOME/.gradle/caches/
