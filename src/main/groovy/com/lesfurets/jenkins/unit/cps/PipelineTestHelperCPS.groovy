@@ -74,6 +74,11 @@ class PipelineTestHelperCPS extends PipelineTestHelper {
             while(next.yield==null) {
                 try {
                     this.roundtripSerialization(next.e)
+                } catch (NotSerializableException exception) {
+                  def cls = exception.getMessage()
+                  def vars = next.e.locals.findAll { k, v -> v.class == cls }
+                  vars = vars.isEmpty() ? 'UNKNOWN' : vars
+                  throw new RuntimeException("Unable to serialize locals ${vars} in `${next.e.closureOwner().class}`", exception)
                 } catch (exception) {
                     throw new Exception(next.e.toString(), exception)
                 }
