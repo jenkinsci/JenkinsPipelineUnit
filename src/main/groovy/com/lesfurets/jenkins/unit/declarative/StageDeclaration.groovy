@@ -10,6 +10,7 @@ class StageDeclaration extends GenericPipelineDeclaration {
     WhenDeclaration when
     ParallelDeclaration parallel
     boolean failFast = false
+    List<Closure> options = []
 
     StageDeclaration(String name) {
         this.name = name
@@ -31,8 +32,15 @@ class StageDeclaration extends GenericPipelineDeclaration {
         this.when = DeclarativePipeline.createComponent(WhenDeclaration, closure)
     }
 
+    def options(@DelegatesTo(StageDeclaration) Closure closure) {
+        options.add(closure)
+    }
+
     def execute(Object delegate) {
         String name = this.name
+        this.options.each {
+            executeOn(delegate, it)
+        }
         if(parallel) {
             parallel.execute(delegate)
         }
