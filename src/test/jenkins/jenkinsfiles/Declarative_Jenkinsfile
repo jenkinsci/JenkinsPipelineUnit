@@ -29,6 +29,9 @@ pipeline {
 
         stage('build') {
             agent { docker 'maven:3-alpine' }
+            options {
+                timeout(time: 20, unit: 'MINUTES')
+            }
             steps {
                 withEnv(["GRADLE_HOME=${tool name: 'GRADLE_3', type: 'hudson.plugins.gradle.GradleInstallation'}"]) {
                     withEnv(["PATH=${env.PATH}:${env.GRADLE_HOME}/bin"]) {
