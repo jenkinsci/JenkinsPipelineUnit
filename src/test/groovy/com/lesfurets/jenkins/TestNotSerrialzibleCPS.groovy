@@ -10,8 +10,8 @@ import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
 import static com.lesfurets.jenkins.unit.global.lib.ProjectSource.projectSource
 
 class TestNotSerrialzibleCPS extends BasePipelineTestCPS {
-    // @Rule
-    // public ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     String sharedLibs = this.class
         .getResource('/libs/test_not_serrializable_cps')
@@ -35,10 +35,11 @@ class TestNotSerrialzibleCPS extends BasePipelineTestCPS {
     }
 
     @Test
-    void default_run() throws Exception {
-        //thrown.expect(RuntimeException.class)
-        //thrown.expectMessage(containsString("Unable to serialize locals"))
-        runScript('job/testNotSerrializableCPS.jenkins')
+    void default_run() {
+        thrown.expect(Exception.class)
+        thrown.expectMessage(containsString("Unable to serialize locals"))
+        def script = loadScript('job/testNotSerrializableCPS.jenkins')
+        script.execute()
         printCallStack()
     }
 
