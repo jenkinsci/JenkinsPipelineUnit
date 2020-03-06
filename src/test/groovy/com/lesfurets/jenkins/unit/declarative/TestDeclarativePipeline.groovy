@@ -98,6 +98,17 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertCallStack().contains('echo(LEVAR2 A COPY OF LE NEW VALUE in build#1)')
         assertJobStatusSuccess()
     }
+    @Test void should_agent_with_environment() throws Exception {
+        runScript('Agent_env_Jenkinsfile')
+        printCallStack()
+        assertJobStatusSuccess()
+    }
+
+    @Test void should_agent_with_bindings() throws Exception {
+        runScript('Agent_bindings_Jenkinsfile')
+        printCallStack()
+        assertJobStatusSuccess()
+    }
 
     @Test(expected = MissingPropertyException)
     void should_non_valid_fail() throws Exception {

@@ -1,0 +1,19 @@
+pipeline {
+    agent none
+    stages {
+        stage('Example Build') {
+            agent binding_var
+            steps {
+                echo 'Hello, Maven'
+                sh 'mvn --version'
+            }
+        }
+        stage('Example Test') {
+            agent { docker binding_var }
+            steps {
+                echo 'Hello, JDK'
+                sh 'java -version'
+            }
+        }
+    }
+}
