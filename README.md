@@ -260,9 +260,9 @@ class TestCase extends BasePipelineTest {
 
     @Test
     void verify_exception() throws Exception {
-        runScript("Jenkinsfile")
         thrown.expect(Exception)
-        thrown.expectMessage("error message");
+        thrown.expectMessage(containsString("error message"))
+        runScript("Jenkinsfile")
     }
 }
 ```
