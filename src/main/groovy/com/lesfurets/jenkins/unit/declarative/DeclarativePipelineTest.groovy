@@ -4,6 +4,7 @@ import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 import com.lesfurets.jenkins.unit.BasePipelineTest
 
+@groovy.transform.InheritConstructors
 abstract class DeclarativePipelineTest extends BasePipelineTest {
 
     def pipelineInterceptor = { Closure closure ->
