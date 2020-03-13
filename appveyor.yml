@@ -4,16 +4,14 @@ build:
   verbosity: detailed
 
 build_script:
-  - gradlew.bat --info assemble
+  - gradlew.bat --no-daemon assemble
 
 test_script:
-  - gradlew.bat --info check
+  - gradlew.bat --no-daemon check
 
 branches:
   only:
-  - develop
   - master
-  - /^feature_.*$/
 
 environment:
   matrix:
