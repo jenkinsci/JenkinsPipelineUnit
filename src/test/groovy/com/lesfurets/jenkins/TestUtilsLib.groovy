@@ -7,6 +7,7 @@ import java.nio.charset.Charset
 import org.assertj.core.util.Files
 import org.junit.Before
 import org.junit.Test
+import static org.junit.Assert.assertEquals
 
 import com.lesfurets.jenkins.unit.BasePipelineTest
 import static com.lesfurets.jenkins.unit.MethodSignature.method
@@ -103,5 +104,11 @@ class TestUtilsLib extends BasePipelineTest {
     void should_call_vararg_method_with_multiple_parameters() throws Exception {
         Script commons = runScript("lib/utils.jenkins")
         assertThat(commons.joinStrings('one', 'two')).isEqualTo("one,two")
+    }
+
+    @Test
+    void should_access_enum() throws Exception {
+        Script commons = runScript("lib/utils.jenkins")
+        assertEquals(commons.Color.RED.toString(),"RED")
     }
 }

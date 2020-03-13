@@ -65,4 +65,13 @@ def joinStrings(String... strings) {
     return strings.join(',')
 }
 
+// utils.groovy
+enum Color {
+    GREEN,
+    RED
+}
+
+// To be visible in the pipeline
+this.Color = Color
+
 return this
