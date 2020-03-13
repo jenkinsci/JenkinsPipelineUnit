@@ -1,0 +1,4 @@
+def call() {
+   methodA()
+   methodB()
+}
