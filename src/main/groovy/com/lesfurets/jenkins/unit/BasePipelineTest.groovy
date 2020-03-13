@@ -74,6 +74,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('archive', [String.class], null)
         helper.registerAllowedMethod("archiveArtifacts", [Map.class], null)
         helper.registerAllowedMethod('archiveArtifacts', [String.class], null)
+        helper.registerAllowedMethod("bat", [String.class], null)
         helper.registerAllowedMethod("build", [Map.class], {
             [
                 getNumber:{100500},
