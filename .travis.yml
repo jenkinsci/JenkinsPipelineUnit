@@ -4,7 +4,7 @@ jdk:
   - openjdk8
 install: true
 script:
-  ./gradlew test
+  ./gradlew check
 cache:
   directories:
   - $HOME/.gradle/caches/
@@ -12,8 +12,6 @@ cache:
 # safelist
 branches:
   only:
-  - develop
   - master
-  - /^feature_.*$/
 notifications:
   email: false

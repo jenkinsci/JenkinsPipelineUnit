@@ -4,10 +4,10 @@ build:
   verbosity: detailed
 
 build_script:
-  - gradlew.bat --info assemble -x sign
+  - gradlew.bat --info assemble
 
 test_script:
-  - gradlew.bat --info verify -x sign
+  - gradlew.bat --info check
 
 branches:
   only:
