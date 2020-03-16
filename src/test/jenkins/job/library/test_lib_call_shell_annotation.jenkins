@@ -1,0 +1,5 @@
+@Library("test_lib_call_shell_dos@beta") import org.test.LaClass
+def lacls = new LaClass()
+lacls.callJenkinsSH("ls -la")
+
+

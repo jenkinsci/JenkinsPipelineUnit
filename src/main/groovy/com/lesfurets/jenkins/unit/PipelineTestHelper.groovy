@@ -403,7 +403,7 @@ class PipelineTestHelper {
      * Sets global variables defined in loaded libraries on the binding
      * @param binding
      */
-    protected void setGlobalVars(Binding binding) {
+    public void setGlobalVars(Binding binding) {
         libLoader.libRecords.values().stream()
                         .flatMap { it.definedGlobalVars.entrySet().stream() }
                         .forEach { e ->

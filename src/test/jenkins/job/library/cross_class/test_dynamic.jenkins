@@ -1,0 +1,8 @@
+def lib = library("test_cross_class_dos@beta")
+
+def objectA = lib.org.test.ClassA.new()
+def objectB = lib.org.test.ClassB.new()
+
+objectA.methodA()
+
+objectB.methodB()

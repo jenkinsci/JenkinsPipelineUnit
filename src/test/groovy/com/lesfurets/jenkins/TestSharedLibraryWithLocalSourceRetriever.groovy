@@ -74,7 +74,7 @@ class TestSharedLibrary extends BasePipelineTest {
         })
 
         try {
-            def script = runScript("job/library/${script}.jenkins")
+            def script = loadScript("job/library/${script}.jenkins")
             script.execute()
             printCallStack()
         } catch (e) {

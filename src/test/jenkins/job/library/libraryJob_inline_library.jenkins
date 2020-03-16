@@ -21,6 +21,7 @@ def execute() {
         },
         action2: {
             node() {
+                sayHello()
                 sh 'sleep 4'
                 error 'message'
             }

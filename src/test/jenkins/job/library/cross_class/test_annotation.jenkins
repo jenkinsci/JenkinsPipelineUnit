@@ -1,0 +1,8 @@
+@Library("test_cross_class_tres") _
+
+def objectA = new org.test.ClassA()
+def objectB = new org.test.ClassB()
+
+objectA.methodA()
+
+objectB.methodB()

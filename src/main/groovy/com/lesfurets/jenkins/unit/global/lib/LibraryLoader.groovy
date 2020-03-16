@@ -111,6 +111,7 @@ class LibraryLoader {
                 }
             }
             record.definedGlobalVars = globalVars
+            println record.definedGlobalVars.collect({k,v->"$k::$v"})
         } catch (Exception e) {
             throw new LibraryLoadingException(e, library, version)
         }
