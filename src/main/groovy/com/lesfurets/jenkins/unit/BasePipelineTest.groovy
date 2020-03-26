@@ -68,71 +68,71 @@ abstract class BasePipelineTest {
 
     void registerAllowedMethods() {
         // Please keep this list sorted when adding new mocks!
-        helper.registerAllowedMethod("addHtmlBadge", [Map.class], null)
-        helper.registerAllowedMethod("addShortText", [Map.class], null)
-        helper.registerAllowedMethod('archive', [Map.class], null)
-        helper.registerAllowedMethod('archive', [String.class], null)
-        helper.registerAllowedMethod("archiveArtifacts", [Map.class], null)
-        helper.registerAllowedMethod('archiveArtifacts', [String.class], null)
-        helper.registerAllowedMethod("bat", [String.class], null)
-        helper.registerAllowedMethod("build", [Map.class], {
+        helper.registerAllowedMethod("addHtmlBadge", [Map])
+        helper.registerAllowedMethod("addShortText", [Map])
+        helper.registerAllowedMethod('archive', [Map])
+        helper.registerAllowedMethod('archive', [String])
+        helper.registerAllowedMethod("archiveArtifacts", [Map])
+        helper.registerAllowedMethod('archiveArtifacts', [String])
+        helper.registerAllowedMethod("bat", [String])
+        helper.registerAllowedMethod("build", [Map], {
             [
                 getNumber:{100500},
                 getDescription:{"Dummy build description"}
             ]
         })
-        helper.registerAllowedMethod("buildDiscarder", [Object.class], null)
-        helper.registerAllowedMethod("checkout", [Map.class], null)
-        helper.registerAllowedMethod("choice", [Map.class], null)
-        helper.registerAllowedMethod('cifsPublisher', [Map.class], {true})
-        helper.registerAllowedMethod('cleanWs', [], null)
-        helper.registerAllowedMethod('copyArtifacts', [Map.class], {true})
-        helper.registerAllowedMethod("cron", [String.class], null)
-        helper.registerAllowedMethod('deleteDir', [], null)
-        helper.registerAllowedMethod("dir", [String.class, Closure.class]) { String path, Closure body ->
+        helper.registerAllowedMethod("buildDiscarder", [Object])
+        helper.registerAllowedMethod("checkout", [Map])
+        helper.registerAllowedMethod("choice", [Map])
+        helper.registerAllowedMethod('cifsPublisher', [Map], {true})
+        helper.registerAllowedMethod('cleanWs')
+        helper.registerAllowedMethod('copyArtifacts', [Map], {true})
+        helper.registerAllowedMethod("cron", [String])
+        helper.registerAllowedMethod('deleteDir')
+        helper.registerAllowedMethod("dir", [String, Closure]) { String path, Closure body ->
             c.delegate = delegate
             helper.callClosure(c)
         }
-        helper.registerAllowedMethod("disableConcurrentBuilds", [], null)
-        helper.registerAllowedMethod("echo", [String.class]) { String message ->
+        helper.registerAllowedMethod("disableConcurrentBuilds")
+        helper.registerAllowedMethod("echo", [String]) { String message ->
             println(message)
         }
-        helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE') })
-        helper.registerAllowedMethod("gatlingArchive", [], null)
-        helper.registerAllowedMethod("gitlabBuilds", [Map.class, Closure.class], null)
-        helper.registerAllowedMethod("gitlabCommitStatus", [String.class, Closure.class], { String name, Closure c ->
+        helper.registerAllowedMethod("error", [String], { updateBuildStatus('FAILURE') })
+        helper.registerAllowedMethod("gatlingArchive")
+        helper.registerAllowedMethod("gitlabBuilds", [Map, Closure])
+        helper.registerAllowedMethod("gitlabCommitStatus", [String, Closure], { String name, Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
         })
-        helper.registerAllowedMethod("input", [String.class], null)
-        helper.registerAllowedMethod("junit", [String.class], null)
-        helper.registerAllowedMethod("logRotator", [Map.class], null)
-        helper.registerAllowedMethod('mail', [Map.class], null)
-        helper.registerAllowedMethod("node", [Closure.class], null)
-        helper.registerAllowedMethod("node", [String.class, Closure.class], null)
-        helper.registerAllowedMethod("pipelineTriggers", [List.class], null)
-        helper.registerAllowedMethod("properties", [List.class], null)
-        helper.registerAllowedMethod("readFile", [String.class], null)
-        helper.registerAllowedMethod('retry', [Integer.class, Closure.class]) { Integer count, Closure body ->
+        helper.registerAllowedMethod("input", [String])
+        helper.registerAllowedMethod("junit", [String])
+        helper.registerAllowedMethod("logRotator", [Map])
+        helper.registerAllowedMethod('mail', [Map])
+        helper.registerAllowedMethod("node", [Closure])
+        helper.registerAllowedMethod("node", [String, Closure])
+        helper.registerAllowedMethod("pipelineTriggers", [List])
+        helper.registerAllowedMethod("properties", [List])
+        helper.registerAllowedMethod("readFile", [String])
+        helper.registerAllowedMethod('retry', [Integer, Closure]) { Integer count, Closure body ->
             c.delegate = delegate
             helper.callClosure(c)
         }
-        helper.registerAllowedMethod("sh", [Map.class], null)
-        helper.registerAllowedMethod("sh", [String.class], null)
-        helper.registerAllowedMethod('skipDefaultCheckout', [], null)
-        helper.registerAllowedMethod('sleep', [], null)
-        helper.registerAllowedMethod('specific', [String.class], null)
-        helper.registerAllowedMethod('sshPublisher', [Map.class], {true})
-        helper.registerAllowedMethod('stash', [Map.class], null)
-        helper.registerAllowedMethod("stage", [String.class], null)
-        helper.registerAllowedMethod("stage", [String.class, Closure.class], null)
-        helper.registerAllowedMethod("step", [Map.class], null)
-        helper.registerAllowedMethod("string", [Map.class], stringInterceptor)
-        helper.registerAllowedMethod('timeout', [Map.class], null)
-        helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
-        helper.registerAllowedMethod("unstable", [String.class], { updateBuildStatus('UNSTABLE') })
-        helper.registerAllowedMethod('unstash', [Map.class], null)
-        helper.registerAllowedMethod("warnError", [String.class, Closure.class], { Closure c ->
+        helper.registerAllowedMethod("sh", [Map])
+        helper.registerAllowedMethod("sh", [String])
+        helper.registerAllowedMethod('skipDefaultCheckout')
+        helper.registerAllowedMethod('sleep')
+        helper.registerAllowedMethod('specific', [String])
+        helper.registerAllowedMethod('sshPublisher', [Map], {true})
+        helper.registerAllowedMethod('stash', [Map])
+        helper.registerAllowedMethod("stage", [String])
+        helper.registerAllowedMethod("stage", [String, Closure])
+        helper.registerAllowedMethod("step", [Map])
+        helper.registerAllowedMethod("string", [Map], stringInterceptor)
+        helper.registerAllowedMethod('timeout', [Map])
+        helper.registerAllowedMethod("timeout", [Map, Closure])
+        helper.registerAllowedMethod("unstable", [String], { updateBuildStatus('UNSTABLE') })
+        helper.registerAllowedMethod('unstash', [Map])
+        helper.registerAllowedMethod("warnError", [String, Closure], { Closure c ->
             try {
                 c.delegate = delegate
                 helper.callClosure(c)
@@ -140,9 +140,9 @@ abstract class BasePipelineTest {
                 updateBuildStatus('UNSTABLE')
             }
         })
-        helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
-        helper.registerAllowedMethod('writeFile', [Map.class], null)
-        helper.registerAllowedMethod("ws", [String.class, Closure.class], null)
+        helper.registerAllowedMethod("withCredentials", [List, Closure], withCredentialsInterceptor)
+        helper.registerAllowedMethod('writeFile', [Map])
+        helper.registerAllowedMethod("ws", [String, Closure])
     }
 
     void setVariables() {

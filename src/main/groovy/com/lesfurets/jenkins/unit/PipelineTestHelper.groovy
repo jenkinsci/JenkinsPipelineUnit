@@ -422,10 +422,18 @@ class PipelineTestHelper {
 
     /**
      * @param name method name
+     * @param closure method implementation, can be null
+     */
+    void registerAllowedMethod(String name, Closure closure = null) {
+        allowedMethodCallbacks.put(method(name), closure)
+    }
+
+    /**
+     * @param name method name
      * @param args parameter types
      * @param closure method implementation, can be null
      */
-    void registerAllowedMethod(String name, List<Class> args = [], Closure closure) {
+    void registerAllowedMethod(String name, List<Class> args, Closure closure = null) {
         allowedMethodCallbacks.put(method(name, args.toArray(new Class[args?.size()])), closure)
     }
 
@@ -436,7 +444,7 @@ class PipelineTestHelper {
      * @param methodSignature method signature
      * @param closure method implementation, can be null
      */
-    void registerAllowedMethod(MethodSignature methodSignature, Closure closure) {
+    void registerAllowedMethod(MethodSignature methodSignature, Closure closure = null) {
         allowedMethodCallbacks.put(methodSignature, closure)
     }
 
