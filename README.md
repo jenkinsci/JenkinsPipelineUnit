@@ -411,6 +411,9 @@ This pipeline is using a shared library called `commons`.
 Now let's test it:
 
 ```groovy
+// You need to import the class first
+import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
+
     String clonePath = 'path/to/clone'
 
     def library = library()
