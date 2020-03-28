@@ -460,7 +460,7 @@ libraryJob.run()
         libraryJob.libraryResource(net/courtanet/jenkins/request.json)
         libraryJob.sh(curl -H 'Content-Type: application/json' -X POST -d '{"name" : "Ben"}' http://acme.com)
 ```
-### Library Source Retriever
+### Library Source Retrievers
 There are a few types of `SourceRetriever` implementation in addition to previously
 discribed `GitSource` you can use for different applications
 
