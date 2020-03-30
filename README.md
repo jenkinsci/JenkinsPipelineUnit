@@ -615,3 +615,4 @@ If you are willing to contribute please don't hesitate to discuss in issues and 
 | https://github.com/stchar/pipeline-sharedlib-testharness          | Junit, Gradle(Groovy) | SharedLibrary | Integration, Unit |
 | https://github.com/stchar/pipeline-dsl-seed                       | Junit, Spock, Gradle(Groovy) | scripted pipeline | Integration(jobdsl), Unit |
 | https://github.com/SpencerMalone/JenkinsPipelineIntegration       | Spock, Gradle(Groovy) | SharedLibrary | Integration |
+| https://github.com/venosov/jenkins-pipeline-shared-library-example-victor       | Junit, Gradle(Kotlin) | SharedLibrary | Unit |
