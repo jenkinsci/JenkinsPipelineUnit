@@ -130,6 +130,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("string", [Map], stringInterceptor)
         helper.registerAllowedMethod('timeout', [Map])
         helper.registerAllowedMethod("timeout", [Map, Closure])
+        helper.registerAllowedMethod("timestamps", [Closure])
         helper.registerAllowedMethod("unstable", [String], { updateBuildStatus('UNSTABLE') })
         helper.registerAllowedMethod('unstash', [Map])
         helper.registerAllowedMethod("warnError", [String, Closure], { Closure c ->

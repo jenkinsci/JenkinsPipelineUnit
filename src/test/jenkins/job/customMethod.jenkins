@@ -1,5 +1,7 @@
 node() {
-    customMethod()
+    timestamps {
+        customMethod()
+    }
 }
 
 def customMethod() {
