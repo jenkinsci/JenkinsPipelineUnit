@@ -112,6 +112,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("node", [String, Closure])
         helper.registerAllowedMethod("pipelineTriggers", [List])
         helper.registerAllowedMethod("properties", [List])
+        helper.registerAllowedMethod("pwd", [], { 'workspaceDirMocked' })
         helper.registerAllowedMethod("readFile", [String])
         helper.registerAllowedMethod('retry', [Integer, Closure]) { Integer count, Closure body ->
             c.delegate = delegate
@@ -130,8 +131,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("string", [Map], stringInterceptor)
         helper.registerAllowedMethod('timeout', [Map])
         helper.registerAllowedMethod("timeout", [Map, Closure])
+        helper.registerAllowedMethod('tool', [Map], { t -> "${t.name}_HOME" })
         helper.registerAllowedMethod("unstable", [String], { updateBuildStatus('UNSTABLE') })
         helper.registerAllowedMethod('unstash', [Map])
+        helper.registerAllowedMethod('waitUntil', [Closure])
         helper.registerAllowedMethod("warnError", [String, Closure], { Closure c ->
             try {
                 c.delegate = delegate
@@ -141,6 +144,7 @@ abstract class BasePipelineTest {
             }
         })
         helper.registerAllowedMethod("withCredentials", [List, Closure], withCredentialsInterceptor)
+        helper.registerAllowedMethod('withCredentials', [Map, Closure])
         helper.registerAllowedMethod('writeFile', [Map])
         helper.registerAllowedMethod("ws", [String, Closure])
     }

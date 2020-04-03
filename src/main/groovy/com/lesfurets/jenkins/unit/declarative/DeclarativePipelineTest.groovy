@@ -18,47 +18,21 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
     @Override
     void setUp() throws Exception {
         super.setUp()
-
-        /**
-         * Job params - may need to override in specific tests
-         */
-        binding.setVariable('params', [:])
-        binding.setVariable('credentials', [:])
-
+        helper.registerAllowedMethod('booleanParam', [Map], paramInterceptor)
+        helper.registerAllowedMethod('checkout', [Closure])
+        helper.registerAllowedMethod('credentials', [String], { String credName ->
+            return binding.getVariable('credentials')[credName]
+        })
+        helper.registerAllowedMethod('cron', [String])
         helper.registerAllowedMethod(method("pipeline", Closure), pipelineInterceptor)
-
-        helper.registerAllowedMethod('pollSCM', [String.class], null)
-        helper.registerAllowedMethod('cron', [String.class], null)
-        helper.registerAllowedMethod('timestamps', [], null)
-
-        helper.registerAllowedMethod('skipDefaultCheckout', [], null)
-
-        helper.registerAllowedMethod('script', [Closure.class], null)
-
-        helper.registerAllowedMethod('timeout', [Integer.class, Closure.class], null)
-
-        helper.registerAllowedMethod('waitUntil', [Closure.class], null)
-        helper.registerAllowedMethod('writeFile', [Map.class], null)
-        helper.registerAllowedMethod('build', [Map.class], null)
-        helper.registerAllowedMethod('tool', [Map.class], { t -> "${t.name}_HOME" })
-
-        helper.registerAllowedMethod('withCredentials', [Map.class, Closure.class], null)
-        helper.registerAllowedMethod('withCredentials', [List.class, Closure.class], null)
-        helper.registerAllowedMethod('usernamePassword', [Map.class], { creds -> return creds })
-
-        helper.registerAllowedMethod('deleteDir', [], null)
-        helper.registerAllowedMethod('pwd', [], { 'workspaceDirMocked' })
-
-        helper.registerAllowedMethod('stash', [Map.class], null)
-        helper.registerAllowedMethod('unstash', [Map.class], null)
-
-        helper.registerAllowedMethod('checkout', [Closure.class], null)
-
-        helper.registerAllowedMethod('string', [Map.class], paramInterceptor)
-        helper.registerAllowedMethod('booleanParam', [Map.class], paramInterceptor)
-
-        helper.registerAllowedMethod('withEnv', [List.class, Closure.class], { List list, Closure c ->
-
+        helper.registerAllowedMethod('pollSCM', [String])
+        helper.registerAllowedMethod('script', [Closure])
+        helper.registerAllowedMethod('skipDefaultCheckout')
+        helper.registerAllowedMethod('string', [Map], paramInterceptor)
+        helper.registerAllowedMethod('timeout', [Integer, Closure])
+        helper.registerAllowedMethod('timestamps')
+        helper.registerAllowedMethod('usernamePassword', [Map], { creds -> return creds })
+        helper.registerAllowedMethod('withEnv', [List, Closure], { List list, Closure c ->
             list.each {
                 //def env = helper.get
                 def item = it.split('=')
@@ -68,9 +42,7 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
                 c.call()
             }
         })
-
-        helper.registerAllowedMethod('credentials', [String], { String credName ->
-            return binding.getVariable('credentials')[credName]
-        })
+        binding.setVariable('credentials', [:])
+        binding.setVariable('params', [:])
     }
 }
