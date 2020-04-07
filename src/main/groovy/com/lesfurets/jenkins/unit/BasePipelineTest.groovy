@@ -89,7 +89,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('copyArtifacts', [Map], {true})
         helper.registerAllowedMethod("cron", [String])
         helper.registerAllowedMethod('deleteDir')
-        helper.registerAllowedMethod("dir", [String, Closure]) { String path, Closure body ->
+        helper.registerAllowedMethod("dir", [String, Closure]) { String path, Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
         }
