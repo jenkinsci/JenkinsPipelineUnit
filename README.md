@@ -357,7 +357,7 @@ pipeline {
 ```
 
 ```groovy
-import com.lesfurets.jenkins.unit.declarative
+import com.lesfurets.jenkins.unit.declarative.*
 
 class TestExampleDeclarativeJob extends DeclarativePipelineTest {
         @Test
