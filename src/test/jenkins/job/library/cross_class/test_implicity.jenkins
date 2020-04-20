@@ -1,7 +1,3 @@
 
-def objectA = new org.test.ClassA()
-def objectB = new org.test.ClassB()
-
-objectA.methodA()
-
-objectB.methodB()
+def objectAB = new org.test.ClassAB()
+objectAB.methodAB()
