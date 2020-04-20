@@ -99,6 +99,8 @@ abstract class BasePipelineTest {
         }
         helper.registerAllowedMethod("error", [String], { updateBuildStatus('FAILURE') })
         helper.registerAllowedMethod("gatlingArchive")
+        helper.registerAllowedMethod("git", [String])
+        helper.registerAllowedMethod("git", [Map])
         helper.registerAllowedMethod("gitlabBuilds", [Map, Closure])
         helper.registerAllowedMethod("gitlabCommitStatus", [String, Closure], { String name, Closure c ->
             c.delegate = delegate
