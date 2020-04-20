@@ -1,0 +1,3 @@
+
+def objectAB = new org.test.ClassAB(this)
+objectAB.methodAB()

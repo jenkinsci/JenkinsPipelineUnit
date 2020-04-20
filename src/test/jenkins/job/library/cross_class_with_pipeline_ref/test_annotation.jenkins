@@ -1,0 +1,4 @@
+@Library("test_cross_class_with_pipeline_ref_tres") _
+
+def objectAB = new org.test.ClassAB(this)
+objectAB.methodAB()
