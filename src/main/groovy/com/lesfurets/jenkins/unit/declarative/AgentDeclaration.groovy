@@ -68,6 +68,7 @@ class AgentDeclaration {
         String image
         String label
         String args
+        Boolean alwaysPull
 
         def image(String image) {
             this.image = image
@@ -79,6 +80,9 @@ class AgentDeclaration {
 
         def args(String args) {
             this.args = args
+        }
+        def alwaysPull(Boolean alwaysPull) {
+            this.alwaysPull = alwaysPull
         }
 
         @Memoized
