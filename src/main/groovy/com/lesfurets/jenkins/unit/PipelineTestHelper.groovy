@@ -66,6 +66,15 @@ class PipelineTestHelper {
     List<MethodCall> callStack = []
 
     /**
+     * Controls whether method call arguments are cloned when pushed onto the 
+     * call stack. Disabling cloning can be useful for arguments of types that 
+     * are not {@code Cloneable}. Beware, however, arguments that mutate 
+     * during a test may appear with incorrect values in the call stack if 
+     * you disable cloning.
+     */
+    Boolean cloneArgsOnMethodCallRegistration = true
+
+    /**
      * Internal script engine
      */
     protected GroovyScriptEngine gse
@@ -309,7 +318,11 @@ class PipelineTestHelper {
         MethodCall call = new MethodCall()
         call.target = target
         call.methodName = name
-        call.args = cloneArgs(args)
+        if (cloneArgsOnMethodCallRegistration) {
+            call.args = cloneArgs(args)
+        } else {
+            call.args = args
+        }
         call.stackDepth = stackDepth
         callStack.add(call)
     }

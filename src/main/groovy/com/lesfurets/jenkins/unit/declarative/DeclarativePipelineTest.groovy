@@ -18,24 +18,31 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
     @Override
     void setUp() throws Exception {
         super.setUp()
-
-        /**
-         * Job params - may need to override in specific tests
-         */
-        binding.setVariable('params', [:])
-        binding.setVariable('credentials', [:])
-
-        helper.registerAllowedMethod(method("pipeline", Closure), pipelineInterceptor)
-
-        helper.registerAllowedMethod('timestamps', [], null)
-
-
-        helper.registerAllowedMethod('script', [Closure.class], null)
-        helper.registerAllowedMethod('string', [Map.class], paramInterceptor)
-        helper.registerAllowedMethod('booleanParam', [Map.class], paramInterceptor)
-
+        helper.registerAllowedMethod('booleanParam', [Map], paramInterceptor)
+        helper.registerAllowedMethod('checkout', [Closure])
         helper.registerAllowedMethod('credentials', [String], { String credName ->
             return binding.getVariable('credentials')[credName]
         })
+        helper.registerAllowedMethod('cron', [String])
+        helper.registerAllowedMethod(method("pipeline", Closure), pipelineInterceptor)
+        helper.registerAllowedMethod('pollSCM', [String])
+        helper.registerAllowedMethod('script', [Closure])
+        helper.registerAllowedMethod('skipDefaultCheckout')
+        helper.registerAllowedMethod('string', [Map], paramInterceptor)
+        helper.registerAllowedMethod('timeout', [Integer, Closure])
+        helper.registerAllowedMethod('timestamps')
+        helper.registerAllowedMethod('usernamePassword', [Map], { creds -> return creds })
+        helper.registerAllowedMethod('withEnv', [List, Closure], { List list, Closure c ->
+            list.each {
+                //def env = helper.get
+                def item = it.split('=')
+                assert item.size() == 2, "withEnv list does not look right: ${list.toString()}"
+                addEnvVar(item[0], item[1])
+                c.delegate = binding
+                c.call()
+            }
+        })
+        binding.setVariable('credentials', [:])
+        binding.setVariable('params', [:])
     }
 }

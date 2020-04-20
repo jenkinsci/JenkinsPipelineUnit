@@ -357,7 +357,7 @@ pipeline {
 ```
 
 ```groovy
-import com.lesfurets.jenkins.unit.declarative
+import com.lesfurets.jenkins.unit.declarative.*
 
 class TestExampleDeclarativeJob extends DeclarativePipelineTest {
         @Test
@@ -460,12 +460,12 @@ libraryJob.run()
         libraryJob.libraryResource(net/courtanet/jenkins/request.json)
         libraryJob.sh(curl -H 'Content-Type: application/json' -X POST -d '{"name" : "Ben"}' http://acme.com)
 ```
-### Library Source Retrivers
+### Library Source Retrievers
 There are a few types of `SourceRetriever` implementation in addition to previously
 discribed `GitSource` you can use for different applications
 
-#### ProjectSource Retriver
-`ProjectSource` retriver is useful if you write tests for the library itself.
+#### ProjectSource Retriever
+`ProjectSource` retriever is useful if you write tests for the library itself.
 So it lets you to load the library files directly from project root folder (where `src`, `vars`, ... are loacted)
 
 ```
@@ -505,8 +505,8 @@ Then you need you can use `projectSource` to point library files location
     }
 ```
 
-#### LocalSource Retriver
-`LocalSource` retriver is useful if you want to verify how well your library integrates
+#### LocalSource Retriever
+`LocalSource` retriever is useful if you want to verify how well your library integrates
 with the pipelines. For example you may use pre-copied library files of different versions.
 
 ```groovy
@@ -528,7 +528,7 @@ with the pipelines. For example you may use pre-copied library files of differen
         ...
 ```
 
-The retriver assumes that library files are located at
+The retriever assumes that library files are located at
 `/var/tmp/commons@master` folder
 ```
 $ tree -L 1 /var/tmp/commons@master
@@ -615,3 +615,4 @@ If you are willing to contribute please don't hesitate to discuss in issues and 
 | https://github.com/stchar/pipeline-sharedlib-testharness          | Junit, Gradle(Groovy) | SharedLibrary | Integration, Unit |
 | https://github.com/stchar/pipeline-dsl-seed                       | Junit, Spock, Gradle(Groovy) | scripted pipeline | Integration(jobdsl), Unit |
 | https://github.com/SpencerMalone/JenkinsPipelineIntegration       | Spock, Gradle(Groovy) | SharedLibrary | Integration |
+| https://github.com/venosov/jenkins-pipeline-shared-library-example-victor       | Junit, Gradle(Kotlin) | SharedLibrary | Unit |

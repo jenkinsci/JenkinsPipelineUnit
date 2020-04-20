@@ -127,11 +127,12 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("pipelineTriggers", [List])
         helper.registerAllowedMethod('pollSCM', [String])
         helper.registerAllowedMethod("properties", [List])
+        helper.registerAllowedMethod("pwd", [], { 'workspaceDirMocked' })
         helper.registerAllowedMethod("readFile", [String])
-        helper.registerAllowedMethod('retry', [Integer, Closure]) { Integer count, Closure c ->
+        helper.registerAllowedMethod('retry', [Integer, Closure], { Integer count, Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
-        }
+        })
         helper.registerAllowedMethod("sh", [String])
         helper.registerAllowedMethod('sh', [Map], {m->
           if(m.returnStdout && m.script.contains("git rev-parse HEAD")) {
