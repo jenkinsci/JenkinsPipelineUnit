@@ -232,7 +232,7 @@ class TestInterceptingGCL extends BasePipelineTest {
     */
     @Test
     void test_pre_loaded_cross_class_interop_library_loaded_with_implicity() throws Exception {
-        def library = library().name('test_cross_class_uno')
+        def library = library().name('test_pre_loaded_cross_class_uno')
                         .defaultVersion("alpha")
                         .allowOverride(false)
                         .implicit(true)
@@ -259,7 +259,7 @@ class TestInterceptingGCL extends BasePipelineTest {
     */
     @Test
     void test_pre_loaded_cross_class_interop_no_implicity_dynamic() throws Exception {
-        def library = library().name('test_cross_class_dos')
+        def library = library().name('test_pre_loaded_cross_class_dos')
                         .defaultVersion("beta")
                         .allowOverride(false)
                         .implicit(false)
@@ -285,7 +285,7 @@ class TestInterceptingGCL extends BasePipelineTest {
     */
     @Test
     void test_pre_loaded_cross_class_interop_no_implicity_annotation() throws Exception {
-        def library = library().name('test_cross_class_tres')
+        def library = library().name('test_pre_loaded_cross_class_tres')
                         .defaultVersion("gamma")
                         .allowOverride(false)
                         .implicit(false)

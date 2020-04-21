@@ -1,4 +1,4 @@
-def lib = library("test_cross_class_dos@beta")
+def lib = library("test_pre_loaded_cross_class_dos@beta")
 
 lib.org.test.ClassA.new()
 lib.org.test.ClassB.new()
