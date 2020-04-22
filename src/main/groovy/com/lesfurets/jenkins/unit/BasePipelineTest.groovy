@@ -62,6 +62,7 @@ abstract class BasePipelineTest {
             it.baseClassloader = this.baseClassLoader
             it.imports += this.imports
             it.baseScriptRoot = this.baseScriptRoot
+            it.binding = this.binding
             return it
         }.init()
     }
@@ -246,7 +247,7 @@ abstract class BasePipelineTest {
      * @return the return value of the script
      */
     Object runScript(Script script) {
-        return helper.runScript(script)
+        return helper.runScript(script, this.binding)
     }
 
     @Memoized

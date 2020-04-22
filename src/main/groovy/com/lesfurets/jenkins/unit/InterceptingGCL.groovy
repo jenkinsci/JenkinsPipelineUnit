@@ -7,11 +7,11 @@ import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 class InterceptingGCL extends GroovyClassLoader {
 
-    static void interceptClassMethods(MetaClass metaClazz, PipelineTestHelper helper) {
+    static void interceptClassMethods(MetaClass metaClazz, PipelineTestHelper helper, Binding binding) {
         metaClazz.invokeMethod = helper.getMethodInterceptor()
         metaClazz.static.invokeMethod = helper.getMethodInterceptor()
         metaClazz.methodMissing = helper.getMethodMissingInterceptor()
-
+        metaClazz.getEnv = {return binding.env}
         // find and replace script method closure with any matching allowed method closure
         metaClazz.methods.forEach { scriptMethod ->
             def signature = method(scriptMethod.name, scriptMethod.nativeParameterTypes)
@@ -24,20 +24,22 @@ class InterceptingGCL extends GroovyClassLoader {
     }
 
     PipelineTestHelper helper
+    Binding binding
 
     InterceptingGCL(PipelineTestHelper helper,
                     ClassLoader loader,
-                    CompilerConfiguration config) {
+                    CompilerConfiguration config,
+                    Binding binding) {
         super(loader, config)
         this.helper = helper
+        this.binding = binding
     }
 
     @Override
     Class parseClass(GroovyCodeSource codeSource, boolean shouldCacheSource)
             throws CompilationFailedException {
-        println "Parsing class: ${codeSource.getName()}"
         Class clazz = super.parseClass(codeSource, shouldCacheSource)
-        interceptClassMethods(clazz.metaClass, helper)
+        interceptClassMethods(clazz.metaClass, helper, binding)
         return clazz
     }
 
@@ -62,7 +64,7 @@ class InterceptingGCL extends GroovyClassLoader {
 
         if (cls == null) {
             // no class found, using parent's method
-            cls = super.loadClass(name)
+            return super.loadClass(name)
         }
 
         // Copy from this.parseClass(GroovyCodeSource, boolean)

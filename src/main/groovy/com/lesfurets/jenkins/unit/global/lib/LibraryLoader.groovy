@@ -110,13 +110,13 @@ class LibraryLoader {
                     // prevent fd leak on the DirectoryStream from Files.list()
                     ds.close()
                 }
-                // pre-load library classes using 
+                // pre-load library classes using JPU groovy class loader
                 if (srcPath.toFile().exists()) {
-                    println "tracing files in $srcPath"
                     srcPath.toFile().eachFileRecurse (FILES) { File srcFile ->
-                        println "parsing file $srcFile"
-                        Class clazz = groovyClassLoader.parseClass(srcFile)
-                        groovyClassLoader.loadClass(clazz.name)
+                        if (srcFile.name.endsWith(".groovy")) {
+                            Class clazz = groovyClassLoader.parseClass(srcFile)
+                            groovyClassLoader.loadClass(clazz.name)
+                        }
                     }
                 }
             }

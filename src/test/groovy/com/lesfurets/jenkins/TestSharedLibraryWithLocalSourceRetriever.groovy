@@ -67,12 +67,6 @@ class TestSharedLibrary extends BasePipelineTest {
                         .retriever(localSource(sharedLibs))
                         .build()
         helper.registerSharedLibrary(library)
-
-        helper.registerAllowedMethod("library", [String.class], {String expression ->
-            helper.getLibLoader().loadLibrary(expression)
-            return new LibClassLoader(helper,null)
-        })
-
         try {
             def script = loadScript("job/library/${script}.jenkins")
             script.execute()

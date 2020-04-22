@@ -15,6 +15,7 @@ class TestInterceptingGCL extends BasePipelineTest {
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
+        addEnvVar("FOO","bar")
     }
     String sharedLibVars = this.class
         .getResource('/libs/test_cross_vars_usage')

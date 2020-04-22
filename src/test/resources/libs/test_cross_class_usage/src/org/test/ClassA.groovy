@@ -13,8 +13,10 @@ class ClassA implements Serializable {
     def methodA() {
         if (script) {
             script.sh("echo 'ClassA: $fieldA'")
+            script.echo "env = $script.env"
         } else {
             sh("echo 'ClassA: $fieldA'")
+            echo "env = $env"
         }
     }
 }

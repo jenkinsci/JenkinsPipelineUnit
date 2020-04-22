@@ -23,8 +23,10 @@ class ClassAB implements Serializable {
     def ownMethod() {
         if(script) {
             script.sh("echo 'ClassAB: $fieldAB'")
+            script.echo "env = $script.env"
         } else {
             sh("echo 'ClassAB: $fieldAB'")
+            echo "env = $env"
         }
     }
 
