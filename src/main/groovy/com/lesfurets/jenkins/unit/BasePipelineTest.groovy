@@ -174,9 +174,9 @@ abstract class BasePipelineTest {
                 def item = it.split('=')
                 assert item.size() == 2, "withEnv list does not look right: ${list.toString()}"
                 addEnvVar(item[0], item[1])
-                c.delegate = binding
-                c.call()
             }
+            c.delegate = binding
+            c.call()
         })
         helper.registerAllowedMethod('writeFile', [Map])
         helper.registerAllowedMethod("ws", [String, Closure])
