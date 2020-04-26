@@ -38,9 +38,9 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
                 def item = it.split('=')
                 assert item.size() == 2, "withEnv list does not look right: ${list.toString()}"
                 addEnvVar(item[0], item[1])
-                c.delegate = binding
-                c.call()
             }
+            c.delegate = binding
+            c.call()
         })
         binding.setVariable('credentials', [:])
         binding.setVariable('params', [:])
