@@ -46,7 +46,6 @@ class InterceptingGCL extends GroovyClassLoader {
     @Override
     Class<?> loadClass(String name) throws ClassNotFoundException {
         // Source from: groovy-all-2.4.6-sources.jar!/groovy/lang/GroovyClassLoader.java:710
-        println "Loading class: $name"
         Class cls = null
         // try groovy file
         try {
