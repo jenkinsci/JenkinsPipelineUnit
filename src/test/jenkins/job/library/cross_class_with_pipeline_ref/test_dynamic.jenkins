@@ -1,0 +1,4 @@
+def lib = library("test_cross_class_with_pipeline_ref_dos")
+
+def objectAB = lib.org.test.ClassAB.new(this)
+objectAB.methodAB()

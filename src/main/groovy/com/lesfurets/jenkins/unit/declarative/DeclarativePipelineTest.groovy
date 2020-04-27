@@ -32,16 +32,6 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
         helper.registerAllowedMethod('timeout', [Integer, Closure])
         helper.registerAllowedMethod('timestamps')
         helper.registerAllowedMethod('usernamePassword', [Map], { creds -> return creds })
-        helper.registerAllowedMethod('withEnv', [List, Closure], { List list, Closure c ->
-            list.each {
-                //def env = helper.get
-                def item = it.split('=')
-                assert item.size() == 2, "withEnv list does not look right: ${list.toString()}"
-                addEnvVar(item[0], item[1])
-            }
-            c.delegate = binding
-            c.call()
-        })
         binding.setVariable('credentials', [:])
         binding.setVariable('params', [:])
     }

@@ -1,0 +1,5 @@
+def lib = library("test_lib_call_shell_uno@alpha")
+def lacls = lib.org.test.LaClass.new()
+lacls.callJenkinsSH("ls -la")
+
+

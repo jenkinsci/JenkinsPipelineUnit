@@ -66,10 +66,10 @@ class PipelineTestHelper {
     List<MethodCall> callStack = []
 
     /**
-     * Controls whether method call arguments are cloned when pushed onto the 
-     * call stack. Disabling cloning can be useful for arguments of types that 
-     * are not {@code Cloneable}. Beware, however, arguments that mutate 
-     * during a test may appear with incorrect values in the call stack if 
+     * Controls whether method call arguments are cloned when pushed onto the
+     * call stack. Disabling cloning can be useful for arguments of types that
+     * are not {@code Cloneable}. Beware, however, arguments that mutate
+     * during a test may appear with incorrect values in the call stack if
      * you disable cloning.
      */
     Boolean cloneArgsOnMethodCallRegistration = true
@@ -84,6 +84,8 @@ class PipelineTestHelper {
      */
     protected LibraryLoader libLoader
 
+    /** Let scripts and library classes access global vars (env, currentBuild) */
+    protected Binding binding
 
     /**
     * Get library loader object
@@ -257,7 +259,7 @@ class PipelineTestHelper {
 
     PipelineTestHelper init() {
         CompilerConfiguration configuration = new CompilerConfiguration()
-        GroovyClassLoader cLoader = new InterceptingGCL(this, baseClassloader, configuration)
+        GroovyClassLoader cLoader = new InterceptingGCL(this, baseClassloader, configuration, binding)
 
         libLoader = new LibraryLoader(cLoader, libraries)
         LibraryAnnotationTransformer libraryTransformer = new LibraryAnnotationTransformer(libLoader)
@@ -371,7 +373,7 @@ class PipelineTestHelper {
         Class scriptClass = gse.loadScriptByName(scriptName)
         setGlobalVars(binding)
         Script script = InvokerHelper.createScript(scriptClass, binding)
-        InterceptingGCL.interceptClassMethods(script.metaClass, this)
+        InterceptingGCL.interceptClassMethods(script.metaClass, this, binding)
         return script
     }
 
@@ -416,7 +418,7 @@ class PipelineTestHelper {
      * Sets global variables defined in loaded libraries on the binding
      * @param binding
      */
-    protected void setGlobalVars(Binding binding) {
+    public void setGlobalVars(Binding binding) {
         libLoader.libRecords.values().stream()
                         .flatMap { it.definedGlobalVars.entrySet().stream() }
                         .forEach { e ->

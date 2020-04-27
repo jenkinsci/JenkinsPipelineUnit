@@ -62,6 +62,7 @@ abstract class BasePipelineTest {
             it.baseClassloader = this.baseClassLoader
             it.imports += this.imports
             it.baseScriptRoot = this.baseScriptRoot
+            it.binding = this.binding
             return it
         }.init()
     }
@@ -75,10 +76,18 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("archiveArtifacts", [Map])
         helper.registerAllowedMethod('archiveArtifacts', [String])
         helper.registerAllowedMethod("bat", [String])
-        helper.registerAllowedMethod("build", [Map], {
+        helper.registerAllowedMethod('bat', [Map.class], {m->
+            if(m.returnStdout){
+                return """uno-dos@localhost> "${m.script}"\r\naaa\r\nbbb\r\nccc"""
+            }
+            return null
+        })
+        helper.registerAllowedMethod("build", [Map.class], {
             [
                 getNumber:{100500},
-                getDescription:{"Dummy build description"}
+                getDescription:{"Dummy build description"},
+                getFullProjectName:{"some_dir/some_job"},
+                getProjectName:{"some_job"},
             ]
         })
         helper.registerAllowedMethod("buildDiscarder", [Object])
@@ -89,14 +98,14 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('copyArtifacts', [Map], {true})
         helper.registerAllowedMethod("cron", [String])
         helper.registerAllowedMethod('deleteDir')
-        helper.registerAllowedMethod("dir", [String, Closure]) { String path, Closure c ->
+        helper.registerAllowedMethod("dir", [String, Closure], { String path, Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
-        }
+        })
         helper.registerAllowedMethod("disableConcurrentBuilds")
-        helper.registerAllowedMethod("echo", [String]) { String message ->
+        helper.registerAllowedMethod("echo", [String], { String message ->
             println(message)
-        }
+        })
         helper.registerAllowedMethod("error", [String], { updateBuildStatus('FAILURE') })
         helper.registerAllowedMethod("gatlingArchive")
         helper.registerAllowedMethod("gitlabBuilds", [Map, Closure])
@@ -106,20 +115,33 @@ abstract class BasePipelineTest {
         })
         helper.registerAllowedMethod("input", [String])
         helper.registerAllowedMethod("junit", [String])
+        helper.registerAllowedMethod("library", [String], {String expression ->
+            helper.getLibLoader().loadImplicitLibraries()
+            helper.getLibLoader().loadLibrary(expression)
+            helper.setGlobalVars(binding)
+            return new LibClassLoader(helper,null)
+        })
         helper.registerAllowedMethod("logRotator", [Map])
         helper.registerAllowedMethod('mail', [Map])
         helper.registerAllowedMethod("node", [Closure])
         helper.registerAllowedMethod("node", [String, Closure])
         helper.registerAllowedMethod("pipelineTriggers", [List])
+        helper.registerAllowedMethod('pollSCM', [String])
         helper.registerAllowedMethod("properties", [List])
         helper.registerAllowedMethod("pwd", [], { 'workspaceDirMocked' })
         helper.registerAllowedMethod("readFile", [String])
-        helper.registerAllowedMethod('retry', [Integer, Closure]) { Integer count, Closure body ->
+        helper.registerAllowedMethod('retry', [Integer, Closure], { Integer count, Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
-        }
-        helper.registerAllowedMethod("sh", [Map])
+        })
         helper.registerAllowedMethod("sh", [String])
+        helper.registerAllowedMethod('sh', [Map], {m->
+          if(m.returnStdout && m.script.contains("git rev-parse HEAD")) {
+            return "abcd123\n"
+          } else {
+            return """aaa\nbbb\nccc\n"""
+          }
+        })
         helper.registerAllowedMethod('skipDefaultCheckout')
         helper.registerAllowedMethod('sleep')
         helper.registerAllowedMethod('specific', [String])
@@ -134,6 +156,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('tool', [Map], { t -> "${t.name}_HOME" })
         helper.registerAllowedMethod("unstable", [String], { updateBuildStatus('UNSTABLE') })
         helper.registerAllowedMethod('unstash', [Map])
+        helper.registerAllowedMethod('usernamePassword', [Map], { creds -> return creds })
         helper.registerAllowedMethod('waitUntil', [Closure])
         helper.registerAllowedMethod("warnError", [String, Closure], { Closure c ->
             try {
@@ -143,8 +166,18 @@ abstract class BasePipelineTest {
                 updateBuildStatus('UNSTABLE')
             }
         })
+        helper.registerAllowedMethod("withCredentials", [Map, Closure])
         helper.registerAllowedMethod("withCredentials", [List, Closure], withCredentialsInterceptor)
-        helper.registerAllowedMethod('withCredentials', [Map, Closure])
+        helper.registerAllowedMethod('withEnv', [List, Closure], { List list, Closure c ->
+            list.each {
+                //def env = helper.get
+                def item = it.split('=')
+                assert item.size() == 2, "withEnv list does not look right: ${list.toString()}"
+                addEnvVar(item[0], item[1])
+            }
+            c.delegate = binding
+            c.call()
+        })
         helper.registerAllowedMethod('writeFile', [Map])
         helper.registerAllowedMethod("ws", [String, Closure])
     }
@@ -214,7 +247,7 @@ abstract class BasePipelineTest {
      * @return the return value of the script
      */
     Object runScript(Script script) {
-        return helper.runScript(script)
+        return helper.runScript(script, this.binding)
     }
 
     @Memoized

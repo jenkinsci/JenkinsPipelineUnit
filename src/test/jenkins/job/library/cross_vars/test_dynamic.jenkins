@@ -1,0 +1,7 @@
+def lib = library("test_cross_vars_dos@beta")
+
+methodA()
+methodB()
+methodAB()
+
+

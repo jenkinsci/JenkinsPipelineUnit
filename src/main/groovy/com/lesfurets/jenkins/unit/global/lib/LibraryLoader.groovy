@@ -1,5 +1,6 @@
 package com.lesfurets.jenkins.unit.global.lib
-
+import static groovy.io.FileType.FILES
+import groovy.lang.GroovyCodeSource
 import java.nio.file.Files
 import java.util.function.Consumer
 import java.util.function.Predicate
@@ -108,6 +109,15 @@ class LibraryLoader {
                       } as Consumer<String>)
                     // prevent fd leak on the DirectoryStream from Files.list()
                     ds.close()
+                }
+                // pre-load library classes using JPU groovy class loader
+                if (srcPath.toFile().exists()) {
+                    srcPath.toFile().eachFileRecurse (FILES) { File srcFile ->
+                        if (srcFile.name.endsWith(".groovy")) {
+                            Class clazz = groovyClassLoader.parseClass(srcFile)
+                            groovyClassLoader.loadClass(clazz.name)
+                        }
+                    }
                 }
             }
             record.definedGlobalVars = globalVars
