@@ -66,6 +66,10 @@ pipeline {
             echo 'pipeline unit tests FAILED'
         }
 
+        aborted {
+            echo 'pipeline unit tests ABORTED'
+        }
+
         changed {
             echo 'pipeline unit tests results have CHANGED'
         }

@@ -9,6 +9,7 @@ class PostDeclaration {
     Closure success
     Closure unstable
     Closure failure
+    Closure aborted
 
     def always(Closure closure) {
         this.always = closure
@@ -30,6 +31,10 @@ class PostDeclaration {
         this.failure = closure
     }
 
+    def aborted(Closure closure) {
+        this.aborted = closure
+    }
+
     def execute(Object delegate) {
         def currentBuild = delegate.currentBuild.result
         if (this.always) {
@@ -42,6 +47,9 @@ class PostDeclaration {
                 break
             case 'FAILURE':
                 executeOn(delegate, this.failure)
+                break
+            case 'ABORTED':
+                executeOn(delegate, this.aborted)
                 break
             case 'UNSTABLE':
                 executeOn(delegate, this.unstable)

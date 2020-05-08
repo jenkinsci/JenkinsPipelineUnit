@@ -293,6 +293,15 @@ abstract class BasePipelineTest {
         assertJobStatus('SUCCESS')
     }
 
+    /**
+     * Asserts the job status is ABORTED.
+     * Please check the mocks update this status when necessary
+     * @See # updateBuildStatus ( String )
+     */
+    void assertJobStatusAborted() {
+        assertJobStatus('ABORTED')
+    }
+
     private assertJobStatus(String status) {
         assertThat(binding.getVariable('currentBuild').result).isEqualTo(status)
     }
