@@ -35,6 +35,18 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertCallStackContains('pipeline unit tests completed')
     }
 
+    @Test void jenkinsfile_aborted() throws Exception {
+        helper.registerAllowedMethod('sh', [String.class], { String cmd ->
+            updateBuildStatus('ABORTED')
+        })
+        runScript('Declarative_Jenkinsfile')
+        printCallStack()
+        assertJobStatusAborted()
+        assertCallStack()
+        assertCallStack().contains('pipeline unit tests ABORTED')
+        assertCallStackContains('pipeline unit tests completed')
+    }
+
     @Test void should_params() throws Exception {
         runScript('Params_Jenkinsfile')
         printCallStack()
