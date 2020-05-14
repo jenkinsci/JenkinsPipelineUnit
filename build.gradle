@@ -161,3 +161,9 @@ artifactory {
         }
     }
 }
+
+release {
+    failOnCommitNeeded = false
+    failOnPublishNeeded = false
+    failOnUpdateNeeded = false
+}
