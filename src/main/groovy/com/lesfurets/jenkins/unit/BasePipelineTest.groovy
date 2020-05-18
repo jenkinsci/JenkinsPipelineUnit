@@ -132,7 +132,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("readFile", [String])
         helper.registerAllowedMethod("retry", [Integer, Closure], { Integer count, Closure c ->
             def attempts = 0
-            while (attempts != count) {
+            while (attempts <= count) {
                 try {
                     attempts++
                     c.delegate = delegate
