@@ -130,9 +130,20 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("properties", [List])
         helper.registerAllowedMethod("pwd", [], { 'workspaceDirMocked' })
         helper.registerAllowedMethod("readFile", [String])
-        helper.registerAllowedMethod('retry', [Integer, Closure], { Integer count, Closure c ->
-            c.delegate = delegate
-            helper.callClosure(c)
+        helper.registerAllowedMethod("retry", [Integer, Closure], { Integer count, Closure c ->
+            def attempts = 0
+            while (attempts != count) {
+                try {
+                    attempts++
+                    c.delegate = delegate
+                    helper.callClosure(c)
+                    break
+                } catch(err) {
+                    if (attempts == count) {
+                        throw err
+                    }
+                }
+            }
         })
         helper.registerAllowedMethod("sh", [String])
         helper.registerAllowedMethod('sh', [Map], {m->
