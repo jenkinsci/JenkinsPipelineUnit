@@ -4,7 +4,7 @@ plugins {
     id "com.jfrog.artifactory" version "4.11.0"
     id 'groovy'
     id 'maven-publish'
-    id 'java'
+    id 'java-library'
     id 'jacoco'
     id 'net.researchgate.release' version '2.8.1'
 }
@@ -35,10 +35,9 @@ dependencies {
     implementation('com.cloudbees:groovy-cps:1.12')
     implementation('commons-io:commons-io:2.5')
     implementation('org.apache.ivy:ivy:2.4.0')
-    implementation('org.assertj:assertj-core:3.4.1')
+    api('org.assertj:assertj-core:3.4.1')
     implementation('org.apache.commons:commons-lang3:3.5')
 
-    testImplementation('org.assertj:assertj-core:3.4.1')
     testImplementation('junit:junit:4.11')
 
     grape('org.apache.commons:commons-math3:3.4.1')
