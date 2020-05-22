@@ -10,6 +10,7 @@ class PostDeclaration {
     Closure unstable
     Closure failure
     Closure aborted
+    Closure unsuccessful
 
     def always(Closure closure) {
         this.always = closure
@@ -25,6 +26,10 @@ class PostDeclaration {
 
     def unstable(Closure closure) {
         this.unstable = closure
+    }
+    
+    def unsuccessful(Closure closure) {
+        this.unsuccessful = closure
     }
 
     def failure(Closure closure) {
@@ -56,6 +61,9 @@ class PostDeclaration {
                 break
             case 'CHANGED':
                 executeOn(delegate, this.changed)
+                break
+            case 'UNSUCCESSFUL':
+                executeOn(delegate, this.unsuccessful)
                 break
         }
     }
