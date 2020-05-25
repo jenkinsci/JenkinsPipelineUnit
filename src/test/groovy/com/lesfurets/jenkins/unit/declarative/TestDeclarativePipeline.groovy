@@ -70,6 +70,22 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void when_tag() throws Exception {
+        addEnvVar('TAG_NAME', 'v1.1.1')
+        runScript('Tag_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Deploying')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_tag_not() throws Exception {
+        addEnvVar('TAG_NAME', 'someothertag')
+        runScript('Tag_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example Deploy')
+        assertJobStatusSuccess()
+    }
+
     @Test void should_agent() throws Exception {
         runScript('Agent_Jenkinsfile')
         printCallStack()
