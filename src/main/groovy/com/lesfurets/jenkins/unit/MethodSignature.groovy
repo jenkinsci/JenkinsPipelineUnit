@@ -40,11 +40,19 @@ class MethodSignature {
         for (int i = 0; i < args.size(); i++) {
             Class thisClazz = this.args[i]
             Class thatClazz = that.args[i]
+            if (name == "monster1") {
+                println "\nDEBUG_ARGTYPE MethodSignature.equals thisClazz=$thisClazz; thatClazz=$thatClazz"
+                println "DEBUG_ARGTYPE MethodSignature.equals thisClazz.canonicalName=$thisClazz.canonicalName; thatClazz.canonicalName=$thatClazz.canonicalName"
+                println "DEBUG_ARGTYPE MethodSignature.equals thisClazz.hashCode()=${thisClazz.hashCode()}; thatClazz.hashCode()=${thatClazz.hashCode()}"
+            }  
             if (!(isAssignableFrom(Closure.class, thatClazz) && isAssignableFrom(Closure.class, thisClazz))) {
                 if (!isAssignableFrom(thisClazz, thatClazz)) {
                     return false
                 }
             }
+        }
+        if (name == "monster1") {
+            println "DEBUG_ARGTYPE MethodSignature.equals Signatures are compatible"
         }
         return true
     }

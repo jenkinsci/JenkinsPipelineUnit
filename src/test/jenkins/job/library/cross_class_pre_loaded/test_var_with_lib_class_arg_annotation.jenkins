@@ -1,0 +1,6 @@
+//Commenting the annotation appears to make no difference when load is implicit
+@Library("test_cross_class_usage")
+import org.test.Monster1
+
+vampire = new Monster1("Dracula")
+monster1(vampire)

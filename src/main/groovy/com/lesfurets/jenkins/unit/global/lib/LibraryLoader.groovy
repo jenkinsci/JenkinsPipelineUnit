@@ -111,6 +111,8 @@ class LibraryLoader {
                     ds.close()
                 }
                 // pre-load library classes using JPU groovy class loader
+                // comment the preload block to eliminate problems with lib classes as lib var step arguments
+                //println "DEBUG_ARGTYPE LibraryLoader.doLoadLibrary lib class preload disabled"
                 if (srcPath.toFile().exists()) {
                     srcPath.toFile().eachFileRecurse (FILES) { File srcFile ->
                         if (srcFile.name.endsWith(".groovy")) {

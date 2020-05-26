@@ -16,6 +16,8 @@ class TestInterceptingGCL extends BasePipelineTest {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
         addEnvVar("FOO","bar")
+        //FIXME probably remove
+        helper.cloneArgsOnMethodCallRegistration = false
     }
     String sharedLibVars = this.class
         .getResource('/libs/test_cross_vars_usage')
@@ -378,5 +380,41 @@ class TestInterceptingGCL extends BasePipelineTest {
         assertCallStack().contains("""test_annotation.sh(echo 'ClassB: I'm field of B')""")
     }
 
+    /**
+    * 1. Load library by annotation, with implicity
+    * 2. Create instance of library class
+    * 3. Call a vars step that accepts that type as an argument, passing that instance
+    * 4. Make sure interception of pipeline methods works propertly
+    */
+    @Test
+    //FIXME @Ignore
+    void test_cross_class_as_var_arg_implicit_annotation() throws Exception {
+        final library = library().name("test_cross_class_usage")
+                        .defaultVersion("master")
+                        .allowOverride(false)
+                        .implicit(true)
+                        .targetPath(sharedLibCls)
+                        .retriever(projectSource(sharedLibCls))
+                        .build()
+        helper.registerSharedLibrary(library)
 
+        final pipeline = "test_var_with_lib_class_arg_annotation"
+        //FIXME <troubleshooting>
+        try {
+            runScript("job/library/cross_class_pre_loaded/${pipeline}.jenkins")
+        } catch (e) {
+            println "\nDEBUG_ARGTYPE TestInterceptingGCL ${e.class}"
+            println "DEBUG_ARGTYPE TestInterceptingGCL $e.message\n"
+            e.arguments.eachWithIndex { arg, i ->
+                final argType = arg.getClass()
+                println "DEBUG_ARGTYPE TestInterceptingGCL Arg $i type/type hash: $argType/${argType.hashCode()}"
+            }
+            e.arguments
+        }
+
+//        printCallStack()
+//        assertCallStack().contains("""${pipeline}.monster1(vampire)""")
+//        assertCallStack().contains("""monster1.echo("Dracula makes quite a scary monster")""")
+        //FIXME </troubleshooting>
+    }
 }

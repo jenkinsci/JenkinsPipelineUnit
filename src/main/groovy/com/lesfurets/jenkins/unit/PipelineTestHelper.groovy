@@ -338,6 +338,13 @@ class PipelineTestHelper {
      */
     protected Map.Entry<MethodSignature, Closure> getAllowedMethodEntry(String name, Object... args) {
         Class[] paramTypes = MetaClassHelper.castArgumentsToClassArray(args)
+        if (name == "monster1") {
+            List<Class> argsClasses = args*.getClass()
+            println "\nDEBUG_ARGTYPE PTH.getAllowedMethodEntry argsClasses=$argsClasses"
+            println "DEBUG_ARGTYPE PTH.getAllowedMethodEntry argsClasses*.hashCode()=${argsClasses*.hashCode()}"
+            println "DEBUG_ARGTYPE PTH.getAllowedMethodEntry casted to paramTypes=$paramTypes"
+            println "DEBUG_ARGTYPE PTH.getAllowedMethodEntry casted to paramTypes*.hashCode()=${paramTypes*.hashCode()}"
+        }
         MethodSignature signature = method(name, paramTypes)
         return allowedMethodCallbacks.find { k, v -> k == signature }
     }
@@ -429,6 +436,17 @@ class PipelineTestHelper {
                 script.metaClass.getMethods().findAll { it.name == 'call' }.forEach { m ->
                     this.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
                                     { args -> m.doMethodInvoke(e.value, args) })
+                    if (e.value.class.name.contains("monster1")) {
+                        final nativeParamTypes = m.nativeParameterTypes
+                        final cachedParamClasses = nativeParamTypes*.name.collect {
+                            libLoader.groovyClassLoader.getClassCacheEntry(it) ?: it
+                        }
+                        final stepVar = e.value.class.name
+                        println "\nDEBUG_ARGTYPE PTH.setGlobalVars ${stepVar}.call.nativeParameterTypes=$nativeParamTypes"
+                        println "DEBUG_ARGTYPE PTH.setGlobalVars nativeParameterTypes*.hashCode()=${nativeParamTypes*.hashCode()}"
+                        println "DEBUG_ARGTYPE PTH.setGlobalVars cachedParamClasses=$cachedParamClasses"
+                        println "DEBUG_ARGTYPE PTH.setGlobalVars cachedParamClasses*.hashCode()=${cachedParamClasses*.hashCode()}"
+                    }
                 }
             }
             binding.setVariable(e.key, e.value)

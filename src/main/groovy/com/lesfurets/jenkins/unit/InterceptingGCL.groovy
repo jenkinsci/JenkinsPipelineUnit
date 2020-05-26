@@ -50,8 +50,16 @@ class InterceptingGCL extends GroovyClassLoader {
         // try groovy file
         try {
             URL source = resourceLoader.loadGroovySource(name);
+
+            if (name.contains("Monster1")) {
+                println "\nDEBUG_ARGTYPE GCL.loadClass source=$source"
+            }
             // if recompilation fails, we want cls==null
             cls = recompile(source, name, null);
+            if (name.contains("Monster1")) {
+                println "DEBUG_ARGTYPE GCL.loadClass cls=$cls"
+                println "DEBUG_ARGTYPE GCL.loadClass cls.hashCode()=${cls.hashCode()}"
+            }
         } catch (IOException ioe) {
         } finally {
             if (cls == null) {
