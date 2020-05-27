@@ -1,7 +1,5 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static org.assertj.core.api.Assertions.*
-
 import org.junit.Before
 import org.junit.Test
 
@@ -44,6 +42,17 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusAborted()
         assertCallStack()
         assertCallStack().contains('pipeline unit tests ABORTED')
+        assertCallStackContains('pipeline unit tests completed')
+    }
+
+    @Test void jenkinsfile_unsuccessful() throws Exception {
+        helper.registerAllowedMethod('sh', [String.class], { String cmd ->
+            updateBuildStatus('UNSUCCESSFUL')
+        })
+        runScript('Declarative_Jenkinsfile')
+        printCallStack()
+        assertCallStack()
+        assertCallStack().contains('pipeline unit tests UNSUCCESSFUL')
         assertCallStackContains('pipeline unit tests completed')
     }
 

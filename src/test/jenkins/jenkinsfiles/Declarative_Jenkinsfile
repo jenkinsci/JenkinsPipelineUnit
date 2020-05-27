@@ -78,5 +78,9 @@ pipeline {
             echo 'pipeline unit tests have gone UNSTABLE'
         }
 
+        unsuccessful {
+            echo 'pipeline unit tests UNSUCCESSFUL'
+        }
+
     }
 }
