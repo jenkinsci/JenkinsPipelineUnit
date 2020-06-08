@@ -18,6 +18,8 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         printCallStack()
         assertCallStackContains('pipeline unit tests PASSED')
         assertCallStackContains('pipeline unit tests completed')
+        assertCallStackContains('pipeline unit tests post CLEANUP')
+        assertCallStack().doesNotContain('pipeline unit tests UNSUCCESSFUL')
         assertJobStatusSuccess()
     }
 
@@ -30,6 +32,8 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusFailure()
         assertCallStack()
         assertCallStack().contains('pipeline unit tests FAILED')
+        assertCallStackContains('pipeline unit tests post CLEANUP')
+        assertCallStack().contains('pipeline unit tests UNSUCCESSFUL')
         assertCallStackContains('pipeline unit tests completed')
     }
 
@@ -42,18 +46,44 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusAborted()
         assertCallStack()
         assertCallStack().contains('pipeline unit tests ABORTED')
+        assertCallStackContains('pipeline unit tests post CLEANUP')
+        assertCallStack().contains('pipeline unit tests UNSUCCESSFUL')
         assertCallStackContains('pipeline unit tests completed')
     }
 
-    @Test void jenkinsfile_unsuccessful() throws Exception {
+    @Test void jenkinsfile_fixed() throws Exception {
         helper.registerAllowedMethod('sh', [String.class], { String cmd ->
-            updateBuildStatus('UNSUCCESSFUL')
+            addPreviousBuild('FAILURE')
+            updateBuildStatus('SUCCESS')
         })
         runScript('Declarative_Jenkinsfile')
         printCallStack()
+        assertJobStatusSuccess()
         assertCallStack()
-        assertCallStack().contains('pipeline unit tests UNSUCCESSFUL')
+        assertCallStackContains('pipeline unit tests PASSED')
         assertCallStackContains('pipeline unit tests completed')
+        assertCallStackContains('pipeline unit tests post CLEANUP')
+        assertCallStackContains('pipeline unit tests results have CHANGED')
+        assertCallStackContains('pipeline unit tests have been FIXED')
+    }
+
+    @Test void jenkinsfile_regression() throws Exception {
+        helper.registerAllowedMethod('sh', [String.class], { String cmd ->
+            addPreviousBuild('SUCCESS')
+            updateBuildStatus('UNSTABLE')
+        })
+        runScript('Declarative_Jenkinsfile')
+        printCallStack()
+        assertJobStatusUnstable()
+        assertCallStack()
+
+        assertCallStackContains('pipeline unit tests completed')
+        assertCallStackContains('pipeline unit tests have gone UNSTABLE')
+        assertCallStackContains('pipeline unit tests results have CHANGED')
+        assertCallStackContains('pipeline unit tests UNSUCCESSFUL')
+        assertCallStackContains('pipeline unit tests post REGRESSION')
+        assertCallStackContains('pipeline unit tests post CLEANUP')
+
     }
 
     @Test void should_params() throws Exception {

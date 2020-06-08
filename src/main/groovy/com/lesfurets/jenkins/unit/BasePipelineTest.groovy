@@ -232,6 +232,18 @@ abstract class BasePipelineTest {
     }
 
     /**
+     * Adds a previous build and sets the previous build status.
+     * Can be useful when mocking a jenkins method.
+     * @param status job status to set for previous build.
+     */
+    void addPreviousBuild(String status) {
+        binding.getVariable('currentBuild').id = 2
+        binding.getVariable('currentBuild').number = 2
+        binding.getVariable('currentBuild').previousBuild = [id: 1, number: 1, result: status]
+        println("previousBuild: ${ binding.getVariable('currentBuild').previousBuild}")
+    }
+
+    /**
      * Loads without running the script by its name/path, returning the Script
      * @param scriptName script name or path
      * @return script object
