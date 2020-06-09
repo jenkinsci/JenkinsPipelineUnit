@@ -78,5 +78,21 @@ pipeline {
             echo 'pipeline unit tests have gone UNSTABLE'
         }
 
+        unsuccessful {
+            echo 'pipeline unit tests UNSUCCESSFUL'
+        }
+
+        fixed {
+            echo 'pipeline unit tests have been FIXED'
+        }
+
+        regression{
+            echo 'pipeline unit tests post REGRESSION'
+        }
+
+        cleanup {
+            echo 'pipeline unit tests post CLEANUP'
+        }
+
     }
 }
