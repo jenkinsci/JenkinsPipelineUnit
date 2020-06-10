@@ -20,7 +20,7 @@ class TestRunClosure extends BasePipelineTest {
     @Test
     void should_execute_without_errors() throws Exception {
         runScript({ script ->
-            script.echo 'Test'
+            echo 'Test'
         })
         printCallStack()
     }
@@ -28,7 +28,7 @@ class TestRunClosure extends BasePipelineTest {
     @Test
     void should_print_property_value() {
         runScript({ script ->
-            script.println 'value'
+            println 'value'
         })
 
         def value = 'value'
@@ -43,7 +43,7 @@ class TestRunClosure extends BasePipelineTest {
     void should_use_registered_method() {
         helper.registerAllowedMethod("customMethod", [Map.class], null)
         runScript({ script ->
-            script.customMethod test: 'value'
+            customMethod test: 'value'
         })
     }
 
@@ -58,8 +58,7 @@ class TestRunClosure extends BasePipelineTest {
                 .build()
         helper.registerSharedLibrary(library)
         runScript({ script ->
-
-            script.sayHello()
+            sayHello()
         })
     }
 }

@@ -2,6 +2,7 @@ package com.lesfurets.jenkins.unit
 
 import static java.util.stream.Collectors.joining
 import static org.assertj.core.api.Assertions.assertThat
+import static groovy.lang.Closure.DELEGATE_ONLY
 
 import org.assertj.core.api.AbstractCharSequenceAssert
 
@@ -289,17 +290,11 @@ abstract class BasePipelineTest {
      * @return the return value of the script
      */
     Object runScript(Closure scriptRun) {
-        final Script script = new Script(binding) {
-            @Override
-            Object run() {
-                scriptRun.call(this)
-                return null
-            }
-        }
-        script.metaClass.invokeMethod = helper.getMethodInterceptor()
-        script.metaClass.static.invokeMethod = helper.getMethodInterceptor()
-        script.metaClass.methodMissing = helper.getMethodMissingInterceptor()
-        return runScript(script)
+        File file = File.createTempFile("temp",".groovy")
+        def script = loadScript(file.absolutePath)
+        def rehydrate = scriptRun.rehydrate(script, script, script)
+        rehydrate.resolveStrategy = DELEGATE_ONLY
+        rehydrate.call()
     }
 
     void printCallStack() {
