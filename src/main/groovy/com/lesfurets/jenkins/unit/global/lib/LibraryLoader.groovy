@@ -20,6 +20,21 @@ class LibraryLoader {
 
     private final Map<String, LibraryConfiguration> libraryDescriptions
 
+    //Set to `false` *only* if testing libs that have vars steps that accept lib
+    //class instances as arguments *when* the default `true` breaks test,
+    //throwing MissingMethodExceptions like the following.
+    //
+    //  No signature of method: `
+    //  JENKINSFILE.monster1() is applicable for argument types: `
+    //  (org.test.Monster1) values: [org.test.Monster1@45f50182]
+    //
+    //Lib class preload in this case can lead to the class being loaded
+    //too many times, confusing the method interceptor logic at runtime.
+    //
+    //Warning: Setting to false can break other tests, e.g. ones where lib
+    //classes want to access the binding env.
+    Boolean preloadLibraryClasses = true
+
     final Map<String, LibraryRecord> libRecords = new HashMap<>()
 
     LibraryLoader(GroovyClassLoader groovyClassLoader, Map<String, LibraryConfiguration> libraryDescriptions) {
@@ -111,7 +126,7 @@ class LibraryLoader {
                     ds.close()
                 }
                 // pre-load library classes using JPU groovy class loader
-                if (srcPath.toFile().exists()) {
+                if (preloadLibraryClasses && srcPath.toFile().exists()) {
                     srcPath.toFile().eachFileRecurse (FILES) { File srcFile ->
                         if (srcFile.name.endsWith(".groovy")) {
                             Class clazz = groovyClassLoader.parseClass(srcFile)

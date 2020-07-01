@@ -82,7 +82,7 @@ class PipelineTestHelper {
     /**
      * Loader for shared global libraries
      */
-    protected LibraryLoader libLoader
+    LibraryLoader libLoader
 
     /** Let scripts and library classes access global vars (env, currentBuild) */
     protected Binding binding
