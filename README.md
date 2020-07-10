@@ -286,6 +286,50 @@ To update this file with new callstack, just set this JVM argument when running 
 
 You then can go ahead and commit this change in your SCM to check in the change.
 
+### Preserve original callstack argument references
+The default behavior of the callstack capture is to clone each call's arguments
+to preserve their values at time of the call should those arguments mutate
+downstream. That is a good guard when your scripts are passing ordinary mutable 
+variables as arguments.
+
+However, argument types that are not `Cloneable` are captured as `String`
+values. Most of the time this is a perfect fallback. But for some complex
+types, or for types that don't implement `toString()`, it can be tricky
+or impossible to validate the call values in a test.
+
+Take the following simple example.
+
+```groovy
+pretendArgsFromFarUpstream = [
+    foo: "bar",
+    foo2: "more bar please",
+    aNestedMap: [ aa: 1, bb: 2, ],
+    plusAList: [ 1, 2, 3, 4, ],
+].asImmutable()
+
+node() {
+    doSomethingWithThis(pretendArgsFromFarUpstream)
+}
+```
+
+`pretendArgsFromFarUpstream` is a type of uncloneable map and will be recorded
+as a `String` in the callstack. Your test may want to perform fine grained
+validations via map key referencing instead of pattern matching or similar
+parsing. For example,
+
+```groovy
+assertEquals(arg.aNestedMap.bb, 2)
+```
+
+If you want to perform this kind of validation--particularly if your pipelines
+pass `final` and/or immutable variables as arguments--you can retain the 
+direct reference to the variable in the callstack by setting this switch 
+in your test setup.
+
+```groovy
+       helper.cloneArgsOnMethodCallRegistration = false
+```
+
 ## Configuration
 
 The abstract class `BasePipelineTest` configures the helper with useful conventions:
