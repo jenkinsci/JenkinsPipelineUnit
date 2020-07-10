@@ -1,0 +1,14 @@
+pipeline {
+    stages {
+        stage('Failed Stage') {
+            steps {
+                currentBuild.result = 'FAILURE'
+            }
+        }
+        stage('Not executed stage') {
+            steps {
+                echo 'I will not be executed!'
+            }
+        }
+    }
+}
