@@ -44,6 +44,12 @@ class StageDeclaration extends GenericPipelineDeclaration {
         if(parallel) {
             parallel.execute(delegate)
         }
+
+        if(delegate.binding.variables.currentBuild.result == "FAILURE"){
+            executeWith(delegate, { echo "Stage \"$name\" skipped due to earlier failure(s)" })
+            return
+        }
+
         if (!when || when.execute(delegate)) {
             super.execute(delegate)
             // TODO handle credentials

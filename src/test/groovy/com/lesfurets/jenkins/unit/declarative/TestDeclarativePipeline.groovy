@@ -166,6 +166,13 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void not_running_stage_after_failure() throws Exception {
+        runScript('StageFailed_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Stage "Not executed stage" skipped due to earlier failure(s)')
+        assertJobStatusFailure()
+    }
+
     @Test(expected = MissingPropertyException)
     void should_non_valid_fail() throws Exception {
         try {
