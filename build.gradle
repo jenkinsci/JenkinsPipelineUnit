@@ -71,6 +71,12 @@ test {
     // Settings for debugging @Grape() resolution in test cases
     //systemProperty "groovy.grape.report.downloads", "true"
     //systemProperty "ivy.message.logger.level", "4"
+
+    // Enable writing stacks with -Ppipeline.stack.write
+    if (project.hasProperty("pipeline.stack.write")) {
+        systemProperty "pipeline.stack.write", "true"
+    }
+
     testLogging {
         events "PASSED", "FAILED", "SKIPPED"
     }

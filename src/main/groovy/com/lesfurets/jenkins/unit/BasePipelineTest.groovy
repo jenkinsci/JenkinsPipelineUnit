@@ -25,13 +25,39 @@ abstract class BasePipelineTest {
 
     def stringInterceptor = { m -> m.variable }
 
+    def usernamePasswordInterceptor = { m -> [m.usernameVariable, m.passwordVariable] }
+
     def withCredentialsInterceptor = { list, closure ->
-        list.forEach {
-            binding.setVariable(it, "$it")
+        def previousValues = [:]
+        list.forEach { creds ->
+            // stringInterceptor returns a String value where the
+            // usernamePasswordInterceptor returns a list of strings
+            if (creds instanceof String) {
+                try {
+                    previousValues[creds] = binding.getVariable(creds)
+                } catch (MissingPropertyException e) {
+                    previousValues[creds] = null
+                }
+                binding.setVariable(creds, creds)                
+            } else {
+                creds.each { var ->
+                    try {
+                        previousValues[var] = binding.getVariable(var)
+                    } catch (MissingPropertyException e) {
+                        previousValues[var] = null
+                    }
+                    binding.setVariable(var, var)
+                }
+            }
         }
-        def res = closure.call()
-        list.forEach {
-            binding.setVariable(it, null)
+
+        closure.delegate = delegate
+        def res = helper.callClosure(closure)
+
+        // If previous value was not set it will unset by using null
+        // otherwise it will restore previous value.
+        previousValues.each { key, value ->
+            binding.setVariable(key, value)
         }
         return res
     }
@@ -170,7 +196,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('tool', [Map], { t -> "${t.name}_HOME" })
         helper.registerAllowedMethod("unstable", [String], { updateBuildStatus('UNSTABLE') })
         helper.registerAllowedMethod('unstash', [Map])
-        helper.registerAllowedMethod('usernamePassword', [Map], { creds -> return creds })
+        helper.registerAllowedMethod('usernamePassword', [Map], usernamePasswordInterceptor)
         helper.registerAllowedMethod('waitUntil', [Closure])
         helper.registerAllowedMethod("warnError", [String, Closure], { Closure c ->
             try {
