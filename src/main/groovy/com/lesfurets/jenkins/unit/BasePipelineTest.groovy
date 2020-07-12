@@ -183,14 +183,26 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("withCredentials", [Map, Closure])
         helper.registerAllowedMethod("withCredentials", [List, Closure], withCredentialsInterceptor)
         helper.registerAllowedMethod('withEnv', [List, Closure], { List list, Closure c ->
+            def stashedEnv = [:]
+            try {
+                stashedEnv.putAll(binding.getVariable('env') as Map)
+            } catch (MissingPropertyException e) {
+                // 'env' not set yet?
+            }
+
             list.each {
-                //def env = helper.get
                 def item = it.split('=')
                 assert item.size() == 2, "withEnv list does not look right: ${list.toString()}"
                 addEnvVar(item[0], item[1])
             }
-            c.delegate = binding
-            c.call()
+
+            try {
+                c.delegate = binding
+                helper.callClosure(c)
+            } finally {
+                // Restore original contents of 'env'
+                binding.setVariable('env', stashedEnv)
+            }
         })
         helper.registerAllowedMethod('writeFile', [Map])
         helper.registerAllowedMethod("ws", [String, Closure])

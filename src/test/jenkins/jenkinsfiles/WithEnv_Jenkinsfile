@@ -1,0 +1,18 @@
+pipeline {
+    agent any
+    stages {
+        stage('withenvbug') {
+            steps {
+                withEnv(["SOMEVAR=SOMEVAL"]) {
+                    echo "SOMEVAR inside closure = ${env.SOMEVAR}"
+                    withEnv(["SOMEVAR=SOMEVAL"]) {
+                        echo "SOMEVAR overlapping inside closure = ${env.SOMEVAR}"
+                    }
+                    echo "SOMEVAR restored inside closure = ${env.SOMEVAR}"
+                }
+                //SOMEVAR should be null after closure
+                echo "SOMEVAR outside closure = ${env.SOMEVAR}"
+            }
+        }
+    }
+}
