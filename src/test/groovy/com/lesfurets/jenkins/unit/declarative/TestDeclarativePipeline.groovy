@@ -184,4 +184,13 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
             printCallStack()
         }
     }
+
+    @Test void should_not_leave_environment_dirty() throws Exception {
+        runScript('WithEnv_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('echo(SOMEVAR inside closure = SOMEVAL)')
+        assertCallStack().contains('echo(SOMEVAR overlapping inside closure = SOMEVAL)')
+        assertCallStack().contains('echo(SOMEVAR restored inside closure = SOMEVAL)')
+        assertCallStack().contains('echo(SOMEVAR outside closure = null)')
+    }
 }
