@@ -6,23 +6,19 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
 
     def properties = [:]
     List<Closure> options = []
+    def binding = null
 
     Closure triggers
-    Closure parameters
-
-    static <T> T createComponent(Class<T> componentType,
-                                 @DelegatesTo(strategy = DELEGATE_ONLY, value = T) Closure closure) {
-        def componentInstance = componentType.newInstance()
-        def rehydrate = closure.rehydrate(componentInstance, this, this)
-        rehydrate.resolveStrategy = DELEGATE_ONLY
-        rehydrate.call()
-        return componentInstance
-    }
+    ParametersDeclaration params = null
 
     DeclarativePipeline() {
         properties.put('any', 'any')
         properties.put('none', 'none')
         properties.put('scm', 'scm')
+    }
+
+    def getParams() {
+        return binding?.params
     }
 
     def propertyMissing(String name) {
@@ -45,8 +41,12 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         this.triggers = closure
     }
 
-    def parameters(@DelegatesTo(DeclarativePipeline) Closure closure) {
-        this.parameters = closure
+    def parameters(Object o) {
+        this.params = new ParametersDeclaration().with { it.label = o; it }
+    }
+
+    def parameters(@DelegatesTo(strategy=Closure.DELEGATE_ONLY, value=ParametersDeclaration) Closure closure) {
+        this.params = createComponent(ParametersDeclaration, closure)
     }
 
     def execute(Object delegate) {
@@ -55,7 +55,6 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
             executeOn(delegate, it)
         }
         this.agent?.execute(delegate)
-        executeOn(delegate, this.parameters)
         executeOn(delegate, this.triggers)
         this.stages.entrySet().forEach { e ->
             e.value.execute(delegate)

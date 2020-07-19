@@ -1,0 +1,37 @@
+pipeline {
+    parameters {
+        booleanParam (
+            name: 'TOGGLE',
+            defaultValue: true,
+            description: 'Toggle this value'
+        ) 
+        choice (
+            name: 'CHOICE',
+            choices: ['One', 'Two', 'Three'],
+            description: 'Pick something'
+        ) 
+        password (
+            name: 'PASSWORD',
+            defaultValue: 'SECRET',
+            description: 'Enter a password'
+        ) 
+        string (
+            name: 'AGENT',
+            defaultValue: 'aSlave',
+            description: 'The slave to use for testing tested.'
+        ) 
+        text (
+            name: 'BIOGRAPHY',
+            defaultValue: 'they were born, they lived, they died',
+            description: 'Enter some information about the person'
+        ) 
+    }
+    agent { label params.AGENT }
+    stages {
+        stage('Example Build') {
+            steps {
+                echo "Hello from ${params.AGENT}"
+            }
+        }
+    }
+}

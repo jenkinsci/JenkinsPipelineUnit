@@ -16,6 +16,7 @@ class AgentDeclaration {
     String dockerfileDir
     Boolean reuseNode = null
     String customWorkspace
+    def binding = null
 
     def label(String label) {
         this.label = label
@@ -51,6 +52,10 @@ class AgentDeclaration {
 
     def dir(String dir) {
         this.dockerfileDir = dir
+    }
+
+    def getParams() {
+        return binding?.params
     }
 
     def execute(Object delegate) {

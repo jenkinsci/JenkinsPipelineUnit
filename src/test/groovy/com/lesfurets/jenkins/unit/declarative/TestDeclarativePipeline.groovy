@@ -193,4 +193,20 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertCallStack().contains('echo(SOMEVAR restored inside closure = SOMEVAL)')
         assertCallStack().contains('echo(SOMEVAR outside closure = null)')
     }
+
+    @Test void agent_with_param_label() throws Exception {
+        runScript('AgentParam_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('aSlave')
+        assertJobStatusSuccess()
+    }
+
+    @Test void agent_with_mock_param_label() throws Exception {
+        def params = binding.getVariable('params')
+        params['SLAVE'] = 'mockSlave'
+        runScript('AgentParam_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('mockSlave')
+        assertJobStatusSuccess()
+    }
 }

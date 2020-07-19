@@ -8,7 +8,8 @@ import com.lesfurets.jenkins.unit.BasePipelineTest
 abstract class DeclarativePipelineTest extends BasePipelineTest {
 
     def pipelineInterceptor = { Closure closure ->
-        DeclarativePipeline.createComponent(DeclarativePipeline, closure).execute(delegate)
+        GenericPipelineDeclaration.binding = delegate.binding
+        GenericPipelineDeclaration.createComponent(DeclarativePipeline, closure).execute(delegate)
     }
 
     def paramInterceptor = { Map desc ->
