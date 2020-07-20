@@ -17,7 +17,7 @@ class ParallelDeclaration extends GenericPipelineDeclaration {
 
     def stage(String name,
               @DelegatesTo(strategy = DELEGATE_ONLY, value = StageDeclaration) Closure closure) {
-        this.stages.put(name, DeclarativePipeline.createComponent(StageDeclaration, closure).with{it.name = name;it} )
+        this.stages.put(name, createComponent(StageDeclaration, closure).with{it.name = name;it} )
     }
 
     def execute(Object delegate) {

@@ -6,7 +6,6 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
 
     def properties = [:]
     List<Closure> options = []
-    def binding = null
 
     Closure triggers
     ParametersDeclaration params = null

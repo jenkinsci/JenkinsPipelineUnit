@@ -1,7 +1,6 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
 
 class TestDeclarativePipeline extends DeclarativePipelineTest {
 
@@ -207,6 +206,28 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         runScript('AgentParam_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('mockSlave')
+        assertJobStatusSuccess()
+    }
+
+    @Test void should_agent_with_environment() throws Exception {
+        def env = binding.getVariable('env')
+        env['ENV_VAR'] = 'ENV VAR'
+        env['some_env_var'] = 'some env var'
+        runScript('Agent_env_Jenkinsfile')
+        printCallStack()
+        assertJobStatusSuccess()
+    }
+
+    @Ignore @Test void should_agent_with_bindings() throws Exception {
+        final def binding_var = 'a binding var'
+        binding.setVariable('binding_var', binding_var)
+
+        helper.registerAllowedMethod('getBinding_var', {
+            return binding_var
+        })
+
+        runScript('Agent_bindings_Jenkinsfile')
+        printCallStack()
         assertJobStatusSuccess()
     }
 }

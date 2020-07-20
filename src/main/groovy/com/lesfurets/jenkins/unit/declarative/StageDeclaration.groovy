@@ -24,12 +24,16 @@ class StageDeclaration extends GenericPipelineDeclaration {
         this.failFast = failFast
     }
 
+    def getBinding_var() {
+        return binding?.var
+    }
+
     def parallel(@DelegatesTo(strategy = DELEGATE_ONLY, value = ParallelDeclaration) Closure closure) {
-        this.parallel = DeclarativePipeline.createComponent(ParallelDeclaration, closure).with { it.failFast = failFast; it }
+        this.parallel = createComponent(ParallelDeclaration, closure).with { it.failFast = failFast; it }
     }
 
     def when(@DelegatesTo(strategy = DELEGATE_ONLY, value = WhenDeclaration) Closure closure) {
-        this.when = DeclarativePipeline.createComponent(WhenDeclaration, closure)
+        this.when = createComponent(WhenDeclaration, closure)
     }
 
     def options(@DelegatesTo(StageDeclaration) Closure closure) {

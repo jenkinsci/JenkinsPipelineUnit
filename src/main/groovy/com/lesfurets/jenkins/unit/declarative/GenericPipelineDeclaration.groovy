@@ -17,7 +17,7 @@ abstract class GenericPipelineDeclaration {
         def componentInstance = componentType.newInstance()
         def rehydrate = closure.rehydrate(componentInstance, this, this)
         rehydrate.resolveStrategy = DELEGATE_ONLY
-        if (componentInstance.hasProperty('binding') && binding) {
+        if (binding && componentInstance.hasProperty('binding') && componentInstance.binding != binding) {
             componentInstance.binding = binding
         }
         rehydrate.call()
@@ -71,6 +71,18 @@ abstract class GenericPipelineDeclaration {
     def stage(String name,
               @DelegatesTo(strategy = DELEGATE_ONLY, value = StageDeclaration) Closure closure) {
         this.stages.put(name, createComponent(StageDeclaration, closure).with { it.name = name; it })
+    }
+
+    def getCurrentBuild() {
+        return binding?.currentBuild
+    }
+
+    def getEnv() {
+        return binding?.env
+    }
+
+    def getParams() {
+        return binding?.params
     }
 
     def execute(Object delegate) {
