@@ -1,6 +1,5 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.createComponent
 import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeWith
 import static com.lesfurets.jenkins.unit.declarative.ObjectUtils.printNonNullProperties
 import static groovy.lang.Closure.*
@@ -16,6 +15,7 @@ class AgentDeclaration {
     String dockerfileDir
     Boolean reuseNode = null
     String customWorkspace
+    def binding = null
 
     def label(String label) {
         this.label = label
@@ -51,6 +51,18 @@ class AgentDeclaration {
 
     def dir(String dir) {
         this.dockerfileDir = dir
+    }
+
+    def getCurrentBuild() {
+        return binding?.currentBuild
+    }
+
+    def getEnv() {
+        return binding?.env
+    }
+
+    def getParams() {
+        return binding?.params
     }
 
     def execute(Object delegate) {

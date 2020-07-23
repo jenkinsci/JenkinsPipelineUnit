@@ -10,6 +10,19 @@ abstract class GenericPipelineDeclaration {
     Closure tools
     PostDeclaration post
     Map<String, StageDeclaration> stages = [:]
+    static def binding = null
+
+    static <T> T createComponent(Class<T> componentType,
+                                 @DelegatesTo(strategy = DELEGATE_ONLY, value = T) Closure closure) {
+        def componentInstance = componentType.newInstance()
+        def rehydrate = closure.rehydrate(componentInstance, this, this)
+        rehydrate.resolveStrategy = DELEGATE_ONLY
+        if (binding && componentInstance.hasProperty('binding') && componentInstance.binding != binding) {
+            componentInstance.binding = binding
+        }
+        rehydrate.call()
+        return componentInstance
+    }
 
     static <T> T executeOn(@DelegatesTo.Target Object delegate,
                      @DelegatesTo(strategy = DELEGATE_ONLY) Closure<T> closure) {
@@ -35,7 +48,7 @@ abstract class GenericPipelineDeclaration {
         this.agent = new AgentDeclaration().with { it.label = o; it }
     }
 
-    def agent(@DelegatesTo(strategy = DELEGATE_ONLY, value = AgentDeclaration) Closure closure) {
+    def agent(@DelegatesTo(strategy=Closure.DELEGATE_ONLY, value=AgentDeclaration) Closure closure) {
         this.agent = createComponent(AgentDeclaration, closure)
     }
 
@@ -58,6 +71,18 @@ abstract class GenericPipelineDeclaration {
     def stage(String name,
               @DelegatesTo(strategy = DELEGATE_ONLY, value = StageDeclaration) Closure closure) {
         this.stages.put(name, createComponent(StageDeclaration, closure).with { it.name = name; it })
+    }
+
+    def getCurrentBuild() {
+        return binding?.currentBuild
+    }
+
+    def getEnv() {
+        return binding?.env
+    }
+
+    def getParams() {
+        return binding?.params
     }
 
     def execute(Object delegate) {
