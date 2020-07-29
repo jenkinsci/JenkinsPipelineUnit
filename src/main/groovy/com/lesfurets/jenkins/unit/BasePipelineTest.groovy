@@ -155,6 +155,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('pollSCM', [String])
         helper.registerAllowedMethod("properties", [List])
         helper.registerAllowedMethod("pwd", [], { 'workspaceDirMocked' })
+        helper.registerAllowedMethod("pwd", [Map], { 'tempDirMocked' })
         helper.registerAllowedMethod('readFile', [Map], { args -> helper.readFile(args )})
         helper.registerAllowedMethod('readFile', [String], { args -> helper.readFile(args )})
         helper.registerAllowedMethod("retry", [Integer, Closure], { Integer count, Closure c ->
