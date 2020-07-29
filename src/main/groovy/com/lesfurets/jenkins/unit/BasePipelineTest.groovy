@@ -140,6 +140,9 @@ abstract class BasePipelineTest {
             helper.callClosure(c)
         })
         helper.registerAllowedMethod("input", [String])
+        helper.registerAllowedMethod('isUnix', [], {
+            return !System.properties['os.name'].toLowerCase().contains('windows')
+        })
         helper.registerAllowedMethod("junit", [String])
         helper.registerAllowedMethod("library", [String], {String expression ->
             helper.getLibLoader().loadImplicitLibraries()
