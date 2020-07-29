@@ -212,6 +212,69 @@ void exampleReadFileTest() {
 }
 ```
 
+### Mocking sh
+
+The `sh` step is used by many pipelines for a variety of tasks. Its output can also be mocked to return:
+
+- A string
+- A return code
+- A closure that will be executed when `sh` is called
+
+Here is a sample pipeline and corresponding unit tests for each of the three output types.
+
+```groovy
+// Jenkinsfile
+node {
+    stage('Mock build') {
+        def systemType = sh(returnStdout: true, script: 'uname')
+        if (systemType == 'Debian') {
+            sh './build.sh --release'
+            int status = sh(returnStatus: true, script: './test.sh')
+            if (status > 0) {
+                currentBuild.result = 'UNSTABLE'
+            } else {
+                def result = sh(returnStdout: true, script: './processTestResults.sh --platform debian')
+                if (!result.endsWith('SUCCESS')) {
+                    currentBuild.result = 'FAILURE'
+                    error 'Build failed!'
+                }
+            }
+        }
+    }
+}
+```
+
+```groovy
+@Test
+void debianBuildSuccess() {
+    helper.addShMock('uname', 'Debian', 0)
+    helper.addShMock('./build.sh --release', '', 0)
+    helper.addShMock('./test.sh', '', 0)
+    // Have the sh mock execute the closure when the corresponding script is run
+    helper.addShMock('./processTestResults.sh --platform debian') { script ->
+        return "Executing ${script}: SUCCESS"
+    }
+
+    runScript("Jenkinsfile")
+
+    assertJobStatusSuccess()
+}
+
+@Test
+void debianBuildUnstable() {
+    helper.addShMock('uname', 'Debian', 0)
+    helper.addShMock('./build.sh --release', '', 0)
+    helper.addShMock('./test.sh', '', 1)
+
+    runScript("Jenkinsfile")
+
+    assertJobStatusUnstable()
+}
+```
+
+Note that in all cases, the `script` executed by `sh` must *exactly* match the string passed to `helper.addShMock`,
+including the script arguments, whitespace etc.
+
 ### Analyze the mock execution
 
 The helper registers every method call to provide a stacktrace of the mock execution.

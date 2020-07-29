@@ -176,14 +176,8 @@ abstract class BasePipelineTest {
                 }
             }
         })
-        helper.registerAllowedMethod("sh", [String])
-        helper.registerAllowedMethod('sh', [Map], {m->
-          if(m.returnStdout && m.script.contains("git rev-parse HEAD")) {
-            return "abcd123\n"
-          } else {
-            return """aaa\nbbb\nccc\n"""
-          }
-        })
+        helper.registerAllowedMethod('sh', [String], { args -> helper.runSh(args) })
+        helper.registerAllowedMethod('sh', [Map], { args -> helper.runSh(args) })
         helper.registerAllowedMethod('skipDefaultCheckout')
         helper.registerAllowedMethod('sleep')
         helper.registerAllowedMethod('specific', [String])
