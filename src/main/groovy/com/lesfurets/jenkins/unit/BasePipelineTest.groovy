@@ -189,10 +189,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("step", [Map])
         helper.registerAllowedMethod("string", [Map], stringInterceptor)
         helper.registerAllowedMethod('timeout', [Map])
-        helper.registerAllowedMethod("timeout", [Map, Closure]) { Closure c ->
+        helper.registerAllowedMethod("timeout", [Map, Closure], { Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
-        }
+        })
         helper.registerAllowedMethod('tool', [Map], { t -> "${t.name}_HOME" })
         helper.registerAllowedMethod("unstable", [String], { updateBuildStatus('UNSTABLE') })
         helper.registerAllowedMethod('unstash', [Map])
