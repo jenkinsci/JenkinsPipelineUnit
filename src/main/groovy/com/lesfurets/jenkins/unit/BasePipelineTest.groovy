@@ -258,7 +258,8 @@ abstract class BasePipelineTest {
             upstreamBuilds: [],
         ])
         binding.setVariable('docker', new DockerMock())
-        binding.setVariable('env',[:])
+        binding.setVariable('env', [:])
+        binding.setVariable('scm', [:])
     }
 
     /**
