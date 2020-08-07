@@ -185,6 +185,96 @@ You can take a look at the `BasePipelineTest` class to have the short list of al
 Some tricky methods such as `load` and `parallel` are implemented directly in the helper.
 If you want to override those, make sure that you extend the `PipelineTestHelper` class.
 
+### Mocking readFile
+
+The `readFile` step can be mocked to return a specific string for a given file name. This can be useful for testing
+pipelines which must read data from a file which is required for subsequent steps. An example of such a testing scenario
+follows:
+
+```groovy
+// Jenkinsfile
+node {
+    stage('Process output') {
+        if (readFile('output') == 'FAILED!!!') {
+            currentBuild.result = 'FAILURE'
+            error 'Build failed'
+        }
+    }
+}
+```
+
+```groovy
+@Test
+void exampleReadFileTest() {
+    helper.addReadFileMock('output', 'FAILED!!!')
+    runScript("Jenkinsfile")
+    assertJobStatusFailure()
+}
+```
+
+### Mocking sh
+
+The `sh` step is used by many pipelines for a variety of tasks. Its output can also be mocked to return:
+
+- A string
+- A return code
+- A closure that will be executed when `sh` is called
+
+Here is a sample pipeline and corresponding unit tests for each of the three output types.
+
+```groovy
+// Jenkinsfile
+node {
+    stage('Mock build') {
+        def systemType = sh(returnStdout: true, script: 'uname')
+        if (systemType == 'Debian') {
+            sh './build.sh --release'
+            int status = sh(returnStatus: true, script: './test.sh')
+            if (status > 0) {
+                currentBuild.result = 'UNSTABLE'
+            } else {
+                def result = sh(returnStdout: true, script: './processTestResults.sh --platform debian')
+                if (!result.endsWith('SUCCESS')) {
+                    currentBuild.result = 'FAILURE'
+                    error 'Build failed!'
+                }
+            }
+        }
+    }
+}
+```
+
+```groovy
+@Test
+void debianBuildSuccess() {
+    helper.addShMock('uname', 'Debian', 0)
+    helper.addShMock('./build.sh --release', '', 0)
+    helper.addShMock('./test.sh', '', 0)
+    // Have the sh mock execute the closure when the corresponding script is run
+    helper.addShMock('./processTestResults.sh --platform debian') { script ->
+        return "Executing ${script}: SUCCESS"
+    }
+
+    runScript("Jenkinsfile")
+
+    assertJobStatusSuccess()
+}
+
+@Test
+void debianBuildUnstable() {
+    helper.addShMock('uname', 'Debian', 0)
+    helper.addShMock('./build.sh --release', '', 0)
+    helper.addShMock('./test.sh', '', 1)
+
+    runScript("Jenkinsfile")
+
+    assertJobStatusUnstable()
+}
+```
+
+Note that in all cases, the `script` executed by `sh` must *exactly* match the string passed to `helper.addShMock`,
+including the script arguments, whitespace etc.
+
 ### Analyze the mock execution
 
 The helper registers every method call to provide a stacktrace of the mock execution.
