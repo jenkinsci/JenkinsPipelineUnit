@@ -87,6 +87,8 @@ class PipelineTestHelper {
     /** Let scripts and library classes access global vars (env, currentBuild) */
     protected Binding binding
 
+    Map<String, String> mockReadFileOutputs = [:]
+
     /**
     * Get library loader object
     *
@@ -274,6 +276,8 @@ class PipelineTestHelper {
 
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
         gse.setConfig(configuration)
+
+        mockReadFileOutputs.clear()
         return this
     }
 
@@ -531,6 +535,22 @@ class PipelineTestHelper {
         } else {
             return closure.call(*args)
         }
+    }
+
+    void addReadFileMock(String file, String contents) {
+        mockReadFileOutputs[file] = contents
+    }
+
+    String readFile(def args) {
+        String file = null
+        if (args instanceof String || args instanceof GString) {
+            file = args
+        } else if (args instanceof Map) {
+            file = args['file']
+        }
+        assert file
+
+        return mockReadFileOutputs[file] ?: ''
     }
 
 }
