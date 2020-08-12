@@ -1,8 +1,4 @@
 // file: vars/oneArg.groovy
 def call(arg) {
-    if (arg == null) {
-        echo "Is null"
-    } else {
-        echo "Is not null"
-    }
+    echo arg ? "Is not null" : "Is null"
 }
