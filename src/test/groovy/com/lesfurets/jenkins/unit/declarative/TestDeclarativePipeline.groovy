@@ -92,6 +92,37 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void when_anyOf_branch_not() throws Exception {
+        addEnvVar('BRANCH_NAME', 'master')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example anyOf branch')
+        assertJobStatusSuccess()
+    }
+    @Test void when_anyOf_branch() throws Exception {
+        addEnvVar('BRANCH_NAME', 'production')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing anyOf with branch')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_anyOf_expression_not() throws Exception {
+        addEnvVar('SHOULD_EXECUTE', 'false')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example anyOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_anyOf_expression() throws Exception {
+        addEnvVar('SHOULD_EXECUTE', 'true')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing anyOf with expression')
+        assertJobStatusSuccess()
+    }
+
     @Test void when_branch() throws Exception {
         addEnvVar('BRANCH_NAME', 'production')
         runScript('Branch_Jenkinsfile')
