@@ -188,7 +188,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("step", [Map])
         helper.registerAllowedMethod("string", [Map], stringInterceptor)
         helper.registerAllowedMethod('timeout', [Map])
-        helper.registerAllowedMethod("timeout", [Map, Closure]) { Closure c ->
+        helper.registerAllowedMethod('timeout', [Map, Closure]) { Map args, Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
         }
@@ -197,7 +197,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('unstash', [Map])
         helper.registerAllowedMethod('usernamePassword', [Map], usernamePasswordInterceptor)
         helper.registerAllowedMethod('waitUntil', [Closure])
-        helper.registerAllowedMethod("warnError", [String, Closure], { Closure c ->
+        helper.registerAllowedMethod("warnError", [String, Closure], { String arg, Closure c ->
             try {
                 c.delegate = delegate
                 helper.callClosure(c)
