@@ -1,0 +1,8 @@
+
+def someMethod1() {
+    'method1'
+}
+
+def someMethod2() {
+    'method2'
+}

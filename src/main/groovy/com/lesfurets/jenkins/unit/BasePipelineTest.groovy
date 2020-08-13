@@ -74,7 +74,7 @@ abstract class BasePipelineTest {
         if (!helper.isInitialized()) {
             initHelper()
         } else {
-            helper.callStack.clear()
+            clearCallStack()
         }
 
         registerAllowedMethods()
@@ -315,11 +315,30 @@ abstract class BasePipelineTest {
         return helper.runScript(script, this.binding)
     }
 
-    @Memoized
+    private String cachedStackDump = null
+
+    /**
+     * Clear the call stack in preparation to reuse this test helper.
+     */
+    void clearCallStack() {
+        helper.clearCallStack()
+        cachedStackDump = null
+    }
+
+    /**
+     * Compute and return the representation of the call stack captured.
+     * 
+     * @return the string containing the stack dump
+     */
     String callStackDump() {
-        return helper.callStack.stream()
+        // Avoid use of Memoized to support clearing the stack
+        // and reusing the instance of this helper class.
+        if (cachedStackDump == null) {
+            cachedStackDump = helper.callStack.stream()
                      .map { it -> it.toString() }
                      .collect(joining('\n'))
+        }
+        return cachedStackDump
     }
 
     void printCallStack() {
