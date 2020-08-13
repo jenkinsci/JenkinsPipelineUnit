@@ -454,7 +454,16 @@ class PipelineTestHelper {
                 SCRIPT_SET_BINDING.invoke(script, binding)
                 script.metaClass.getMethods().findAll { it.name == 'call' }.forEach { m ->
                     this.registerAllowedMethod(method(e.value.class.name, m.getNativeParameterTypes()),
-                                    { args -> m.doMethodInvoke(e.value, args) })
+                        { args ->
+                            // When calling a one argument method with a null argument the
+                            // Groovy doMethodInvoke appears to incorrectly assume a zero
+                            // argument call signature for the method yielding an IllegalArgumentException
+                            if (args == null && m.getNativeParameterTypes().size() == 1) {
+                                m.doMethodInvoke(e.value, MetaClassHelper.ARRAY_WITH_NULL)
+                            } else {
+                                m.doMethodInvoke(e.value, args)
+                            }
+                        })
                 }
             }
             binding.setVariable(e.key, e.value)

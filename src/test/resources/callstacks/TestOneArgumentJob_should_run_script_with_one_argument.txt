@@ -1,0 +1,5 @@
+   test_lib_call_with_null.run()
+      test_lib_call_with_null.oneArg(Not null)
+         oneArg.echo(Is not null)
+      test_lib_call_with_null.oneArg(null)
+         oneArg.echo(Is null)
