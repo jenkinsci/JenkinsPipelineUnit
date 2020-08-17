@@ -633,6 +633,9 @@ class PipelineTestHelper {
 
         MockScriptOutput output = mockScriptOutputs[script]
         if (!output) {
+            if (returnStatus) {
+                return 0
+            }
             // If no output is given, we return these strings for backwards-compatibility. Ideally at some point in the
             // future, we should make a breaking change and remove this special use-case and either raise an exception
             // here or return an empty string.
@@ -680,6 +683,7 @@ class PipelineTestHelper {
         if (exitValue != 0) {
             throw new Exception('Script returned error code: ' + exitValue)
         }
+        return // no default return value requested
     }
 
 }
