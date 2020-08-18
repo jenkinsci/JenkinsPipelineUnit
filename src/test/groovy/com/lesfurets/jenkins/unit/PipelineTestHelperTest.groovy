@@ -266,6 +266,18 @@ class PipelineTestHelperTest {
     }
 
     @Test()
+    void runShWithoutMockOutputAndReturnStatus() throws Exception {
+        // given:
+        def helper = new PipelineTestHelper()
+
+        // when:
+        def output = helper.runSh(returnStatus: true, script: 'unregistered-mock-output')
+
+        // then:
+        Assertions.assertThat(output).isEqualTo(0)
+    }
+
+    @Test()
     void runShWithoutMockOutputForGitRevParse() throws Exception {
         // given:
         def helper = new PipelineTestHelper()
