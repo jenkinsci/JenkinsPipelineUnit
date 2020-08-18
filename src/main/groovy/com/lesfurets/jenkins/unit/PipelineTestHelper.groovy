@@ -683,7 +683,7 @@ class PipelineTestHelper {
         if (exitValue != 0) {
             throw new Exception('Script returned error code: ' + exitValue)
         }
-        return // no default return value requested
+        return null
     }
 
 }
