@@ -13,7 +13,7 @@ abstract class GenericPipelineDeclaration {
     static def binding = null
 
     static <T> T createComponent(Class<T> componentType,
-                                 @DelegatesTo(strategy = DELEGATE_ONLY, value = T) Closure closure) {
+                                 @DelegatesTo(strategy = DELEGATE_ONLY) Closure<T> closure) {
         def componentInstance = componentType.newInstance()
         def rehydrate = closure.rehydrate(componentInstance, this, this)
         rehydrate.resolveStrategy = DELEGATE_ONLY

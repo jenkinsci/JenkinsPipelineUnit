@@ -21,13 +21,14 @@ class MethodSignature {
     String argsToString() {
         return args.collect { Class it ->
             if (it != null && Closure.isAssignableFrom(it)) {
-                Closure.class.toString()
+                Closure.class.getName()
             } else {
                 String.valueOf(it)
             }
         }.join(', ')
     }
 
+    @Override
     boolean equals(o) {
         if (this.is(o)) return true
         if (getClass() != o.class) return false
@@ -49,6 +50,7 @@ class MethodSignature {
         return true
     }
 
+    @Override
     int hashCode() {
         int result
         result = (name != null ? name.hashCode() : 0)
