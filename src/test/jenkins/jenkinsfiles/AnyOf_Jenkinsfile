@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    stages {
+        stage('Example Build') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('Example anyOf expression') {
+            when {
+                anyOf {
+                    expression {
+                        return env.SHOULD_EXECUTE == 'true'
+                    }
+                }
+            }
+            steps {
+                echo 'Executing anyOf with expression'
+            }
+        }
+        stage('Example anyOf branch') {
+            when {
+                anyOf {
+                    branch 'production'
+                }
+            }
+            steps {
+                echo 'Executing anyOf with branch'
+            }
+        }
+    }
+}
