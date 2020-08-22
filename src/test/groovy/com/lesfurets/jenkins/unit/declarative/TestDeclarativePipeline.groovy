@@ -92,6 +92,14 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void when_not_branch_master() throws Exception {
+        addEnvVar('BRANCH_NAME', 'dev')
+        runScript('not_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Running')
+        assertJobStatusSuccess()
+    }
+
     @Test void when_anyOf_branch_not() throws Exception {
         addEnvVar('BRANCH_NAME', 'master')
         runScript('AnyOf_Jenkinsfile')
@@ -99,6 +107,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertCallStack().contains('Skipping stage Example anyOf branch')
         assertJobStatusSuccess()
     }
+
     @Test void when_anyOf_branch() throws Exception {
         addEnvVar('BRANCH_NAME', 'production')
         runScript('AnyOf_Jenkinsfile')

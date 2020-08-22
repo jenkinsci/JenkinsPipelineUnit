@@ -9,6 +9,7 @@ import static groovy.lang.Closure.*
 class WhenDeclaration {
 
     AnyOfDeclaration anyOf
+    NotDeclaration not
     Boolean buildingTag = false
     String branch
     String tag
@@ -22,6 +23,10 @@ class WhenDeclaration {
 
     def anyOf(@DelegatesTo(strategy = DELEGATE_ONLY, value = AnyOfDeclaration) Closure closure) {
         this.anyOf = createComponent(AnyOfDeclaration, closure)
+    }
+
+    def not(@DelegatesTo(strategy = DELEGATE_ONLY, value = NotDeclaration) Closure closure) {
+        this.not = createComponent(NotDeclaration, closure)
     }
 
     def environment(String name, Object value) {
@@ -54,9 +59,13 @@ class WhenDeclaration {
         boolean ta = true
         boolean env = true
         boolean any_of = true
+        boolean not_ = true
 
         if (anyOf) {
             any_of = anyOf.execute(delegate)
+        }
+        if (not) {
+            not_ = not.execute(delegate)
         }
         if (expression) {
             exp = executeWith(delegate, expression)
@@ -76,7 +85,7 @@ class WhenDeclaration {
             }
         }
 
-        return exp && br && ta && env && any_of
+        return exp && br && ta && env && any_of && not_
     }
 
 }
