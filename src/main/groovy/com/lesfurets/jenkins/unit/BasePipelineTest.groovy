@@ -312,7 +312,7 @@ abstract class BasePipelineTest {
      * @return the return value of the script
      */
     Object runScript(Script script) {
-        return helper.runScript(script, this.binding)
+        return helper.runScript(script)
     }
 
     private String cachedStackDump = null
