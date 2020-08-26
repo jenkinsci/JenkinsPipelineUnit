@@ -38,7 +38,7 @@ abstract class BasePipelineTest {
                 } catch (MissingPropertyException e) {
                     previousValues[creds] = null
                 }
-                binding.setVariable(creds, creds)                
+                binding.setVariable(creds, creds)
             } else {
                 creds.each { var ->
                     try {
@@ -229,6 +229,10 @@ abstract class BasePipelineTest {
                 binding.setVariable('env', stashedEnv)
             }
         })
+        helper.registerAllowedMethod("withKubeConfig", [Map,Closure])
+        helper.registerAllowedMethod("withKubeConfig", [List,Closure])
+        helper.registerAllowedMethod("withKubeCredentials", [Map,Closure])
+        helper.registerAllowedMethod("withKubeCredentials", [List,Closure])
         helper.registerAllowedMethod('writeFile', [Map])
         helper.registerAllowedMethod("ws", [String, Closure])
     }
@@ -327,7 +331,7 @@ abstract class BasePipelineTest {
 
     /**
      * Compute and return the representation of the call stack captured.
-     * 
+     *
      * @return the string containing the stack dump
      */
     String callStackDump() {
