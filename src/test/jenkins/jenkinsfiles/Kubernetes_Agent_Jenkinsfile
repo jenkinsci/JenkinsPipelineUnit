@@ -1,0 +1,57 @@
+pipeline {
+    agent none
+    stages {
+        stage('Example Build') {
+            agent {
+                kubernetes {
+                  cloud 'kubernetes'
+                  label 'testLabel'
+                  yaml  """metadata:
+                        namespace: "jenkins"
+                      spec:
+                        containers:
+                          - name: jnlp
+                            image: jenkins/slave:4.3-8
+                            resources:
+                              requests:
+                                cpu: "500m"
+                                memory: "4Gi"
+                              limits:
+                                memory: "4Gi"
+                                cpu: 2.0
+                            workingDir: /home/jenkins/agent
+                            env:
+                              - name: CONTAINER_ENV_VAR
+                                value: jnlp
+                              - name: JAVA_OPTS
+                                value: "-Duser.timezone=Europe/Amsterdam"
+                            volumeMounts:
+                              - name: log4j2-jenkins
+                                mountPath: "/usr/local/etc/jenkins/log4j2.xml"
+                                subPath: log4j2.xml
+                        volumes:
+                          - name: log4j2-jenkins
+                            configMap:
+                              name: log4j2-jenkins
+                  """
+                }
+            }
+            steps {
+                echo 'Hello, Kubernetes'
+                sh 'mvn --version'
+            }
+        }
+        stage('Example Test') {
+            agent { kubernetes {
+                  cloud 'kubernetes'
+                  label 'testLabel'
+                  yamlFile 'KubernetesPod.yaml'
+              }
+            }
+            steps {
+                echo 'Hello, JDK'
+                sh 'java -version'
+            }
+        }
+    }
+}
