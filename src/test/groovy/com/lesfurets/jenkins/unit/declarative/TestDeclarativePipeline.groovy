@@ -1,6 +1,7 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import org.junit.*
+import org.junit.Before
+import org.junit.Test
 
 class TestDeclarativePipeline extends DeclarativePipelineTest {
 
@@ -250,7 +251,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
 
     @Test void agent_with_mock_param_label() throws Exception {
         def params = binding.getVariable('params')
-        params['SLAVE'] = 'mockSlave'
+        params['AGENT'] = 'mockSlave'
         runScript('AgentParam_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('mockSlave')
@@ -266,16 +267,18 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
-    @Ignore @Test void should_agent_with_bindings() throws Exception {
-        final def binding_var = 'a binding var'
-        binding.setVariable('binding_var', binding_var)
-
-        helper.registerAllowedMethod('getBinding_var', {
-            return binding_var
-        })
+    @Test void should_agent_with_bindings() throws Exception {
+        final def some_var = 'someVar'
+        binding.setVariable('var', some_var)
+        binding.setVariable('binding_var', some_var)
 
         runScript('Agent_bindings_Jenkinsfile')
         printCallStack()
+        assertCallStack().contains('[label:someVar]')
+        assertCallStack().contains('docker:[', ', image:someVar, ', ']')
+        assertCallStack().contains('[label:someLabel]')
+        assertCallStack().contains('echo(Deploy to someLabel)')
         assertJobStatusSuccess()
     }
+
 }

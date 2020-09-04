@@ -15,11 +15,23 @@ abstract class GenericPipelineDeclaration {
 
     static <T> T createComponent(Class<T> componentType,
                                  @DelegatesTo(strategy = DELEGATE_ONLY) Closure<T> closure) {
-        def componentInstance = componentType.newInstance()
+        // declare componentInstance as final to prevent any multithreaded issues, since it is used inside closure
+        final def componentInstance = componentType.newInstance()
         def rehydrate = closure.rehydrate(componentInstance, this, this)
         rehydrate.resolveStrategy = DELEGATE_ONLY
         if (binding && componentInstance.hasProperty('binding') && componentInstance.binding != binding) {
             componentInstance.binding = binding
+            componentInstance.metaClass.getProperty = { String name ->
+                def retVal
+                def metaProperty = componentInstance.metaClass.getMetaProperty(closure)
+                if (metaProperty) {
+                    retVal = metaProperty.getProperty(name)
+                }
+                else {
+                    retVal = binding.getProperty(name)
+                }
+                return retVal
+            }
         }
         rehydrate.call()
         return componentInstance
