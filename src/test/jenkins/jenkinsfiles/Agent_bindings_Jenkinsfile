@@ -1,3 +1,6 @@
+
+def AGENT = 'someLabel'
+
 pipeline {
     agent none
     stages {
@@ -13,6 +16,12 @@ pipeline {
             steps {
                 echo 'Hello, JDK'
                 sh 'java -version'
+            }
+        }
+        stage('Example Deploy') {
+            agent AGENT
+            steps {
+                echo "Deploy to ${AGENT}"
             }
         }
     }

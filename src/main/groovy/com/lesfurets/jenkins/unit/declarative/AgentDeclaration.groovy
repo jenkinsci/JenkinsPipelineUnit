@@ -1,5 +1,8 @@
 package com.lesfurets.jenkins.unit.declarative
 
+import groovy.transform.Memoized
+import groovy.transform.ToString
+
 import com.lesfurets.jenkins.unit.declarative.agent.DockerAgentDeclaration
 import com.lesfurets.jenkins.unit.declarative.agent.KubernetesAgentDeclaration
 
@@ -8,6 +11,8 @@ import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.execute
 import static com.lesfurets.jenkins.unit.declarative.ObjectUtils.printNonNullProperties
 import static groovy.lang.Closure.DELEGATE_ONLY
 
+
+@ToString(includePackage = false, includeNames = true, ignoreNulls = true)
 class AgentDeclaration {
 
     String label
@@ -73,10 +78,25 @@ class AgentDeclaration {
 
     def execute(Object delegate) {
         def agentDesc = null
-        if (!label && !docker && dockerfile == null && kubernetes == null) {
+
+        if (label) {
+            agentDesc = '[label:' + label.toString() + ']'
+        }
+        else if (docker) {
+            agentDesc = '[docker:' + docker.toString() + ']'
+        }
+        else if (dockerfile) {
+            agentDesc = '[dockerfile:' + dockerfile.toString() + ']'
+        }
+        else if (dockerfileDir && dockerfileDir.exists()) {
+            agentDesc = '[dockerfileDir:' + dockerfileDir.toString() + ']'
+        }
+        else if (kubernetes) {
+            agentDesc = '[kubernetes:' + kubernetes.toString() + ']'
+        }
+        else {
             throw new IllegalStateException("No agent description found")
         }
-        agentDesc = printNonNullProperties(this)
         executeWith(delegate, { echo "Executing on agent $agentDesc" })
     }
 }
