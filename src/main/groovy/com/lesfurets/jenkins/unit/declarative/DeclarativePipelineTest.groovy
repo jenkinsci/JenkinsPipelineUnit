@@ -9,6 +9,7 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
 
     def pipelineInterceptor = { Closure closure ->
         GenericPipelineDeclaration.binding = delegate.binding
+        GenericPipelineDeclaration.pipelineOwner = closure.owner
         GenericPipelineDeclaration.createComponent(DeclarativePipeline, closure).execute(delegate)
     }
 

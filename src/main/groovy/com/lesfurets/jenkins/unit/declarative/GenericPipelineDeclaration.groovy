@@ -12,6 +12,7 @@ abstract class GenericPipelineDeclaration {
     PostDeclaration post
     Map<String, StageDeclaration> stages = [:]
     static def binding = null
+    static def pipelineOwner = null
 
     static <T> T createComponent(Class<T> componentType,
                                  @DelegatesTo(strategy = DELEGATE_ONLY) Closure<T> closure) {
@@ -33,6 +34,22 @@ abstract class GenericPipelineDeclaration {
                 return retVal
             }
         }
+        componentInstance.metaClass.methodMissing = { String methodName, args ->
+            def retVal
+            def metaMethod = componentInstance.metaClass.getMetaMethod(methodName, args)
+            if (metaMethod) {
+                retVal = componentInstance.invokeMethod(methodName, args)
+            } else {
+                metaMethod = pipelineOwner.metaClass.getMetaMethod(methodName, args)
+                if(metaMethod){
+                    retVal = pipelineOwner.invokeMethod(methodName, args)
+                } else {
+                    throw new MissingMethodException(methodName, componentInstance.class, args)
+                }
+            }
+            return retVal
+        }
+
         rehydrate.call()
         return componentInstance
     }
