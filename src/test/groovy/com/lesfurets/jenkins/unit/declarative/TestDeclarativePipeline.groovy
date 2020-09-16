@@ -181,6 +181,14 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void should_kubernetes_map_agent() throws Exception {
+        runScript('Kubernetes_Map_Agent_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('namespace: "jenkins"')
+        assertCallStack().contains('image: jenkins/slave')
+        assertJobStatusSuccess()
+    }
+
     @Test void should_credentials() throws Exception {
         addCredential('my-prefined-secret-text', 'something_secret')
         runScript('Credentials_Jenkinsfile')

@@ -1,16 +1,12 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import groovy.transform.Memoized
-import groovy.transform.ToString
-
 import com.lesfurets.jenkins.unit.declarative.agent.DockerAgentDeclaration
 import com.lesfurets.jenkins.unit.declarative.agent.KubernetesAgentDeclaration
+import groovy.transform.ToString
 
 import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.createComponent
 import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeWith
-import static com.lesfurets.jenkins.unit.declarative.ObjectUtils.printNonNullProperties
 import static groovy.lang.Closure.DELEGATE_ONLY
-
 
 @ToString(includePackage = false, includeNames = true, ignoreNulls = true)
 class AgentDeclaration {
@@ -48,8 +44,12 @@ class AgentDeclaration {
         this.docker = createComponent(DockerAgentDeclaration, closure)
     }
 
+    def kubernetes(Object kubernetesAgent) {
+        this.@kubernetes = kubernetesAgent as KubernetesAgentDeclaration
+    }
+
     def kubernetes(@DelegatesTo(strategy = DELEGATE_ONLY, value = KubernetesAgentDeclaration) Closure closure) {
-        this.kubernetes = createComponent(KubernetesAgentDeclaration, closure)
+        this.@kubernetes = createComponent(KubernetesAgentDeclaration, closure)
     }
 
     def dockerfile(boolean dockerfile) {
