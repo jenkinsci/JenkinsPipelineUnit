@@ -117,6 +117,7 @@ abstract class BasePipelineTest {
             ]
         })
         helper.registerAllowedMethod("buildDiscarder", [Object])
+        helper.registerAllowedMethod("skipStagesAfterUnstable")
         helper.registerAllowedMethod("checkout", [Map])
         helper.registerAllowedMethod("choice", [Map])
         helper.registerAllowedMethod('cifsPublisher', [Map], {true})
