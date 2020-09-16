@@ -109,7 +109,15 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
-    @Test void when_anyOf_branch() throws Exception {
+    @Test void when_anyOf_branch_release() throws Exception {
+        addEnvVar('BRANCH_NAME', 'release')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing anyOf with branch')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_anyOf_branch_production() throws Exception {
         addEnvVar('BRANCH_NAME', 'production')
         runScript('AnyOf_Jenkinsfile')
         printCallStack()

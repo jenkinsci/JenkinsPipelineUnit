@@ -12,16 +12,20 @@ pipeline {
                     expression {
                         return env.SHOULD_EXECUTE == 'true'
                     }
+                    expression {
+                        return 1 == 2
+                    }
                 }
             }
             steps {
                 echo 'Executing anyOf with expression'
             }
         }
-        stage('Example anyOf branch') {
+        stage('Example anyOf branches') {
             when {
                 anyOf {
                     branch 'production'
+                    branch 'release'
                 }
             }
             steps {
