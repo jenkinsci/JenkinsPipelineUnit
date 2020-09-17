@@ -122,6 +122,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("choice", [Map])
         helper.registerAllowedMethod('cifsPublisher', [Map], {true})
         helper.registerAllowedMethod('cleanWs')
+        helper.registerAllowedMethod("container", [String, Closure], { String path, Closure c ->
+            c.delegate = delegate
+            helper.callClosure(c)
+        })
         helper.registerAllowedMethod('copyArtifacts', [Map], {true})
         helper.registerAllowedMethod("cron", [String])
         helper.registerAllowedMethod('deleteDir')
