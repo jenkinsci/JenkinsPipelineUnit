@@ -1,14 +1,15 @@
 package com.lesfurets.jenkins.unit.declarative.kubernetes
 
+import com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration
 import groovy.transform.Memoized
 import groovy.transform.ToString
 
 import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.createComponent
 import static com.lesfurets.jenkins.unit.declarative.ObjectUtils.printNonNullProperties
-import static groovy.lang.Closure.DELEGATE_ONLY
+import static groovy.lang.Closure.DELEGATE_FIRST
 
 @ToString(includePackage = false, includeNames = true, ignoreNulls = true)
-class ContainerTemplate {
+class ContainerTemplateDeclaration extends GenericPipelineDeclaration {
 
     String name;
     String image;
@@ -25,9 +26,9 @@ class ContainerTemplate {
     String resourceLimitCpu;
     String resourceLimitMemory;
     String shell;
-    final List<TemplateEnvVar> envVars;
-    List<PortMapping> ports;
-    ContainerLivenessProbe livenessProbe;
+    final List<TemplateEnvVarDeclaration> envVars;
+    List<PortMappingDeclaration> ports;
+    ContainerLivenessProbeDeclaration livenessProbe;
 
     def name(final String name) {
         this.name = name
@@ -89,14 +90,14 @@ class ContainerTemplate {
         this.shell = shell
     }
 
-    def ports(@DelegatesTo(strategy = DELEGATE_ONLY, value = PortMapping) List<Closure> closures) {
+    def ports(@DelegatesTo(strategy = DELEGATE_FIRST, value = PortMappingDeclaration) List<Closure> closures) {
         this.ports = closures.each { ct ->
-            return createComponent(PortMapping, ct)
-        } as List<PortMapping>
+            return createComponent(PortMappingDeclaration, ct)
+        } as List<PortMappingDeclaration>
     }
 
-    def livenessProbe(@DelegatesTo(strategy = DELEGATE_ONLY, value = ContainerLivenessProbe) Closure closure) {
-        this.livenessProbe = createComponent(ContainerLivenessProbe, ct)
+    def livenessProbe(@DelegatesTo(strategy = DELEGATE_FIRST, value = ContainerLivenessProbeDeclaration) Closure closure) {
+        this.livenessProbe = createComponent(ContainerLivenessProbeDeclaration, ct)
     }
 
     @Memoized

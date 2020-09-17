@@ -1,6 +1,6 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static groovy.lang.Closure.DELEGATE_ONLY
+import static groovy.lang.Closure.DELEGATE_FIRST
 //import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeOn
 
 class ParallelDeclaration extends GenericPipelineDeclaration {
@@ -16,7 +16,7 @@ class ParallelDeclaration extends GenericPipelineDeclaration {
     }
 
     def stage(String name,
-              @DelegatesTo(strategy = DELEGATE_ONLY, value = StageDeclaration) Closure closure) {
+              @DelegatesTo(strategy = DELEGATE_FIRST, value = StageDeclaration) Closure closure) {
         this.stages.put(name, createComponent(StageDeclaration, closure).with{it.name = name;it} )
     }
 

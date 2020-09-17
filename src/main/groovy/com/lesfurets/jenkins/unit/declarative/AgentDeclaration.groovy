@@ -4,12 +4,10 @@ import com.lesfurets.jenkins.unit.declarative.agent.DockerAgentDeclaration
 import com.lesfurets.jenkins.unit.declarative.agent.KubernetesAgentDeclaration
 import groovy.transform.ToString
 
-import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.createComponent
-import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeWith
-import static groovy.lang.Closure.DELEGATE_ONLY
+import static groovy.lang.Closure.DELEGATE_FIRST
 
 @ToString(includePackage = false, includeNames = true, ignoreNulls = true)
-class AgentDeclaration {
+class AgentDeclaration extends GenericPipelineDeclaration {
 
     String label
     DockerAgentDeclaration docker
@@ -40,7 +38,7 @@ class AgentDeclaration {
         this.docker = new DockerAgentDeclaration().with { it.image = image; it }
     }
 
-    def docker(@DelegatesTo(strategy = DELEGATE_ONLY, value = DockerAgentDeclaration) Closure closure) {
+    def docker(@DelegatesTo(strategy = DELEGATE_FIRST, value = DockerAgentDeclaration) Closure closure) {
         this.docker = createComponent(DockerAgentDeclaration, closure)
     }
 
@@ -48,7 +46,7 @@ class AgentDeclaration {
         this.@kubernetes = kubernetesAgent as KubernetesAgentDeclaration
     }
 
-    def kubernetes(@DelegatesTo(strategy = DELEGATE_ONLY, value = KubernetesAgentDeclaration) Closure closure) {
+    def kubernetes(@DelegatesTo(strategy = DELEGATE_FIRST, value = KubernetesAgentDeclaration) Closure closure) {
         this.@kubernetes = createComponent(KubernetesAgentDeclaration, closure)
     }
 

@@ -1,6 +1,6 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeWith
+
 import static groovy.lang.Closure.*
 
 class StageDeclaration extends GenericPipelineDeclaration {
@@ -28,11 +28,11 @@ class StageDeclaration extends GenericPipelineDeclaration {
         return binding?.var
     }
 
-    def parallel(@DelegatesTo(strategy = DELEGATE_ONLY, value = ParallelDeclaration) Closure closure) {
+    def parallel(@DelegatesTo(strategy = DELEGATE_FIRST, value = ParallelDeclaration) Closure closure) {
         this.parallel = createComponent(ParallelDeclaration, closure).with { it.failFast = failFast; it }
     }
 
-    def when(@DelegatesTo(strategy = DELEGATE_ONLY, value = WhenDeclaration) Closure closure) {
+    def when(@DelegatesTo(strategy = DELEGATE_FIRST, value = WhenDeclaration) Closure closure) {
         this.when = createComponent(WhenDeclaration, closure)
     }
 
@@ -61,7 +61,7 @@ class StageDeclaration extends GenericPipelineDeclaration {
                 e.value.execute(delegate)
             }
             if(steps) {
-                Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, delegate, delegate)
+                Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, this, this)
                 Closure cl = { stage("$name", stageBody) }
                 executeWith(delegate, cl)
             }
