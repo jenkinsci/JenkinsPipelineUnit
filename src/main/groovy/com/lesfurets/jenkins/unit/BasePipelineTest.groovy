@@ -39,6 +39,21 @@ abstract class BasePipelineTest {
                     previousValues[creds] = null
                 }
                 binding.setVariable(creds, creds)
+            } else if (creds instanceof Map && creds.get("\$class") == "UsernamePasswordMultiBinding") {
+                def username = creds.get("usernameVariable")
+                def password = creds.get("passwordVariable")
+                try {
+                    previousValues[username] = binding.getVariable(username)
+                } catch (MissingPropertyException e) {
+                    previousValues[username] = null
+                }
+                binding.setVariable(username, username)
+                try {
+                    previousValues[password] = binding.getVariable(password)
+                } catch (MissingPropertyException e) {
+                    previousValues[password] = null
+                }
+                binding.setVariable(password, password)
             } else {
                 creds.each { var ->
                     try {
