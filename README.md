@@ -504,7 +504,7 @@ class TestExampleDeclarativeJob extends DeclarativePipelineTest {
 ```
 
 ### DeclarativePipelineTest
-It extends `BasePipelineTest` functionality so you can verify your decalrative job the same way
+It extends `BasePipelineTest` functionality so you can verify your declarative job the same way
 like it was a scripted pipeline
 
 ## Testing Shared Libraries
