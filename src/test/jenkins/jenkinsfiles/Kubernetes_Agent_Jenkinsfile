@@ -38,7 +38,9 @@ pipeline {
             }
             steps {
                 echo 'Hello, Kubernetes'
-                sh 'mvn --version'
+                container("maven"){
+                    sh 'mvn --version'
+                }
             }
         }
         stage('Example Test') {
