@@ -276,8 +276,8 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
 
     @Test void should_agent_with_environment() throws Exception {
         def env = binding.getVariable('env')
-        env['ENV_VAR'] = 'ENV VAR'
-        env['some_env_var'] = 'some env var'
+        env['ENV_VAR'] = 'ENV VAR_VALUE'
+        env['some_env_var'] = 'some env var_value'
         runScript('Agent_env_Jenkinsfile')
         printCallStack()
         assertJobStatusSuccess()

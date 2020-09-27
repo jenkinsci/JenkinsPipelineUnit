@@ -1,14 +1,14 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static com.lesfurets.jenkins.unit.MethodSignature.method
-
 import com.lesfurets.jenkins.unit.BasePipelineTest
+
+import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 @groovy.transform.InheritConstructors
 abstract class DeclarativePipelineTest extends BasePipelineTest {
 
     def pipelineInterceptor = { Closure closure ->
-        GenericPipelineDeclaration.binding = delegate.binding
+        GenericPipelineDeclaration.binding = binding
         GenericPipelineDeclaration.createComponent(DeclarativePipeline, closure).execute(delegate)
     }
 

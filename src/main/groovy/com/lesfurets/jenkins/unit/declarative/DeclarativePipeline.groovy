@@ -16,15 +16,11 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         properties.put('scm', 'scm')
     }
 
-    def getParams() {
-        return binding?.params
-    }
-
     def propertyMissing(String name) {
         if (properties.containsKey(name)) {
             return properties.get(name)
         } else {
-            throw new IllegalStateException("Missing $name")
+            throw new MissingPropertyException(name)
         }
     }
 
@@ -44,7 +40,7 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         this.params = new ParametersDeclaration().with { it.label = o; it }
     }
 
-    def parameters(@DelegatesTo(strategy=Closure.DELEGATE_ONLY, value=ParametersDeclaration) Closure closure) {
+    def parameters(@DelegatesTo(strategy=DELEGATE_FIRST, value=ParametersDeclaration) Closure closure) {
         this.params = createComponent(ParametersDeclaration, closure)
     }
 

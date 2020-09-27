@@ -26,7 +26,7 @@ class AnyOfDeclaration extends WhenDeclaration {
         return false
     }
 
-    boolean execute(Object delegate) {
+    Boolean execute(Object delegate) {
         boolean br = false;
         boolean exp = false;
 

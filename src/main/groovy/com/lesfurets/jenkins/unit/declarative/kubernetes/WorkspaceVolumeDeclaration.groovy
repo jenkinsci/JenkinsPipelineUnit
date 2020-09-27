@@ -1,14 +1,14 @@
 package com.lesfurets.jenkins.unit.declarative.kubernetes
 
+import com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration
 import groovy.transform.Memoized
 import groovy.transform.ToString
 
-import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.createComponent
 import static com.lesfurets.jenkins.unit.declarative.ObjectUtils.printNonNullProperties
-import static groovy.lang.Closure.DELEGATE_ONLY
+import static groovy.lang.Closure.DELEGATE_FIRST
 
 @ToString(includePackage = false, includeNames = true, ignoreNulls = true)
-class WorkspaceVolume {
+class WorkspaceVolumeDeclaration extends GenericPipelineDeclaration {
 
     DynamicWorkspaceVolume dynamicPVC
     EmptyDirWorkspaceVolume emptyDirWorkspaceVolume
@@ -16,23 +16,23 @@ class WorkspaceVolume {
     NfsWorkspaceVolume nfsWorkspaceVolume
     PersistentVolumeClaimWorkspaceVolume persistentVolumeClaimWorkspaceVolume
 
-    void dynamicPVC(@DelegatesTo(strategy = DELEGATE_ONLY, value = DynamicWorkspaceVolume) Closure closure) {
+    void dynamicPVC(@DelegatesTo(strategy = DELEGATE_FIRST, value = DynamicWorkspaceVolume) Closure closure) {
         this.dynamicPVC = createComponent(DynamicWorkspaceVolume, closure)
     }
 
-    void emptyDirWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_ONLY, value = EmptyDirWorkspaceVolume) Closure closure) {
+    void emptyDirWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_FIRST, value = EmptyDirWorkspaceVolume) Closure closure) {
         this.emptyDirWorkspaceVolume = createComponent(EmptyDirWorkspaceVolume, closure)
     }
 
-    void hostPathWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_ONLY, value = HostPathWorkspaceVolume) Closure closure) {
+    void hostPathWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_FIRST, value = HostPathWorkspaceVolume) Closure closure) {
         this.hostPathWorkspaceVolume = createComponent(HostPathWorkspaceVolume, closure)
     }
 
-    void nfsWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_ONLY, value = NfsWorkspaceVolume) Closure closure) {
+    void nfsWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_FIRST, value = NfsWorkspaceVolume) Closure closure) {
         nfsWorkspaceVolume = createComponent(NfsWorkspaceVolume, closure)
     }
 
-    void persistentVolumeClaimWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_ONLY, value = PersistentVolumeClaimWorkspaceVolume) Closure closure) {
+    void persistentVolumeClaimWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_FIRST, value = PersistentVolumeClaimWorkspaceVolume) Closure closure) {
         persistentVolumeClaimWorkspaceVolume = createComponent(PersistentVolumeClaimWorkspaceVolume, closure)
     }
 

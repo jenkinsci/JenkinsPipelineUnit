@@ -1,12 +1,10 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeWith
-import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.createComponent
 import java.util.regex.Pattern
 
-import static groovy.lang.Closure.*
+import static groovy.lang.Closure.DELEGATE_FIRST
 
-class WhenDeclaration {
+class WhenDeclaration extends GenericPipelineDeclaration {
 
     AnyOfDeclaration anyOf
     NotDeclaration not
@@ -14,27 +12,18 @@ class WhenDeclaration {
     String branch
     String tag
     Closure<Boolean> expression
-    Map<String, Object> environment = [:]
 
     private static Pattern getPatternFromGlob(String glob) {
         // from https://stackoverflow.com/a/3619098
         return Pattern.compile('^' + Pattern.quote(glob).replace('*', '\\E.*\\Q').replace('?', '\\E.\\Q') + '$');
     }
 
-    def anyOf(@DelegatesTo(strategy = DELEGATE_ONLY, value = AnyOfDeclaration) Closure closure) {
+    def anyOf(@DelegatesTo(strategy = DELEGATE_FIRST, value = AnyOfDeclaration) Closure closure) {
         this.anyOf = createComponent(AnyOfDeclaration, closure)
     }
 
-    def not(@DelegatesTo(strategy = DELEGATE_ONLY, value = NotDeclaration) Closure closure) {
+    def not(@DelegatesTo(strategy = DELEGATE_FIRST, value = NotDeclaration) Closure closure) {
         this.not = createComponent(NotDeclaration, closure)
-    }
-
-    def environment(String name, Object value) {
-        this.environment.put(name, value)
-    }
-
-    def environment(envs) {
-        this.environment(envs.name, envs.value)
     }
 
     def branch (String name) {
@@ -53,39 +42,40 @@ class WhenDeclaration {
         this.expression = closure
     }
 
-    boolean execute(Object delegate) {
-        boolean exp = true
-        boolean br = true
-        boolean ta = true
-        boolean env = true
-        boolean any_of = true
-        boolean not_ = true
+    Boolean execute(Object delegate) {
+        boolean expressionCheck = true
+        boolean branchCheck = true
+        boolean tagCheck = true
+        boolean envCheck = true
+        boolean anyOfCheck = true
+        boolean notCheck = true
 
         if (anyOf) {
-            any_of = anyOf.execute(delegate)
+            anyOfCheck = anyOf.execute(delegate)
         }
         if (not) {
-            not_ = not.execute(delegate)
+            notCheck = not.execute(delegate)
         }
         if (expression) {
-            exp = executeWith(delegate, expression)
+            expressionCheck = executeWith(delegate, expression)
         }
         if (branch) {
-            br = this.branch == delegate.env.BRANCH_NAME
+            branchCheck = this.branch == delegate.env.BRANCH_NAME
         }
         if (buildingTag) {
-            ta = delegate.env.containsKey(TAG_NAME)
+            tagCheck = delegate.env.containsKey(TAG_NAME)
         }
         if (tag) {
-            ta = delegate.env.TAG_NAME =~ tag
+            tagCheck = delegate.env.TAG_NAME =~ tag
         }
-        if (!environment.isEmpty()) {
+        if (!(env as Map)?.isEmpty()) {
+            def environment = env as Map
             environment.entrySet().forEach { e ->
-                env = env && (delegate.env."${e.key}" == e.value)
+                envCheck = envCheck && (delegate.env."${e.key}" == e.value)
             }
         }
 
-        return exp && br && ta && env && any_of && not_
+        return expressionCheck && branchCheck && tagCheck && envCheck && anyOfCheck && notCheck
     }
 
 }

@@ -1,6 +1,8 @@
 package com.lesfurets.jenkins.unit.declarative.kubernetes
 
-class ContainerLivenessProbe {
+import com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration
+
+class ContainerLivenessProbeDeclaration extends GenericPipelineDeclaration {
 
     String execArgs
     int timeoutSeconds

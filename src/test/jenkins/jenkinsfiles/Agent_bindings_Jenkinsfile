@@ -18,6 +18,12 @@ pipeline {
                 sh 'java -version'
             }
         }
+        stage('Example Release') {
+            agent agentName()
+            steps {
+                echo "Deploy to ${AGENT}"
+            }
+        }
         stage('Example Deploy') {
             agent AGENT
             steps {
@@ -25,4 +31,7 @@ pipeline {
             }
         }
     }
+}
+private String agentName(){
+    return 'someLabel';
 }
