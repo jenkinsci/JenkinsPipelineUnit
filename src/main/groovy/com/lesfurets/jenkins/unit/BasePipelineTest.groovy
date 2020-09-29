@@ -211,6 +211,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("stage", [String, Closure])
         helper.registerAllowedMethod("step", [Map])
         helper.registerAllowedMethod("string", [Map], stringInterceptor)
+        helper.registerAllowedMethod('timeout', [Integer, Closure], { Map args, Closure c ->
+            c.delegate = delegate
+            helper.callClosure(c)
+        })
         helper.registerAllowedMethod('timeout', [Map])
         helper.registerAllowedMethod('timeout', [Map, Closure], { Map args, Closure c ->
             c.delegate = delegate
