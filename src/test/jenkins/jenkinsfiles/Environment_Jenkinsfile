@@ -1,18 +1,24 @@
-pipeline {
-    agent any
-    environment {
-        LEVAR1 = "LE VALUE 1"
-    }
-    stages {
-        stage('Example') {
-            environment {
-                LEVAR1 = "LE NEW VALUE"
-                LEVAR2 = "A COPY OF ${env.LEVAR1} in build#${currentBuild.number}"
-            }
-            steps {
-                echo "LEVAR1 ${env.LEVAR1}"
-                echo "LEVAR2 ${env.LEVAR2}"
+def call() {
+    String label = "SomePrefix-${labelVar}"
+
+    pipeline {
+        agent label
+        environment {
+            LEVAR1 = "LE VALUE 1"
+        }
+        stages {
+            stage('Example') {
+                environment {
+                    LEVAR1 = "LE NEW VALUE"
+                    LEVAR2 = "A COPY OF ${env.LEVAR1} in build#${currentBuild.number}"
+                }
+                steps {
+                    echo "LEVAR1 ${env.LEVAR1}"
+                    echo "LEVAR2 ${env.LEVAR2}"
+                }
             }
         }
     }
 }
+
+call()

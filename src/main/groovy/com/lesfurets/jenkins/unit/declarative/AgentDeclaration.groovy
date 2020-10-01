@@ -4,10 +4,12 @@ import com.lesfurets.jenkins.unit.declarative.agent.DockerAgentDeclaration
 import com.lesfurets.jenkins.unit.declarative.agent.KubernetesAgentDeclaration
 import groovy.transform.ToString
 
+import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.createComponent
+import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.executeWith
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @ToString(includePackage = false, includeNames = true, ignoreNulls = true)
-class AgentDeclaration extends GenericPipelineDeclaration {
+class AgentDeclaration {
 
     String label
     DockerAgentDeclaration docker
@@ -16,7 +18,6 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     String dockerfileDir
     Boolean reuseNode = null
     String customWorkspace
-    def binding = null
 
     def label(String label) {
         this.label = label
@@ -35,7 +36,7 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     }
 
     def docker(String image) {
-        this.docker = new DockerAgentDeclaration().with { it.image = image; it }
+        this.docker({ -> this.image = image })
     }
 
     def docker(@DelegatesTo(strategy = DELEGATE_FIRST, value = DockerAgentDeclaration) Closure closure) {
@@ -60,18 +61,6 @@ class AgentDeclaration extends GenericPipelineDeclaration {
 
     def dir(String dir) {
         this.dockerfileDir = dir
-    }
-
-    def getCurrentBuild() {
-        return binding?.currentBuild
-    }
-
-    def getEnv() {
-        return binding?.env
-    }
-
-    def getParams() {
-        return binding?.params
     }
 
     def execute(Object delegate) {

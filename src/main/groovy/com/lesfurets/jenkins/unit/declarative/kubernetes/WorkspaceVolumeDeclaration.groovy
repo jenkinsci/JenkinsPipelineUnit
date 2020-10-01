@@ -1,6 +1,6 @@
 package com.lesfurets.jenkins.unit.declarative.kubernetes
 
-import com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration
+
 import groovy.transform.Memoized
 import groovy.transform.ToString
 
@@ -8,7 +8,7 @@ import static com.lesfurets.jenkins.unit.declarative.ObjectUtils.printNonNullPro
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @ToString(includePackage = false, includeNames = true, ignoreNulls = true)
-class WorkspaceVolumeDeclaration extends GenericPipelineDeclaration {
+class WorkspaceVolumeDeclaration {
 
     DynamicWorkspaceVolume dynamicPVC
     EmptyDirWorkspaceVolume emptyDirWorkspaceVolume

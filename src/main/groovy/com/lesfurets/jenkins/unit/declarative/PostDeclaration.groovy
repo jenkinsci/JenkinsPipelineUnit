@@ -1,6 +1,6 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeOn
+import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeWith
 
 class PostDeclaration {
 
@@ -59,48 +59,48 @@ class PostDeclaration {
         def currentBuild = delegate.currentBuild.result
         def previousBuild = delegate.currentBuild?.previousBuild?.result
         if (this.always) {
-            executeOn(delegate, this.always)
+            executeWith(delegate, this.always)
         }
 
         switch (currentBuild) {
             case 'SUCCESS':
-                executeOn(delegate, this.success)
+                executeWith(delegate, this.success)
                 break
             case 'FAILURE':
-                executeOn(delegate, this.failure)
+                executeWith(delegate, this.failure)
                 break
             case 'ABORTED':
-                executeOn(delegate, this.aborted)
+                executeWith(delegate, this.aborted)
                 break
             case 'UNSTABLE':
-                executeOn(delegate, this.unstable)
+                executeWith(delegate, this.unstable)
                 break
         }
 
         if(currentBuild != previousBuild && this.changed)
         {
-            executeOn(delegate, this.changed)
+            executeWith(delegate, this.changed)
         }
         if(currentBuild != 'SUCCESS' && this.unsuccessful)
         {
-            executeOn(delegate, this.unsuccessful)
+            executeWith(delegate, this.unsuccessful)
         }
         if(this.fixed){
             if(currentBuild == 'SUCCESS' && (previousBuild == 'FAILURE' || previousBuild == 'UNSTABLE'))
             {
-                executeOn(delegate, this.fixed)
+                executeWith(delegate, this.fixed)
             }
         }
         if(this.regression)
         {
             if((currentBuild == 'FAILURE' || currentBuild == 'UNSTABLE') && previousBuild == 'SUCCESS'){
-                executeOn(delegate, this.regression)
+                executeWith(delegate, this.regression)
             }
         }
 
         // Cleanup is always performed last
         if(this.cleanup){
-            executeOn(delegate, this.cleanup)
+            executeWith(delegate, this.cleanup)
         }
     }
 

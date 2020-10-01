@@ -8,7 +8,7 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
     List<Closure> options = []
 
     Closure triggers
-    ParametersDeclaration params = null
+    ParametersDeclaration parameters = null
 
     DeclarativePipeline() {
         properties.put('any', 'any')
@@ -24,10 +24,6 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         }
     }
 
-    def propertyMissing(String name, arg) {
-
-    }
-
     def options(@DelegatesTo(DeclarativePipeline) Closure closure) {
         options.add(closure)
     }
@@ -37,20 +33,20 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
     }
 
     def parameters(Object o) {
-        this.params = new ParametersDeclaration().with { it.label = o; it }
+        this.parameters = new ParametersDeclaration().with { it.label = o; it }
     }
 
     def parameters(@DelegatesTo(strategy=DELEGATE_FIRST, value=ParametersDeclaration) Closure closure) {
-        this.params = createComponent(ParametersDeclaration, closure)
+        this.parameters = createComponent(ParametersDeclaration, closure)
     }
 
     def execute(Object delegate) {
         super.execute(delegate)
         this.options.forEach {
-            executeOn(delegate, it)
+            executeWith(delegate, it)
         }
         this.agent?.execute(delegate)
-        executeOn(delegate, this.triggers)
+        executeWith(delegate, this.triggers)
         this.stages.entrySet().forEach { e ->
             e.value.execute(delegate)
         }

@@ -234,6 +234,20 @@ class PipelineTestHelper {
         return methodMissingInterceptor
     }
 
+    def propertyMissingInterceptor = { String propertyName ->
+        if (binding.hasVariable("params") && (binding.getVariable("params") as Map).containsKey(propertyName)) {
+            return (binding.getVariable("params") as Map).get(propertyName)
+        }
+        if (binding.getVariable("env") && (binding.getVariable("env") as Map).containsKey(propertyName)) {
+            return (binding.getVariable("env") as Map).get(propertyName)
+        }
+        throw new MissingPropertyException(propertyName)
+    }
+
+    def getPropertyMissingInterceptor() {
+        return propertyMissingInterceptor
+    }
+
     def callIfClosure(Object closure, Object currentResult) {
         if (closure instanceof Closure) {
             currentResult = callClosure(closure)

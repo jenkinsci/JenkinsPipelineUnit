@@ -11,6 +11,7 @@ class InterceptingGCL extends GroovyClassLoader {
         metaClazz.invokeMethod = helper.getMethodInterceptor()
         metaClazz.static.invokeMethod = helper.getMethodInterceptor()
         metaClazz.methodMissing = helper.getMethodMissingInterceptor()
+        metaClazz.propertyMissing = helper.getPropertyMissingInterceptor()
         metaClazz.getEnv = {return binding.env}
         // find and replace script method closure with any matching allowed method closure
         metaClazz.methods.forEach { scriptMethod ->

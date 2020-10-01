@@ -1,10 +1,11 @@
 package com.lesfurets.jenkins.unit.declarative
 
+import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.createComponent
 import static groovy.lang.Closure.DELEGATE_FIRST
-//import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeOn
 
-class ParallelDeclaration extends GenericPipelineDeclaration {
+class ParallelDeclaration {
 
+    Map<String, StageDeclaration> stages = [:]
     boolean failFast
 
     ParallelDeclaration(boolean failFast) {
@@ -21,7 +22,6 @@ class ParallelDeclaration extends GenericPipelineDeclaration {
     }
 
     def execute(Object delegate) {
-        super.execute(delegate)
         this.stages.entrySet().forEach { e ->
             e.value.execute(delegate)
         }

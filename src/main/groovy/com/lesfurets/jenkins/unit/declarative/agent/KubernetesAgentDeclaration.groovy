@@ -1,6 +1,6 @@
 package com.lesfurets.jenkins.unit.declarative.agent
 
-import com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration
+
 import com.lesfurets.jenkins.unit.declarative.kubernetes.ContainerTemplateDeclaration
 import com.lesfurets.jenkins.unit.declarative.kubernetes.WorkspaceVolumeDeclaration
 import groovy.transform.Memoized
@@ -11,7 +11,7 @@ import static com.lesfurets.jenkins.unit.declarative.ObjectUtils.printNonNullPro
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 @ToString(includePackage = false, includeNames = true, ignoreNulls = true)
-class KubernetesAgentDeclaration extends GenericPipelineDeclaration {
+class KubernetesAgentDeclaration {
 
     String label;
     String customWorkspace;

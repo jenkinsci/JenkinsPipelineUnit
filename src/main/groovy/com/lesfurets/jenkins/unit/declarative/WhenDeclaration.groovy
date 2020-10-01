@@ -4,9 +4,10 @@ import org.springframework.util.AntPathMatcher
 
 import java.util.regex.Pattern
 
+import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.createComponent
 import static groovy.lang.Closure.DELEGATE_FIRST
 
-class WhenDeclaration extends GenericPipelineDeclaration {
+class WhenDeclaration {
 
     AllOfDeclaration allOf
     AnyOfDeclaration anyOf
@@ -28,27 +29,31 @@ class WhenDeclaration extends GenericPipelineDeclaration {
     }
 
     def anyOf(@DelegatesTo(strategy = DELEGATE_FIRST, value = AnyOfDeclaration) Closure closure) {
-        this.anyOf = createComponent(AnyOfDeclaration, closure)
+        this.anyOfCondition = createComponent(AnyOfDeclaration, closure)
     }
 
     def not(@DelegatesTo(strategy = DELEGATE_FIRST, value = NotDeclaration) Closure closure) {
-        this.not = createComponent(NotDeclaration, closure)
+        this.notCondition = createComponent(NotDeclaration, closure)
     }
 
     def branch (String name) {
-        this.branch = name
+        this.branchCondition = name
+    }
+
+    def environment(Map condition){
+        this.environmentCondition = condition
     }
 
     def tag (String name) {
-        this.tag = getPatternFromGlob(name)
+        this.tagCondition = getPatternFromGlob(name)
     }
 
     def buildingTag () {
-        this.buildingTag = true
+        this.buildingTagCondition = true
     }
 
     def expression(Closure closure) {
-        this.expression = closure
+        this.expressionCondition = closure
     }
 
     def environment(Map args) {
@@ -71,11 +76,11 @@ class WhenDeclaration extends GenericPipelineDeclaration {
         if (anyOf) {
             anyOfCheck = anyOf.execute(delegate)
         }
-        if (not) {
-            notCheck = not.execute(delegate)
+        if (notCondition) {
+            notCheck = notCondition.execute(delegate)
         }
-        if (expression) {
-            expressionCheck = executeWith(delegate, expression)
+        if (expressionCondition) {
+            expressionCheck = executeWith(delegate, expressionCondition)
         }
         if (branch) {
             AntPathMatcher antPathMatcher = new AntPathMatcher()
@@ -84,8 +89,8 @@ class WhenDeclaration extends GenericPipelineDeclaration {
         if (buildingTag) {
             tagCheck = delegate?.env?.containsKey("TAG_NAME")
         }
-        if (tag) {
-            tagCheck = delegate.env.TAG_NAME =~ tag
+        if (tagCondition) {
+            tagCheck = delegate.env.TAG_NAME =~ tagCondition
         }
         if (envName != null) {
             def val = delegate?.env[envName]

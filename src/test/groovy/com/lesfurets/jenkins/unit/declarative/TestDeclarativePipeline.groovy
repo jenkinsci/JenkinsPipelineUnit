@@ -450,8 +450,10 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     }
 
     @Test void should_environment() throws Exception {
+        addEnvVar("labelVar","varWorks")
         runScript('Environment_Jenkinsfile')
         printCallStack()
+        assertCallStack().contains('echo(LEVAR1 LE NEW VALUE)')
         assertCallStack().contains('echo(LEVAR1 LE NEW VALUE)')
         assertCallStack().contains('echo(LEVAR2 A COPY OF LE NEW VALUE in build#1)')
         assertJobStatusSuccess()
@@ -493,8 +495,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     }
 
     @Test void agent_with_mock_param_label() throws Exception {
-        def params = binding.getVariable('params')
-        params['AGENT'] = 'mockSlave'
+        addParam('AGENT', 'mockSlave')
         runScript('AgentParam_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('mockSlave')
