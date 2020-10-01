@@ -35,7 +35,7 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     }
 
     def docker(String image) {
-        this.docker = new DockerAgentDeclaration().with { it.image = image; it }
+        this.docker({ -> owner.image = image })
     }
 
     def docker(@DelegatesTo(strategy = DELEGATE_FIRST, value = DockerAgentDeclaration) Closure closure) {

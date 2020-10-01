@@ -14,7 +14,7 @@ abstract class GenericPipelineDeclaration {
     static <T> T createComponent(Class<T> componentType, @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
         // declare componentInstance as final to prevent any multithreaded issues, since it is used inside closure
         final def componentInstance = componentType.newInstance()
-        def rehydrate = closure.rehydrate(componentInstance, closure, componentInstance)
+        def rehydrate = closure.rehydrate(closure, componentInstance, closure.thisObject)
         if (binding && componentInstance.hasProperty('binding') && componentInstance.binding != binding) {
             componentInstance.binding = binding
         }
@@ -24,20 +24,15 @@ abstract class GenericPipelineDeclaration {
 
     static <T> T executeOn(@DelegatesTo.Target Object delegate,
                            @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
-        if (closure) {
-            def cl = closure.rehydrate(delegate, delegate, delegate)
-            cl.resolveStrategy = DELEGATE_FIRST
-            return cl.call()
-        }
-        return null
+        return executeWith(delegate, closure)
     }
 
     static <T> T executeWith(@DelegatesTo.Target Object delegate,
                              @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
         if (closure) {
-            def cl = closure.rehydrate(delegate, delegate, delegate)
-            cl.resolveStrategy = DELEGATE_FIRST
-            return cl.call()
+            def rehydratedClosure = closure.rehydrate(closure, delegate, closure.thisObject)
+            rehydratedClosure.resolveStrategy = DELEGATE_FIRST
+            return rehydratedClosure.call()
         }
         return null
     }
@@ -102,9 +97,9 @@ abstract class GenericPipelineDeclaration {
             env.env = env
             env.currentBuild = delegate.binding.currentBuild
 
-            def cl = this.environment.rehydrate(env, delegate, this)
-            cl.resolveStrategy = DELEGATE_FIRST
-            cl.call()
+            def rehydratedEnvClosure = this.environment.rehydrate(env, delegate, delegate)
+            rehydratedEnvClosure.resolveStrategy = DELEGATE_FIRST
+            rehydratedEnvClosure.call()
         }
     }
 
