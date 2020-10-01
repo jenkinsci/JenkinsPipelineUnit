@@ -89,7 +89,7 @@ abstract class GenericPipelineDeclaration {
             if (metaMethod) {
                 metaMethod.invoke(this, propertyName)
             } else {
-                throw new MissingPropertyException(name)
+                throw new MissingPropertyException(propertyName)
             }
         }
     }
