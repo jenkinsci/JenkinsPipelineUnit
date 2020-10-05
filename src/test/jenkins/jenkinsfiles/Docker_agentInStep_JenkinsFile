@@ -1,0 +1,11 @@
+pipeline {
+
+    stages {
+        stage('Maven Build') {
+            agent { docker { image 'maven' } }
+            steps {
+                sh 'mvn install'
+            }
+        }
+    }
+}
