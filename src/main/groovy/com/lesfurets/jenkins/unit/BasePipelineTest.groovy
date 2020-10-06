@@ -157,7 +157,7 @@ abstract class BasePipelineTest {
             println(message)
         })
         helper.registerAllowedMethod("error", [String], { updateBuildStatus('FAILURE') })
-        helper.registerAllowedMethod('fileExists', [String], {true}
+        helper.registerAllowedMethod('fileExists', [String], {true})
         helper.registerAllowedMethod("gatlingArchive")
         helper.registerAllowedMethod("gitlabBuilds", [Map, Closure])
         helper.registerAllowedMethod("gitlabCommitStatus", [String, Closure], { String name, Closure c ->
