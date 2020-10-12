@@ -1,0 +1,17 @@
+pipeline {
+    stages {
+        stage('Parallel Stage') {
+            parallel {
+                stage('Branch A') {
+                    stages {
+                        stage('Nested 1') {
+                            steps {
+                                echo "In stage Nested 1 within Branch A"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

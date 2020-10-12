@@ -213,6 +213,12 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void should_parallel_nested_stages() throws Exception {
+        runScript('Parallel_NestedStages_Jenkinsfile')
+        printCallStack()
+        assertJobStatusSuccess()
+    }
+
     @Test void should_sub_stages() throws Exception {
         runScript('ComplexStages_Jenkinsfile')
         printCallStack()
