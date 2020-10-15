@@ -8,7 +8,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     @Before
     @Override
     void setUp() throws Exception {
-        scriptRoots = ['src/test/jenkins/jenkinsfiles']
+        scriptRoots += 'src/test/jenkins/jenkinsfiles'
         scriptExtension = ''
         super.setUp()
     }

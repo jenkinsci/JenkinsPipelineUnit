@@ -8,12 +8,14 @@ class TestDockerAgentInStep extends DeclarativePipelineTest {
     @Before
     @Override
     void setUp() throws Exception {
+        scriptRoots += 'src/test/jenkins/jenkinsfiles'
+        scriptExtension = ''
         super.setUp()
     }
 
     @Test
     void test_example() {
-        runScript("src/test/jenkins/jenkinsfiles/Docker_agentInStep_JenkinsFile")
+        runScript("Docker_agentInStep_JenkinsFile")
         assertJobStatusSuccess()
     }
 }
