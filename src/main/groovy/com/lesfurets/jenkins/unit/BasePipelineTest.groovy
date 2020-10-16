@@ -132,7 +132,6 @@ abstract class BasePipelineTest {
             ]
         })
         helper.registerAllowedMethod("buildDiscarder", [Object])
-        helper.registerAllowedMethod("skipStagesAfterUnstable")
         helper.registerAllowedMethod("checkout", [Map])
         helper.registerAllowedMethod("choice", [Map])
         helper.registerAllowedMethod('cifsPublisher', [Map], {true})
@@ -203,6 +202,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('sh', [String], { args -> helper.runSh(args) })
         helper.registerAllowedMethod('sh', [Map], { args -> helper.runSh(args) })
         helper.registerAllowedMethod('skipDefaultCheckout')
+        helper.registerAllowedMethod("skipStagesAfterUnstable")
         helper.registerAllowedMethod('sleep')
         helper.registerAllowedMethod('specific', [String])
         helper.registerAllowedMethod('sshPublisher', [Map], {true})
