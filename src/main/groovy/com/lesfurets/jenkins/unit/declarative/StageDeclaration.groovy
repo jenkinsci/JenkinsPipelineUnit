@@ -1,49 +1,24 @@
 package com.lesfurets.jenkins.unit.declarative
 
 
-import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.createComponent
 import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.executeWith
-import static groovy.lang.Closure.*
+import static groovy.lang.Closure.DELEGATE_FIRST
 
-class StageDeclaration {
+class StageDeclaration extends GenericPipelineDeclaration {
 
-    AgentDeclaration agent
-    Closure environment
     String name
     Closure steps
     WhenDeclaration when
     ParallelDeclaration parallel
-    PostDeclaration post
     boolean failFast = false
     List<Closure> options = []
-    Map<String, StageDeclaration> stages = [:]
 
     StageDeclaration(String name) {
         this.name = name
     }
 
-    def agent(Object o) {
-        this.agent = new AgentDeclaration().with { it.label = o; it }
-    }
-
-    def agent(@DelegatesTo(strategy = DELEGATE_FIRST, value = AgentDeclaration) Closure closure) {
-        this.agent = createComponent(AgentDeclaration, closure)
-    }
-
-    def environment(Closure closure) {
-        this.environment = closure
-    }
-
-    def post(@DelegatesTo(strategy = DELEGATE_FIRST, value = PostDeclaration) Closure closure) {
-        this.post = createComponent(PostDeclaration, closure)
-    }
-
     def steps(Closure closure) {
         this.steps = closure
-    }
-
-    def stages(@DelegatesTo(DeclarativePipeline) Closure closure) {
-        closure.call()
     }
 
     def failFast(boolean failFast) {
@@ -63,8 +38,6 @@ class StageDeclaration {
     }
 
     def execute(Object delegate) {
-        Map envValuestoRestore = [:]
-
         String name = this.name
         this.options.each {
             executeWith(delegate, it)
@@ -79,26 +52,16 @@ class StageDeclaration {
         }
 
         if (!when || when.execute(delegate)) {
-            // Set environment for stage
+            Map envValuestoRestore = [:]
+
+            // set environment
             if (this.environment) {
-                Binding subBinding = new Binding()
-                subBinding.metaClass.invokeMissingProperty = { propertyName ->
-                    delegate.getProperty(propertyName)
-                }
-                subBinding.metaClass.setProperty = { String propertyName, Object newValue ->
-                    if(delegate.hasProperty(propertyName)){
-                        envValuestoRestore.put(propertyName, delegate.getProperty(propertyName))
-                    }
-                    (delegate.env as Map).put(propertyName, newValue)
-                }
-                def envClosure = this.environment.rehydrate(subBinding, delegate, this)
-                envClosure.resolveStrategy = DELEGATE_FIRST
-                envClosure.call()
+                envValuestoRestore = initEnvironment(this.environment, delegate)
             }
 
             // TODO handle credentials
             this.stages.entrySet().forEach { stageEntry ->
-                stageEntry.getValue().execute(delegate)
+                stageEntry.value.execute(delegate)
             }
             if(steps) {
                 Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, this, this)
@@ -108,12 +71,9 @@ class StageDeclaration {
             if (post) {
                 this.post.execute(delegate)
             }
+            resetEnvironment(envValuestoRestore, delegate)
         } else {
             executeWith(delegate, { echo "Skipping stage $name" })
-        }
-        envValuestoRestore.entrySet().forEach { entry ->
-            def envMap = delegate.env as Map
-            envMap.put(entry.getKey(), entry.getValue())
         }
     }
 

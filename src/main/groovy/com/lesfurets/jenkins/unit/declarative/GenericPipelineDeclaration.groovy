@@ -57,25 +57,43 @@ abstract class GenericPipelineDeclaration {
         closure.call()
     }
 
-    def stage(String name,
+    def stage(String stageName,
               @DelegatesTo(strategy = DELEGATE_FIRST, value = StageDeclaration) Closure closure) {
-        this.stages.put(name, createComponent(StageDeclaration, closure).with { it.name = name; it })
+        this.stages.put(stageName, createComponent(StageDeclaration, closure).with { it.name = stageName; it })
     }
 
     def execute(Object delegate) {
+        Map envValuestoRestore = [:]
+
         // set environment
         if (this.environment) {
-            Binding subBinding = new Binding()
-            subBinding.metaClass.invokeMissingProperty = { propertyName ->
-                delegate.getProperty(propertyName)
-            }
-            subBinding.metaClass.setProperty = { String propertyName, Object newValue ->
-                (delegate.env as Map).put(propertyName, newValue)
-            }
-            def envClosure = this.environment.rehydrate(subBinding, delegate, this)
-            envClosure.resolveStrategy = DELEGATE_FIRST
-            envClosure.call()
+            envValuestoRestore = initEnvironment(this.environment, delegate)
         }
+        resetEnvironment(envValuestoRestore, delegate)
     }
 
+    public static Map initEnvironment(Closure environment, Object delegate) {
+        Map envValuestoRestore = [:]
+        Binding subBinding = new Binding()
+        subBinding.metaClass.invokeMissingProperty = { propertyName ->
+            delegate.getProperty(propertyName)
+        }
+        subBinding.metaClass.setProperty = { String propertyName, Object newValue ->
+            if (delegate.hasProperty(propertyName)) {
+                envValuestoRestore.put(propertyName, delegate.getProperty(propertyName))
+            }
+            (delegate.env as Map).put(propertyName, newValue)
+        }
+        def envClosure = environment.rehydrate(subBinding, delegate, this)
+        envClosure.resolveStrategy = DELEGATE_FIRST
+        envClosure.call()
+        return envValuestoRestore
+    }
+
+    public static resetEnvironment(LinkedHashMap envValuestoRestore, delegate) {
+        envValuestoRestore.entrySet().forEach { entry ->
+            def envMap = delegate.env as Map
+            envMap.put(entry.getKey(), entry.getValue())
+        }
+    }
 }
