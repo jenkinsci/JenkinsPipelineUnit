@@ -185,17 +185,17 @@ You can take a look at the `BasePipelineTest` class to have the short list of al
 Some tricky methods such as `load` and `parallel` are implemented directly in the helper.
 If you want to override those, make sure that you extend the `PipelineTestHelper` class.
 
-### Mocking readFile
+### Mocking readFile and fileExists
 
-The `readFile` step can be mocked to return a specific string for a given file name. This can be useful for testing
-pipelines which must read data from a file which is required for subsequent steps. An example of such a testing scenario
-follows:
+The `readFile` and `fileExists` steps can be mocked to return a specific result for a given file name. This can be
+useful for testing pipelines for which file operations can influence subsequent steps. An example of such a testing
+scenario follows:
 
 ```groovy
 // Jenkinsfile
 node {
     stage('Process output') {
-        if (readFile('output') == 'FAILED!!!') {
+        if (fileExists('output') && readFile('output') == 'FAILED!!!') {
             currentBuild.result = 'FAILURE'
             error 'Build failed'
         }
@@ -206,6 +206,7 @@ node {
 ```groovy
 @Test
 void exampleReadFileTest() {
+    helper.addFileExistsMock('fileExists', true)
     helper.addReadFileMock('output', 'FAILED!!!')
     runScript("Jenkinsfile")
     assertJobStatusFailure()

@@ -39,13 +39,25 @@ class PipelineTestHelperTest {
     void readFile() {
         // given:
         def helper = new PipelineTestHelper()
-        helper.addReadFileMock('test', 'contents')
+        helper.addFileExistsMock('test', true)
 
         // when:
-        def output = helper.readFile('test')
+        def result = helper.fileExists('test')
 
         // then:
-        Assertions.assertThat(output).isEqualTo('contents')
+        Assertions.assertThat(result).isTrue()
+    }
+
+    @Test
+    void readFileNotMocked() {
+        // given:
+        def helper = new PipelineTestHelper()
+
+        // when:
+        def result = helper.fileExists('test')
+
+        // then:
+        Assertions.assertThat(result).isFalse()
     }
 
     @Test
