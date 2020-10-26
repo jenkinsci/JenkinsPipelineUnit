@@ -1,5 +1,7 @@
 package com.lesfurets.jenkins.unit.declarative
 
+import org.springframework.util.AntPathMatcher
+
 import java.util.regex.Pattern
 
 import static groovy.lang.Closure.DELEGATE_FIRST
@@ -60,7 +62,8 @@ class WhenDeclaration extends GenericPipelineDeclaration {
             expressionCheck = executeWith(delegate, expression)
         }
         if (branch) {
-            branchCheck = this.branch == delegate.env.BRANCH_NAME
+            AntPathMatcher antPathMatcher = new AntPathMatcher();
+            branchCheck = antPathMatcher.match(branch, delegate.env.BRANCH_NAME)
         }
         if (buildingTag) {
             tagCheck = delegate.env.containsKey(TAG_NAME)

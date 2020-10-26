@@ -1,6 +1,8 @@
 package com.lesfurets.jenkins.unit.declarative
 
 import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.executeWith
+import org.springframework.util.AntPathMatcher
+
 
 class AnyOfDeclaration extends WhenDeclaration {
 
@@ -29,9 +31,12 @@ class AnyOfDeclaration extends WhenDeclaration {
     Boolean execute(Object delegate) {
         boolean br = false;
         boolean exp = false;
+        AntPathMatcher antPathMatcher = new AntPathMatcher();
 
         if (this.branches.size() > 0) {
-            br = this.branches.contains(delegate.env.BRANCH_NAME)
+            for(def branch in this.branches) {
+                br = br || antPathMatcher.match(branch, delegate.env.BRANCH_NAME)
+            }
         }
 
         if (this.expressions.size() > 0) {
