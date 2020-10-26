@@ -1,0 +1,20 @@
+def execute() {
+    s = [s1:[name:"action1-name", body:{
+      node() {
+        sh 'sleep 3'
+        error 'message'
+      }
+    }], s2:[name: "action2-name", body:{
+        node() {
+            sh 'sleep 4'
+        }
+    }]]
+
+    parallel(
+      "$s.s1.name":s.s1.body,
+      "$s.s2.name":s.s2.body,
+      failFast:true
+    )
+}
+
+return this

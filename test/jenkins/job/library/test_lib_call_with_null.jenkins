@@ -1,0 +1,5 @@
+@Library('commons@feature') _
+
+// Test calling a one argument global with null
+oneArg('Not null')
+oneArg(null)

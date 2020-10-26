@@ -1,0 +1,25 @@
+#!groovy
+
+Properties p = new Properties()
+
+node() {
+
+    stage('One') {
+
+        echo "Stage One"
+
+        p.setProperty('PROP_1', 'VAL_1')
+
+        doWithProperties(p)
+    }
+
+    stage('Two') {
+
+        echo "Stage Two"
+
+        p.setProperty('PROP_2', 'VAL_2')
+
+        doWithProperties(p)
+    }
+}
+

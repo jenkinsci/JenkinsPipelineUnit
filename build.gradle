@@ -37,6 +37,7 @@ dependencies {
     implementation('org.apache.ivy:ivy:2.4.0')
     api('org.assertj:assertj-core:3.4.1')
     implementation('org.apache.commons:commons-lang3:3.5')
+    implementation('org.springframework:spring-core:5.2.9.RELEASE')
 
     testImplementation('junit:junit:4.11')
 
@@ -86,6 +87,16 @@ jacocoTestReport {
     reports {
         xml.enabled = true
         html.enabled = true
+    }
+}
+
+task buildJarWithDependants(type: Jar) {
+    archiveAppendix = 'all'
+    dependsOn configurations.runtime
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+    manifest {
+        attributes 'Implementation-Title': 'archivesBaseName', 'Implementation-Version': new Date().format('dd-MM-yyyy HH:mm:ss')
     }
 }
 

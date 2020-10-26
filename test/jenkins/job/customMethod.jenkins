@@ -1,0 +1,7 @@
+node() {
+    customMethod()
+}
+
+def customMethod() {
+    echo 'executing custom method closure'
+}

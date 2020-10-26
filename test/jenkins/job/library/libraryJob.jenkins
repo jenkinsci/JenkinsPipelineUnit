@@ -1,0 +1,36 @@
+package job.library
+
+@Library('commons')
+import net.courtanet.jenkins.Utils
+
+sh acme.name
+acme.name = 'something'
+sh acme.name
+
+acme.caution('world')
+sayHello 'World'
+sayHello()
+
+def execute() {
+    parallel(
+        action1: {
+            node() {
+                sayHello('arg1', 'arg2')
+                sayHello(Arrays.asList('1','2').toArray(new String[0]))
+                def utils = new Utils()
+                sh "${utils.gitTools()}"
+                sh 'sleep 3'
+                String pom = libraryResource 'net/courtanet/jenkins/pom.xml'
+                println pom
+            }
+        },
+        action2: {
+            node() {
+                sh 'sleep 4'
+                error 'message'
+            }
+        }
+    )
+}
+
+return this

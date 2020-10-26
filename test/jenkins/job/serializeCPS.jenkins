@@ -1,0 +1,89 @@
+import groovy.json.JsonSlurper
+
+def execute() {
+    node() {
+        def utils = load "src/test/jenkins/lib/utils.jenkins"
+        stage('Checkout') {
+            checkout scm
+            gitlabBuilds(builds: ["build", "test"]) {
+                stage("build") {
+                    def method = myMethod null
+                    echo method
+                    gitlabCommitStatus("build") {
+                        def result = parseJson("""
+[{
+  "name": "AMX-12345_test",
+  "commit": {
+    "id": "08a3fb68fc60b59ed4c585a847c88bbe22597b10",
+    "parent_ids": [
+        { "key": "value"}
+    ],
+    "test": null,
+    "authored_date": "2017-01-18T14:09:58.000+01:00",
+    "author_name": "bob",
+    "author_email": "bob@lesfurets.com",
+    "committed_date": "2017-01-18T14:09:58.000+01:00",
+    "committer_name": "bob",
+    "committer_email": "bob@lesfurets.com"
+  },
+  "merged": false,
+  "protected": false,
+  "developers_can_push": false,
+  "developers_can_merge": false
+}]""")
+                        def res = result[0]
+                        sh "mvn clean package -DskipTests ${res.commit.id}"
+                    }
+                }
+
+                stage("test") {
+                    gitlabCommitStatus("test") {
+                        sh 'mvn verify'
+                    }
+                }
+            }
+        }
+    }
+}
+
+@NonCPS
+def parseJson(String jsonText) {
+    return deepClone(new JsonSlurper().parseText(jsonText))
+}
+
+@NonCPS
+Map deepCloneMap(Map lazyMap) {
+    Map result = [:]
+    for (String key : lazyMap.keySet()){
+        result.put(key, deepClone(lazyMap[key]))
+    }
+    return result
+}
+
+// A collection may contain lazy map
+@NonCPS
+Collection deepCloneCollection(Collection collection) {
+    Collection result = []
+    for (Object o : collection) {
+        result.add(deepClone(o))
+    }
+    return result
+}
+
+@NonCPS
+def deepClone(def mapOrCollection) {
+    if (mapOrCollection instanceof Map) {
+        return deepCloneMap(mapOrCollection)
+    } else if (mapOrCollection instanceof Collection) {
+        return deepCloneCollection(mapOrCollection)
+    } else {
+        return mapOrCollection
+    }
+}
+
+def myMethod(String foo) {
+    return 'bar'
+}
+
+
+return this

@@ -1,0 +1,99 @@
+pipeline {
+
+    agent any
+
+    environment {
+        CC = 'gcc'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        skipStagesAfterUnstable()
+        timestamps()
+    }
+
+    triggers {
+        pollSCM('*/5 * * * *')
+    }
+
+    stages {
+
+        stage('Checkout') {
+            when {
+                environment name: 'CC', value: 'clang'
+            }
+            steps {
+                deleteDir()
+                checkout scm
+            }
+        }
+
+        stage('build') {
+            agent { docker 'maven:3-alpine' }
+            options {
+                timeout(time: 20, unit: 'MINUTES')
+            }
+            steps {
+                withEnv(["GRADLE_HOME=${tool name: 'GRADLE_3', type: 'hudson.plugins.gradle.GradleInstallation'}"]) {
+                    withEnv(["PATH=${env.PATH}:${env.GRADLE_HOME}/bin"]) {
+
+                        // Checking the env
+                        echo "GRADLE_HOME=${env.GRADLE_HOME}"
+                        echo "PATH=${env.PATH}"
+
+                        sh 'gradle clean build test -i'
+                    }
+                }
+            }
+        }
+
+        stage('validate') {
+            steps {
+                echo 'DONE: syntactic validation of Jenkinsfiles'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'pipeline unit tests completed'
+        }
+
+        success {
+            echo 'pipeline unit tests PASSED'
+        }
+
+        failure {
+            echo 'pipeline unit tests FAILED'
+        }
+
+        aborted {
+            echo 'pipeline unit tests ABORTED'
+        }
+
+        changed {
+            echo 'pipeline unit tests results have CHANGED'
+        }
+
+        unstable {
+            echo 'pipeline unit tests have gone UNSTABLE'
+        }
+
+        unsuccessful {
+            echo 'pipeline unit tests UNSUCCESSFUL'
+        }
+
+        fixed {
+            echo 'pipeline unit tests have been FIXED'
+        }
+
+        regression{
+            echo 'pipeline unit tests post REGRESSION'
+        }
+
+        cleanup {
+            echo 'pipeline unit tests post CLEANUP'
+        }
+
+    }
+}

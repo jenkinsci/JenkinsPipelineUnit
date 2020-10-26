@@ -1,0 +1,6 @@
+
+new org.test.ClassA()
+new org.test.ClassB()
+
+def objectAB = new org.test.ClassAB()
+objectAB.methodAB()

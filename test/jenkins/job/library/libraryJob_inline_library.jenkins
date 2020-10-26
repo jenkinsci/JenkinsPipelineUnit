@@ -1,0 +1,32 @@
+package job.library
+
+def lib = library('commons')
+
+sh acme.name
+acme.name = 'something'
+sh acme.name
+
+acme.caution('world')
+sayHello 'World'
+sayHello()
+
+def execute() {
+    parallel(
+        action1: {
+            node() {
+                def utils = lib.net.courtanet.jenkins.Utils.new()
+                sh "${utils.gitTools()}"
+                sh 'sleep 3'
+            }
+        },
+        action2: {
+            node() {
+                sayHello()
+                sh 'sleep 4'
+                error 'message'
+            }
+        }
+    )
+}
+
+return this
