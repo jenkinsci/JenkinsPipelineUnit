@@ -132,7 +132,6 @@ abstract class BasePipelineTest {
             ]
         })
         helper.registerAllowedMethod("buildDiscarder", [Object])
-        helper.registerAllowedMethod("skipStagesAfterUnstable")
         helper.registerAllowedMethod("checkout", [Map])
         helper.registerAllowedMethod("choice", [Map])
         helper.registerAllowedMethod('cifsPublisher', [Map], {true})
@@ -157,6 +156,7 @@ abstract class BasePipelineTest {
             println(message)
         })
         helper.registerAllowedMethod("error", [String], { updateBuildStatus('FAILURE') })
+        helper.registerAllowedMethod('fileExists', [String], { String arg -> helper.fileExists(arg) })
         helper.registerAllowedMethod("gatlingArchive")
         helper.registerAllowedMethod("gitlabBuilds", [Map, Closure])
         helper.registerAllowedMethod("gitlabCommitStatus", [String, Closure], { String name, Closure c ->
@@ -172,7 +172,7 @@ abstract class BasePipelineTest {
             helper.getLibLoader().loadImplicitLibraries()
             helper.getLibLoader().loadLibrary(expression)
             helper.setGlobalVars(binding)
-            return new LibClassLoader(helper,null)
+            return new LibClassLoader(helper, null)
         })
         helper.registerAllowedMethod("logRotator", [Map])
         helper.registerAllowedMethod('mail', [Map])
@@ -183,8 +183,8 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("properties", [List])
         helper.registerAllowedMethod("pwd", [], { 'workspaceDirMocked' })
         helper.registerAllowedMethod("pwd", [Map], { 'tempDirMocked' })
-        helper.registerAllowedMethod('readFile', [Map], { args -> helper.readFile(args )})
-        helper.registerAllowedMethod('readFile', [String], { args -> helper.readFile(args )})
+        helper.registerAllowedMethod('readFile', [Map], { args -> helper.readFile(args) })
+        helper.registerAllowedMethod('readFile', [String], { args -> helper.readFile(args) })
         helper.registerAllowedMethod("retry", [Integer, Closure], { Integer count, Closure c ->
             def attempts = 0
             while (attempts <= count) {
@@ -203,6 +203,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('sh', [String], { args -> helper.runSh(args) })
         helper.registerAllowedMethod('sh', [Map], { args -> helper.runSh(args) })
         helper.registerAllowedMethod('skipDefaultCheckout')
+        helper.registerAllowedMethod("skipStagesAfterUnstable")
         helper.registerAllowedMethod('sleep')
         helper.registerAllowedMethod('specific', [String])
         helper.registerAllowedMethod('sshPublisher', [Map], {true})

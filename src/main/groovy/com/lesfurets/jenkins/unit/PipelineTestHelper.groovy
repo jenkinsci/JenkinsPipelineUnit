@@ -1,5 +1,7 @@
 package com.lesfurets.jenkins.unit
 
+import com.sun.org.apache.xpath.internal.operations.Bool
+
 import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 import java.lang.reflect.Method
@@ -107,6 +109,8 @@ class PipelineTestHelper {
 
     /** Let scripts and library classes access global vars (env, currentBuild) */
     protected Binding binding
+
+    Map<String, Boolean> mockFileExistsResults = [:]
 
     Map<String, String> mockReadFileOutputs = [:]
 
@@ -299,6 +303,7 @@ class PipelineTestHelper {
         gse.setConfig(configuration)
 
         mockScriptOutputs.clear()
+        mockFileExistsResults.clear()
         mockReadFileOutputs.clear()
         return this
     }
@@ -566,6 +571,14 @@ class PipelineTestHelper {
         } else {
             return closure.call(*args)
         }
+    }
+
+    void addFileExistsMock(String file, Boolean result) {
+        mockFileExistsResults[file] = result
+    }
+
+    Boolean fileExists(String arg) {
+        return mockFileExistsResults[arg] ?: false
     }
 
     void addReadFileMock(String file, String contents) {
