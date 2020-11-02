@@ -37,6 +37,7 @@ dependencies {
     implementation('org.apache.ivy:ivy:2.4.0')
     api('org.assertj:assertj-core:3.4.1')
     implementation('org.apache.commons:commons-lang3:3.5')
+    api('org.springframework:spring-core:5.2.9.RELEASE')
 
     testImplementation('junit:junit:4.11')
 
@@ -88,7 +89,6 @@ jacocoTestReport {
         html.enabled = true
     }
 }
-
 
 publishing {
     publications {
