@@ -224,6 +224,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('tool', [Map], { t -> "${t.name}_HOME" })
         helper.registerAllowedMethod("unstable", [String], { updateBuildStatus('UNSTABLE') })
         helper.registerAllowedMethod('unstash', [Map])
+        helper.registerAllowedMethod('unzip', [Map])
         helper.registerAllowedMethod('usernamePassword', [Map], usernamePasswordInterceptor)
         helper.registerAllowedMethod('waitUntil', [Closure])
         helper.registerAllowedMethod("warnError", [String, Closure], { String arg, Closure c ->
