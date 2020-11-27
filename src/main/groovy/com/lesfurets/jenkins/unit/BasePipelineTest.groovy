@@ -293,7 +293,6 @@ abstract class BasePipelineTest {
         binding.setVariable('env', [:])
         binding.setVariable('params', [:])
         binding.setVariable('scm', [:])
-        
     }
 
     /**
