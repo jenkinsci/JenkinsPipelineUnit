@@ -123,6 +123,18 @@ class PipelineTestHelperTest {
         Assertions.assertThat(output).isEqualTo('/foo/bar')
     }
 
+    @Test(expected = Exception)
+    void runShWithStdoutFailure() {
+        // given:
+        def helper = new PipelineTestHelper()
+        helper.addShMock('pwd', '/foo/bar', 1)
+
+        // when:
+        helper.runSh(returnStdout: true, script: 'pwd')
+
+        // then: Exception raised
+    }
+
     @Test
     void runShWithReturnCode() {
         // given:

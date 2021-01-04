@@ -687,7 +687,7 @@ class PipelineTestHelper {
             println stdout
         }
 
-        if (returnStdout) {
+        if (returnStdout && exitValue == 0) {
             return stdout
         }
         if (returnStatus) {
