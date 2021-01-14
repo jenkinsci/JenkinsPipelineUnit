@@ -429,7 +429,6 @@ abstract class BasePipelineTest {
         assertCallStack().contains(text)
     }
 
-
     /**
      * Helper for adding a params value in tests
      */
@@ -443,7 +442,6 @@ abstract class BasePipelineTest {
             params[name] = val
         }
     }
-
 
     /**
      * Helper for adding a environment value in tests
