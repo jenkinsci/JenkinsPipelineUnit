@@ -18,11 +18,11 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
 
     def stringInterceptor = { Map desc->
         if (desc) {
-            // we are in context of paremetes { string(...)}
+            // we are in context of parameters { string(...)}
             if (desc.name) {
                 addParam(desc.name, desc.defaultValue, false)
             }
-            // we are in context of withCredentaials([string()..]) { }
+            // we are in context of withCredentials([string()..]) { }
             if(desc.variable) {
                 return desc.variable
             }
