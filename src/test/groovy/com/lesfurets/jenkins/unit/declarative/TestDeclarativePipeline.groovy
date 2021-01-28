@@ -20,6 +20,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertCallStackContains('pipeline unit tests completed')
         assertCallStackContains('pipeline unit tests post CLEANUP')
         assertCallStack().doesNotContain('pipeline unit tests UNSUCCESSFUL')
+        assertCallStackContains('Skipping stage Checkout')
         assertJobStatusSuccess()
     }
 

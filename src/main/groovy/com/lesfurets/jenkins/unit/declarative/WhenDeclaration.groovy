@@ -14,6 +14,8 @@ class WhenDeclaration extends GenericPipelineDeclaration {
     String branch
     String tag
     Closure<Boolean> expression
+    String envName
+    String envValue
 
     private static Pattern getPatternFromGlob(String glob) {
         // from https://stackoverflow.com/a/3619098
@@ -44,6 +46,11 @@ class WhenDeclaration extends GenericPipelineDeclaration {
         this.expression = closure
     }
 
+    def environment(Map args) {
+        this.envName = args.name as String
+        this.envValue = args.value as String
+    }
+
     Boolean execute(Object delegate) {
         boolean expressionCheck = true
         boolean branchCheck = true
@@ -71,11 +78,9 @@ class WhenDeclaration extends GenericPipelineDeclaration {
         if (tag) {
             tagCheck = delegate.env.TAG_NAME =~ tag
         }
-        if (!(env as Map)?.isEmpty()) {
-            def environment = env as Map
-            environment.entrySet().forEach { e ->
-                envCheck = envCheck && (delegate.env."${e.key}" == e.value)
-            }
+        if (envName != null) {
+            def val = delegate?.env[envName]
+            envCheck = (val == envValue)
         }
 
         return expressionCheck && branchCheck && tagCheck && envCheck && anyOfCheck && notCheck
