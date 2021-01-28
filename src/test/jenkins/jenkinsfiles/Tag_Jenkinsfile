@@ -11,7 +11,15 @@ pipeline {
                 tag 'v*'
             }
             steps {
-                echo 'Deploying'
+                echo 'Deploying only tags matching the pattern v*'
+            }
+        }
+        stage('Example Release Notes') {
+            when {
+                buildingTag()
+            }
+            steps {
+                echo 'Generating Release Notes for any tag'
             }
         }
     }

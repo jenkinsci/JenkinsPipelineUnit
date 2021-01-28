@@ -173,6 +173,23 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void when_buildingTag() throws Exception {
+        addEnvVar('TAG_NAME', 'release-1.0.0')
+        runScript('Tag_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Generating Release Notes')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_buildingTag_not() throws Exception {
+        // no TAG_NAME variable defined
+        runScript('Tag_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example Release Notes') // No stage bound to a "buildingTag()" condition
+        assertCallStack().contains('Skipping stage Example Deploy') // No stage bound to a "tag <arg>" condition
+        assertJobStatusSuccess()
+    }
+
     @Test void when_tag() throws Exception {
         addEnvVar('TAG_NAME', 'v1.1.1')
         runScript('Tag_Jenkinsfile')

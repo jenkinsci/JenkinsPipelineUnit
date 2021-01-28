@@ -10,7 +10,7 @@ class WhenDeclaration extends GenericPipelineDeclaration {
 
     AnyOfDeclaration anyOf
     NotDeclaration not
-    Boolean buildingTag = false
+    Boolean buildingTag
     String branch
     String tag
     Closure<Boolean> expression
@@ -66,7 +66,7 @@ class WhenDeclaration extends GenericPipelineDeclaration {
             branchCheck = antPathMatcher.match(branch, delegate.env.BRANCH_NAME)
         }
         if (buildingTag) {
-            tagCheck = delegate.env.containsKey(TAG_NAME)
+            tagCheck = delegate?.env?.containsKey("TAG_NAME")
         }
         if (tag) {
             tagCheck = delegate.env.TAG_NAME =~ tag
