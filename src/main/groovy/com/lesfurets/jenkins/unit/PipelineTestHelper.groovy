@@ -683,11 +683,12 @@ class PipelineTestHelper {
             exitValue = output.exitValue
         }
 
-        if (!returnStdout) {
+        // Jenkins also prints the output from sh when returnStdout is true if the script fails
+        if (!returnStdout || exitValue != 0) {
             println stdout
         }
 
-        if (returnStdout) {
+        if (returnStdout && exitValue == 0) {
             return stdout
         }
         if (returnStatus) {
