@@ -1,7 +1,7 @@
    Jenkinsfile.run()
       Jenkinsfile.stage(Build, groovy.lang.Closure)
          Jenkinsfile.node(groovy.lang.Closure)
-            Jenkinsfile.checkout({$class=GitSCM, branches=[{name=feature_}], doGenerateSubmoduleConfigurations=false, extensions=[], submoduleCfg=[], userRemoteConfigs=[{credentialsId=gitlab_git_ssh, url=github.com/lesfurets/JenkinsPipelineUnit.git}]})
+            Jenkinsfile.checkout({$class=GitSCM, branches=[{name=feature_}], extensions=[], userRemoteConfigs=[{credentialsId=gitlab_git_ssh, url=github.com/lesfurets/JenkinsPipelineUnit.git}]})
             Jenkinsfile.echo(Running mvn verify on branch feature_)
             Jenkinsfile.sh(mkdir -p ~/.gnupg)
             Jenkinsfile.file({credentialsId=gpg-pubring, variable=GPG_PUB_RING})
