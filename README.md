@@ -123,7 +123,7 @@ This test will print the call stack of the execution :
          exampleJob.load(src/test/jenkins/lib/utils.jenkins)
             utils.run()
          exampleJob.stage(Checkout, groovy.lang.Closure)
-            exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}], doGenerateSubmoduleConfigurations=false, extensions=[], submoduleCfg=[], userRemoteConfigs=[{credentialsId=gitlab_git_ssh, url=github.com/lesfurets/JenkinsPipelineUnit.git}]})
+            exampleJob.checkout({$class=GitSCM, branches=[{name=feature_test}], extensions=[], userRemoteConfigs=[{credentialsId=gitlab_git_ssh, url=github.com/lesfurets/JenkinsPipelineUnit.git}]})
             utils.currentRevision()
                utils.sh({returnStdout=true, script=git rev-parse HEAD})
          exampleJob.gitlabBuilds({builds=[build, test]}, groovy.lang.Closure)
