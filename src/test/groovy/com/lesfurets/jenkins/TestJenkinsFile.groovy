@@ -35,9 +35,7 @@ class TestJenkinsFile extends BaseRegressionTest {
         binding.setVariable('scm', [
                         $class                           : 'GitSCM',
                         branches                         : [[name: scmBranch]],
-                        doGenerateSubmoduleConfigurations: false,
                         extensions                       : [],
-                        submoduleCfg                     : [],
                         userRemoteConfigs                : [[
                                                                             credentialsId: 'gitlab_git_ssh',
                                                                             url          : 'github.com/lesfurets/JenkinsPipelineUnit.git'
