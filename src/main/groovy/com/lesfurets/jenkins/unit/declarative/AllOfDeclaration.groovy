@@ -1,16 +1,14 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.executeWith
 import org.springframework.util.AntPathMatcher
 
 import static groovy.lang.Closure.DELEGATE_FIRST
 
-
-class AnyOfDeclaration extends WhenDeclaration {
+class AllOfDeclaration extends WhenDeclaration {
 
     List<String> branches = []
     List<Boolean> expressions = []
-    List<AllOfDeclaration> allOfs = []
+    List<AnyOfDeclaration> anyOfs = []
 
     def branch(String name) {
         this.branches.add(name)
@@ -20,16 +18,16 @@ class AnyOfDeclaration extends WhenDeclaration {
         this.expressions.add(closure)
     }
 
-    def allOf(@DelegatesTo(strategy = DELEGATE_FIRST, value = AllOfDeclaration) Closure closure) {
-        this.allOfs.add(createComponent(AllOfDeclaration, closure))
-    }
-
-    def allOf(Object delegate) {
-        return this.allOfs.collect {it.execute(delegate)}
+    def anyOf(@DelegatesTo(strategy = DELEGATE_FIRST, value = AnyOfDeclaration) Closure closure) {
+        this.anyOfs.add(createComponent(AnyOfDeclaration, closure))
     }
 
     def expressions(Object delegate) {
-        return this.expressions.collect {executeWith(delegate, it)}.any()
+        return this.expressions.collect {executeWith(delegate, it)}.every()
+    }
+
+    def anyOf(Object delegate) {
+        return this.anyOfs.collect {it.execute(delegate)}
     }
 
     Boolean execute(Object delegate) {
@@ -47,10 +45,10 @@ class AnyOfDeclaration extends WhenDeclaration {
             results.add(expressions(delegate))
         }
 
-        if (this.allOfs.size() > 0) {
-            results.addAll(allOf(delegate))
+        if (this.anyOfs.size() > 0) {
+            results.addAll(anyOf(delegate))
         }
 
-        return results.any()
+        return results.every()
     }
 }

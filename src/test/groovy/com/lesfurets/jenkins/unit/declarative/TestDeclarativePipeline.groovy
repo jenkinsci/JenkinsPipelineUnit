@@ -158,6 +158,169 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void when_allOf_expression() throws Exception {
+        addEnvVar('SHOULD_EXECUTE', 'true')
+        addEnvVar('SHOULD_ALSO_EXECUTE', 'true')
+        runScript('AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing allOf with expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_allOf_expression_first_false() throws Exception {
+        addEnvVar('SHOULD_EXECUTE', 'false')
+        addEnvVar('SHOULD_ALSO_EXECUTE', 'true')
+        runScript('AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example allOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_allOf_expression_second_false() throws Exception {
+        addEnvVar('SHOULD_EXECUTE', 'true')
+        addEnvVar('SHOULD_ALSO_EXECUTE', 'false')
+        runScript('AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example allOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_allOf_expression_both_false() throws Exception {
+        addEnvVar('SHOULD_EXECUTE', 'false')
+        addEnvVar('SHOULD_ALSO_EXECUTE', 'false')
+        runScript('AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example allOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_allOf_anyOf_expression_1() throws Exception {
+        addEnvVar('OPTIONAL_1', 'false')
+        addEnvVar('OPTIONAL_2', 'false')
+        addEnvVar('OPTIONAL_3', 'false')
+        addEnvVar('OPTIONAL_4', 'false')
+        runScript('Nested_AllOf_And_AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example nested when allOf anyOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_allOf_anyOf_expression_2() throws Exception {
+        addEnvVar('OPTIONAL_1', 'true')
+        addEnvVar('OPTIONAL_2', 'false')
+        addEnvVar('OPTIONAL_3', 'false')
+        addEnvVar('OPTIONAL_4', 'false')
+        runScript('Nested_AllOf_And_AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example nested when allOf anyOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_allOf_anyOf_expression_3() throws Exception {
+        addEnvVar('OPTIONAL_1', 'false')
+        addEnvVar('OPTIONAL_2', 'true')
+        addEnvVar('OPTIONAL_3', 'false')
+        addEnvVar('OPTIONAL_4', 'false')
+        runScript('Nested_AllOf_And_AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example nested when allOf anyOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_allOf_anyOf_expression_4() throws Exception {
+        addEnvVar('OPTIONAL_1', 'false')
+        addEnvVar('OPTIONAL_2', 'false')
+        addEnvVar('OPTIONAL_3', 'true')
+        addEnvVar('OPTIONAL_4', 'false')
+        runScript('Nested_AllOf_And_AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example nested when allOf anyOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_allOf_anyOf_expression_5() throws Exception {
+        addEnvVar('OPTIONAL_1', 'false')
+        addEnvVar('OPTIONAL_2', 'false')
+        addEnvVar('OPTIONAL_3', 'false')
+        addEnvVar('OPTIONAL_4', 'true')
+        runScript('Nested_AllOf_And_AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example nested when allOf anyOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_allOf_anyOf_expression_6() throws Exception {
+        addEnvVar('OPTIONAL_1', 'true')
+        addEnvVar('OPTIONAL_2', 'false')
+        addEnvVar('OPTIONAL_3', 'true')
+        addEnvVar('OPTIONAL_4', 'false')
+        runScript('Nested_AllOf_And_AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing nested when allOf anyOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_allOf_anyOf_expression_7() throws Exception {
+        addEnvVar('OPTIONAL_1', 'false')
+        addEnvVar('OPTIONAL_2', 'true')
+        addEnvVar('OPTIONAL_3', 'false')
+        addEnvVar('OPTIONAL_4', 'true')
+        runScript('Nested_AllOf_And_AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing nested when allOf anyOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_anyOf_allOf_expression() throws Exception {
+        addEnvVar('OPTIONAL_1', 'true')
+        addEnvVar('OPTIONAL_2', 'true')
+        addEnvVar('OPTIONAL_3', 'true')
+        runScript('Nested_AnyOf_And_AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing nested when anyOf allOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_anyOf_allOf_expression_2() throws Exception {
+        addEnvVar('OPTIONAL_1', 'false')
+        addEnvVar('OPTIONAL_2', 'true')
+        addEnvVar('OPTIONAL_3', 'true')
+        runScript('Nested_AnyOf_And_AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing nested when anyOf allOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_anyOf_allOf_expression_3() throws Exception {
+        addEnvVar('OPTIONAL_1', 'true')
+        addEnvVar('OPTIONAL_2', 'false')
+        addEnvVar('OPTIONAL_3', 'true')
+        runScript('Nested_AnyOf_And_AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing nested when anyOf allOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_anyOf_allOf_expression_4() throws Exception {
+        addEnvVar('OPTIONAL_1', 'true')
+        addEnvVar('OPTIONAL_2', 'true')
+        addEnvVar('OPTIONAL_3', 'false')
+        runScript('Nested_AnyOf_And_AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing nested when anyOf allOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_anyOf_allOf_expression_5() throws Exception {
+        addEnvVar('OPTIONAL_1', 'false')
+        addEnvVar('OPTIONAL_2', 'false')
+        addEnvVar('OPTIONAL_3', 'false')
+        runScript('Nested_AnyOf_And_AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example nested when anyOf allOf expression')
+        assertJobStatusSuccess()
+    }
+
     @Test void when_branch() throws Exception {
         addEnvVar('BRANCH_NAME', 'production')
         runScript('Branch_Jenkinsfile')

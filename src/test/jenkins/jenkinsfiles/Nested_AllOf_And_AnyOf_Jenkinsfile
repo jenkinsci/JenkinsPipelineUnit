@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+    stages {
+        stage('Example Build') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('Example nested when allOf anyOf expression') {
+            when {
+                allOf {
+                    anyOf {
+                        expression {
+                            return env.OPTIONAL_1 == 'true'
+                        }
+                        expression {
+                            return env.OPTIONAL_2 == 'true'
+                        }
+                    }
+                    anyOf {
+                        expression {
+                            return env.OPTIONAL_3 == 'true'
+                        }
+                        expression {
+                            return env.OPTIONAL_4 == 'true'
+                        }
+                    }
+                }
+            }
+            steps {
+                echo 'Executing nested when allOf anyOf expression'
+            }
+        }
+    }
+}
