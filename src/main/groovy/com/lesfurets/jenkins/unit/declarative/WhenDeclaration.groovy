@@ -8,6 +8,7 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 
 class WhenDeclaration extends GenericPipelineDeclaration {
 
+    AllOfDeclaration allOf
     AnyOfDeclaration anyOf
     NotDeclaration not
     Boolean buildingTag
@@ -19,7 +20,11 @@ class WhenDeclaration extends GenericPipelineDeclaration {
 
     private static Pattern getPatternFromGlob(String glob) {
         // from https://stackoverflow.com/a/3619098
-        return Pattern.compile('^' + Pattern.quote(glob).replace('*', '\\E.*\\Q').replace('?', '\\E.\\Q') + '$');
+        return Pattern.compile('^' + Pattern.quote(glob).replace('*', '\\E.*\\Q').replace('?', '\\E.\\Q') + '$')
+    }
+
+    def allOf(@DelegatesTo(strategy = DELEGATE_FIRST, value = AllOfDeclaration) Closure closure) {
+        this.allOf = createComponent(AllOfDeclaration, closure)
     }
 
     def anyOf(@DelegatesTo(strategy = DELEGATE_FIRST, value = AnyOfDeclaration) Closure closure) {
@@ -56,9 +61,13 @@ class WhenDeclaration extends GenericPipelineDeclaration {
         boolean branchCheck = true
         boolean tagCheck = true
         boolean envCheck = true
+        boolean allOfCheck = true
         boolean anyOfCheck = true
         boolean notCheck = true
 
+        if (allOf) {
+            allOfCheck = allOf.execute(delegate)
+        }
         if (anyOf) {
             anyOfCheck = anyOf.execute(delegate)
         }
@@ -69,7 +78,7 @@ class WhenDeclaration extends GenericPipelineDeclaration {
             expressionCheck = executeWith(delegate, expression)
         }
         if (branch) {
-            AntPathMatcher antPathMatcher = new AntPathMatcher();
+            AntPathMatcher antPathMatcher = new AntPathMatcher()
             branchCheck = antPathMatcher.match(branch, delegate.env.BRANCH_NAME)
         }
         if (buildingTag) {
@@ -83,7 +92,7 @@ class WhenDeclaration extends GenericPipelineDeclaration {
             envCheck = (val == envValue)
         }
 
-        return expressionCheck && branchCheck && tagCheck && envCheck && anyOfCheck && notCheck
+        return expressionCheck && branchCheck && tagCheck && envCheck && allOfCheck && anyOfCheck && notCheck
     }
 
 }

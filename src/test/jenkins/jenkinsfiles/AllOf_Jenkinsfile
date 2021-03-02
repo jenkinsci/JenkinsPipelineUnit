@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+    stages {
+        stage('Example Build') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('Example allOf expression') {
+            when {
+                allOf {
+                    expression {
+                        return env.SHOULD_EXECUTE == 'true'
+                    }
+                    expression {
+                        return env.SHOULD_ALSO_EXECUTE == 'true'
+                    }
+                }
+            }
+            steps {
+                echo 'Executing allOf with expression'
+            }
+        }
+    }
+}
