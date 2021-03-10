@@ -206,7 +206,7 @@ node {
 ```groovy
 @Test
 void exampleReadFileTest() {
-    helper.addFileExistsMock('fileExists', true)
+    helper.addFileExistsMock('output', true)
     helper.addReadFileMock('output', 'FAILED!!!')
     runScript("Jenkinsfile")
     assertJobStatusFailure()
