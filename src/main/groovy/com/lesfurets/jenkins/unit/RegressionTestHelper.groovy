@@ -4,6 +4,7 @@ import static com.lesfurets.jenkins.unit.MethodCall.callArgsToString
 import static org.assertj.core.api.Assertions.assertThat
 import static org.assertj.core.api.Assertions.fail
 
+import java.nio.charset.StandardCharsets
 import java.util.function.Function
 import java.util.stream.Collectors
 
@@ -40,7 +41,7 @@ class RegressionTestHelper {
         if (!new File(referenceFile.parent).exists()) {
             new File(referenceFile.parent).mkdirs()
         }
-        referenceFile.withWriter { out ->
+        referenceFile.withWriter(StandardCharsets.UTF_8.name()) { out ->
             helper.callStack.each {
                 out.println(it)
             }
