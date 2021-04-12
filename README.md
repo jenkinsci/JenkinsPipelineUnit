@@ -215,13 +215,15 @@ void exampleReadFileTest() {
 
 ### Mocking sh
 
-The `sh` step is used by many pipelines for a variety of tasks. Its output can also be mocked to return:
+The `sh` step is used by many pipelines for a variety of tasks. It can be mocked to either (a) statically return:
 
-- A string
+- A string for standard output
 - A return code
-- A closure that will be executed when `sh` is called
+  
+..., or (b) execute a closure that will be executed when `sh` is called before returning a `Map` (with `stdout` and
+`exitValue` entries) allowing for dynamic behaviour.
 
-Here is a sample pipeline and corresponding unit tests for each of the three output types.
+Here is a sample pipeline and corresponding unit tests for each of these variants.
 
 ```groovy
 // Jenkinsfile
@@ -251,9 +253,10 @@ void debianBuildSuccess() {
     helper.addShMock('uname', 'Debian', 0)
     helper.addShMock('./build.sh --release', '', 0)
     helper.addShMock('./test.sh', '', 0)
-    // Have the sh mock execute the closure when the corresponding script is run
+    // Have the sh mock execute the closure when the corresponding script is run:
     helper.addShMock('./processTestResults.sh --platform debian') { script ->
-        return "Executing ${script}: SUCCESS"
+        // Do something "dynamically" first...
+        return [stdout: "Executing ${script}: SUCCESS", exitValue: 0]
     }
 
     runScript("Jenkinsfile")
