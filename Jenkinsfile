@@ -12,10 +12,10 @@ stage ('Build') {
         }
         echo "Running mvn $phase on branch $branch"
         sh 'mkdir -p ~/.gnupg'
-        withCredentials([
+      /*  withCredentials([
             file(credentialsId: 'gpg-pubring', variable: 'GPG_PUB_RING'),
             file(credentialsId: 'gpg-secring', variable: 'GPG_SEC_RING'),
-            file(credentialsId: 'gradle-settings', variable: 'GRADLE_SETTINGS')]) {
+            file(credentialsId: 'gradle-settings', variable: 'GRADLE_SETTINGS')])*/ {
                 try {
                     sh "./gradlew $phase -P signing.secretKeyRingFile=$GPG_SEC_RING -P extProps=$GRADLE_SETTINGS"
                 } finally {
