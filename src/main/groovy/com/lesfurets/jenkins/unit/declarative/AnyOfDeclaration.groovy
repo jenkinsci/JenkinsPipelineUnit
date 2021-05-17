@@ -8,9 +8,14 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 
 class AnyOfDeclaration extends WhenDeclaration {
 
+    List<String> tags = []
     List<String> branches = []
     List<Boolean> expressions = []
     List<AllOfDeclaration> allOfs = []
+
+    def tag(String name) {
+        this.tags.add(name)
+    }
 
     def branch(String name) {
         this.branches.add(name)
@@ -36,6 +41,12 @@ class AnyOfDeclaration extends WhenDeclaration {
         def results = []
 
         AntPathMatcher antPathMatcher = new AntPathMatcher()
+
+        if (this.tags.size() > 0) {
+            tags.each { tag ->
+                results.add(antPathMatcher.match(tag, delegate.env.TAG_NAME))
+            }
+        }
 
         if (this.branches.size() > 0) {
             branches.each { branch ->

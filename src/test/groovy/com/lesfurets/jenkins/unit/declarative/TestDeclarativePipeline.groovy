@@ -142,6 +142,30 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void when_anyOf_tag_version_pattern() throws Exception {
+        addEnvVar('TAG_NAME', 'version-X.Y.Z')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing anyOf with tag')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_anyOf_tag_release_pattern() throws Exception {
+        addEnvVar('TAG_NAME', 'release-X.Y.Z')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing anyOf with tag')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_anyOf_tag_release_pattern_main_not() throws Exception {
+        addEnvVar('TAG_NAME', 'releaseX.Y.Z')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example anyOf tag')
+        assertJobStatusSuccess()
+    }
+
     @Test void when_anyOf_expression_not() throws Exception {
         addEnvVar('SHOULD_EXECUTE', 'false')
         runScript('AnyOf_Jenkinsfile')
