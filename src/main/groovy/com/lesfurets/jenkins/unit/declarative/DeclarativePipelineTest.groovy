@@ -38,6 +38,8 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
             return binding.getVariable('credentials')[credName]
         })
         helper.registerAllowedMethod('cron', [String])
+        helper.registerAllowedMethod('input', [Closure])
+        helper.registerAllowedMethod('message', [String])
         helper.registerAllowedMethod(method("pipeline", Closure), pipelineInterceptor)
         helper.registerAllowedMethod('pollSCM', [String])
         helper.registerAllowedMethod('script', [Closure])
