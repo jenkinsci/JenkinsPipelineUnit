@@ -136,6 +136,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("choice", [Map])
         helper.registerAllowedMethod('cifsPublisher', [Map], {true})
         helper.registerAllowedMethod('cleanWs')
+        helper.registerAllowedMethod("configMapVolume", [Map])
         helper.registerAllowedMethod("container", [Map, Closure], { Map args, Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
@@ -144,6 +145,8 @@ abstract class BasePipelineTest {
             c.delegate = delegate
             helper.callClosure(c)
         })
+        helper.registerAllowedMethod("containerLog", [String])
+        helper.registerAllowedMethod("containerTemplate", [Map])
         helper.registerAllowedMethod('copyArtifacts', [Map], {true})
         helper.registerAllowedMethod("cron", [String])
         helper.registerAllowedMethod('deleteDir')
@@ -155,14 +158,33 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("echo", [String], { String message ->
             println(message)
         })
+        helper.registerAllowedMethod("emptyDirVolume", [Map])
+        helper.registerAllowedMethod("envVar", [Map])
         helper.registerAllowedMethod("error", [String], { updateBuildStatus('FAILURE') })
+        helper.registerAllowedMethod("fileCopyOperation", [Map])
+        helper.registerAllowedMethod("fileCreateOperation", [Map])
+        helper.registerAllowedMethod("fileDeleteOperation", [Map])
+        helper.registerAllowedMethod("fileDownloadOperation", [Map])
         helper.registerAllowedMethod('fileExists', [String], { String arg -> helper.fileExists(arg) })
+        helper.registerAllowedMethod("fileJoinOperation", [Map])
+        helper.registerAllowedMethod("fileOperations", [List])
+        helper.registerAllowedMethod("filePropertiesToJsonOperation", [Map])
+        helper.registerAllowedMethod("fileRenameOperation", [Map])
+        helper.registerAllowedMethod("fileTransformOperation", [Map])
+        helper.registerAllowedMethod("fileUnTarOperation", [Map])
+        helper.registerAllowedMethod("fileUnZipOperation", [Map])
+        helper.registerAllowedMethod("fileZipOperation", [Map])
+        helper.registerAllowedMethod("folderCopyOperation", [Map])
+        helper.registerAllowedMethod("folderCreateOperation", [String])
+        helper.registerAllowedMethod("folderDeleteOperation", [String])
+        helper.registerAllowedMethod("folderRenameOperation", [Map])
         helper.registerAllowedMethod("gatlingArchive")
         helper.registerAllowedMethod("gitlabBuilds", [Map, Closure])
         helper.registerAllowedMethod("gitlabCommitStatus", [String, Closure], { String name, Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
         })
+        helper.registerAllowedMethod("hostPathVolume", [Map])
         helper.registerAllowedMethod("input", [String])
         helper.registerAllowedMethod('isUnix', [], {
             return !System.properties['os.name'].toLowerCase().contains('windows')
@@ -174,12 +196,34 @@ abstract class BasePipelineTest {
             helper.setGlobalVars(binding)
             return new LibClassLoader(helper, null)
         })
+        helper.registerAllowedMethod("libraryResource", [String], { return "some content" })
+        helper.registerAllowedMethod("lock", [String, Closure], { String label, Closure c ->
+            c.delegate = delegate
+            helper.callClosure(c)
+        })
         helper.registerAllowedMethod("logRotator", [Map])
         helper.registerAllowedMethod('mail', [Map])
+        helper.registerAllowedMethod("nfsVolume", [Map])
         helper.registerAllowedMethod("node", [Closure])
         helper.registerAllowedMethod("node", [String, Closure])
+        helper.registerAllowedMethod("persistentVolumeClaim", [Map])
         helper.registerAllowedMethod("pipelineTriggers", [List])
+        helper.registerAllowedMethod("podAnnotation", [Map])
+        helper.registerAllowedMethod("podTemplate", [Map, Closure], { Map options, Closure c ->
+            final String podLabel = "POD_LABEL"
+            /*
+             * Add both `POD_LABEL` variable to both the `env` and the binding to follow
+             * examples from the Jenkins Kubernetes plugin.
+             */
+            addEnvVar(podLabel, podLabel)
+            binding.setVariable(podLabel, podLabel)
+            c.delegate = delegate
+            helper.callClosure(c)
+        })
         helper.registerAllowedMethod('pollSCM', [String])
+        helper.registerAllowedMethod("portMapping", [Map])
+        helper.registerAllowedMethod("powershell", [String], { args -> helper.runSh(args) })
+        helper.registerAllowedMethod("powershell", [Map], { args -> helper.runSh(args) })
         helper.registerAllowedMethod("properties", [List])
         helper.registerAllowedMethod("pwd", [], { 'workspaceDirMocked' })
         helper.registerAllowedMethod("pwd", [Map], { 'tempDirMocked' })
@@ -200,6 +244,8 @@ abstract class BasePipelineTest {
                 }
             }
         })
+        helper.registerAllowedMethod("secretEnvVar", [Map])
+        helper.registerAllowedMethod("secretVolume", [Map])
         helper.registerAllowedMethod('sh', [String], { args -> helper.runSh(args) })
         helper.registerAllowedMethod('sh', [Map], { args -> helper.runSh(args) })
         helper.registerAllowedMethod('skipDefaultCheckout')
@@ -212,7 +258,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("stage", [String, Closure])
         helper.registerAllowedMethod("step", [Map])
         helper.registerAllowedMethod("string", [Map], stringInterceptor)
-        helper.registerAllowedMethod('timeout', [Integer, Closure], { Map args, Closure c ->
+        helper.registerAllowedMethod('timeout', [Integer, Closure], { int timeoutDuration, Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
         })
@@ -223,7 +269,7 @@ abstract class BasePipelineTest {
         })
         helper.registerAllowedMethod('tool', [Map], { t -> "${t.name}_HOME" })
         helper.registerAllowedMethod("unstable", [String], { updateBuildStatus('UNSTABLE') })
-        helper.registerAllowedMethod('unstash', [Map])
+        helper.registerAllowedMethod("unstash", [String])
         helper.registerAllowedMethod('unzip', [Map])
         helper.registerAllowedMethod('usernamePassword', [Map], usernamePasswordInterceptor)
         helper.registerAllowedMethod('waitUntil', [Closure])
