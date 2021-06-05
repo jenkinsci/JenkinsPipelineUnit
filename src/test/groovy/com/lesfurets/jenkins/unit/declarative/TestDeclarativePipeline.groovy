@@ -450,13 +450,20 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     }
 
     @Test void should_environment() throws Exception {
-        addEnvVar("labelVar","varWorks")
         runScript('Environment_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('echo(LEVAR1 LE NEW VALUE)')
-        assertCallStack().contains('echo(LEVAR1 LE NEW VALUE)')
+        assertCallStack().contains('echo(LEVAR1 LE NEW VALUE without pefixing env)')
         assertCallStack().contains('echo(LEVAR2 A COPY OF LE NEW VALUE in build#1)')
         assertJobStatusSuccess()
+    }
+
+    @Test void should_be_able_to_access_upper_score_var() throws Exception {
+        String envVarValue = "envVarValue"
+        addEnvVar("envVar", envVarValue)
+        runScript('Scoping_Jenkinsfile')
+        assertCallStack().contains("echo(Upperscoped string : UpperScope string with envVar: $envVarValue)")
+        printCallStack()
     }
 
     @Test void not_running_stage_after_failure() throws Exception {
