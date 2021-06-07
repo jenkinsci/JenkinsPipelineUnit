@@ -1,7 +1,5 @@
 package com.lesfurets.jenkins.unit
 
-import com.sun.org.apache.xpath.internal.operations.Bool
-
 import static com.lesfurets.jenkins.unit.MethodSignature.method
 
 import java.lang.reflect.Method
