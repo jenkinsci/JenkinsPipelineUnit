@@ -532,4 +532,11 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void jenkinsfile_thisObject() throws Exception {
+        def script = runScript('Declarative_thisObject_JenkinsFile')
+        printCallStack()
+        assertJobStatusSuccess()
+        assertCallStack().doesNotContain("This is a script?: false")
+        assertCallStack().contains("This is a script?: true")
+    }
 }

@@ -1,8 +1,5 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.createComponent
-import static groovy.lang.Closure.DELEGATE_FIRST
-
 class ParallelDeclaration {
 
     Map<String, StageDeclaration> stages = [:]
@@ -16,14 +13,15 @@ class ParallelDeclaration {
         this.failFast = false
     }
 
-    def stage(String name,
-              @DelegatesTo(strategy = DELEGATE_FIRST, value = StageDeclaration) Closure closure) {
-        this.stages.put(name, createComponent(StageDeclaration, closure).with{it.name = name;it} )
+    def stage(String name, Closure closure) {
+        def stageDeclaration = new StageDeclaration(name);
+        GenericPipelineDeclaration.executeWith(stageDeclaration, closure);
+        this.stages.put(name, stageDeclaration)
     }
 
-    def execute(Object delegate) {
+    def execute(Script script) {
         this.stages.entrySet().forEach { e ->
-            e.value.execute(delegate)
+            e.value.execute(script)
         }
     }
 

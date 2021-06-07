@@ -1,6 +1,6 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static com.lesfurets.jenkins.unit.declarative.DeclarativePipeline.executeWith
+import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.executeWith
 
 class PostDeclaration {
 
@@ -55,52 +55,52 @@ class PostDeclaration {
         this.regression = closure
     }
 
-    def execute(Object delegate) {
-        def currentBuild = delegate.currentBuild.result
-        def previousBuild = delegate.currentBuild?.previousBuild?.result
+    def execute(Script script) {
+        def currentBuild = script.currentBuild.result
+        def previousBuild = script.currentBuild?.previousBuild?.result
         if (this.always) {
-            executeWith(delegate, this.always)
+            executeWith(script, this.always)
         }
 
         switch (currentBuild) {
             case 'SUCCESS':
-                executeWith(delegate, this.success)
+                executeWith(script, this.success)
                 break
             case 'FAILURE':
-                executeWith(delegate, this.failure)
+                executeWith(script, this.failure)
                 break
             case 'ABORTED':
-                executeWith(delegate, this.aborted)
+                executeWith(script,this.aborted)
                 break
             case 'UNSTABLE':
-                executeWith(delegate, this.unstable)
+                executeWith(script,this.unstable)
                 break
         }
 
         if(currentBuild != previousBuild && this.changed)
         {
-            executeWith(delegate, this.changed)
+            executeWith(script,this.changed)
         }
         if(currentBuild != 'SUCCESS' && this.unsuccessful)
         {
-            executeWith(delegate, this.unsuccessful)
+            executeWith(script, this.unsuccessful)
         }
         if(this.fixed){
             if(currentBuild == 'SUCCESS' && (previousBuild == 'FAILURE' || previousBuild == 'UNSTABLE'))
             {
-                executeWith(delegate, this.fixed)
+                executeWith(script, this.fixed)
             }
         }
         if(this.regression)
         {
             if((currentBuild == 'FAILURE' || currentBuild == 'UNSTABLE') && previousBuild == 'SUCCESS'){
-                executeWith(delegate, this.regression)
+                executeWith(script, this.regression)
             }
         }
 
         // Cleanup is always performed last
         if(this.cleanup){
-            executeWith(delegate, this.cleanup)
+            executeWith(script, this.cleanup)
         }
     }
 

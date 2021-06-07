@@ -1,8 +1,5 @@
 package com.lesfurets.jenkins.unit.declarative
 
-
-import static groovy.lang.Closure.DELEGATE_FIRST
-
 abstract class GenericPipelineDeclaration {
 
     AgentDeclaration agent
@@ -10,25 +7,14 @@ abstract class GenericPipelineDeclaration {
     Closure tools
     PostDeclaration post
     Map<String, StageDeclaration> stages = [:]
-    static def binding = null
 
-    static <T> T createComponent(Class<T> componentType, @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
-        // declare componentInstance as final to prevent any multithreaded issues, since it is used inside closure
-        final def componentInstance = componentType.newInstance()
-        def rehydrate = closure.rehydrate(closure, componentInstance, componentInstance)
-        if (binding && componentInstance.hasProperty('binding') && componentInstance.binding != binding) {
-            componentInstance.binding = binding
-        }
-        rehydrate.call()
-        return componentInstance
-    }
-
-    static <T> T executeWith(@DelegatesTo.Target Object delegate,
-                             @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
+    static <T> T executeWith(Object delegate, Closure<T> closure, Integer resolveStrategy = null) {
         if (closure) {
-            def cl = closure.rehydrate(delegate, delegate, delegate)
-            cl.resolveStrategy = DELEGATE_FIRST
-            return cl.call()
+            closure.delegate = delegate;
+            if(resolveStrategy) {
+                closure.resolveStrategy = resolveStrategy
+            }
+            return closure.call()
         }
         return null
     }
@@ -37,8 +23,9 @@ abstract class GenericPipelineDeclaration {
         this.agent = new AgentDeclaration().with { it.label = o; it }
     }
 
-    def agent(@DelegatesTo(strategy = DELEGATE_FIRST, value = AgentDeclaration) Closure closure) {
-        this.agent = createComponent(AgentDeclaration, closure)
+    def agent(Closure closure) {
+        this.@agent = new AgentDeclaration();
+        executeWith(this.@agent, closure)
     }
 
     def environment(Closure closure) {
@@ -49,48 +36,47 @@ abstract class GenericPipelineDeclaration {
         this.tools = closure
     }
 
-    def post(@DelegatesTo(strategy = DELEGATE_FIRST, value = PostDeclaration) Closure closure) {
-        this.post = createComponent(PostDeclaration, closure)
+    def post(Closure closure) {
+        this.post = new PostDeclaration();
+        executeWith(this.post, closure)
     }
 
-    def stages(@DelegatesTo(DeclarativePipeline) Closure closure) {
+    def stages(Closure closure) {
         closure.call()
     }
 
-    def stage(String stageName,
-              @DelegatesTo(strategy = DELEGATE_FIRST, value = StageDeclaration) Closure closure) {
-        this.stages.put(stageName, createComponent(StageDeclaration, closure).with { it.name = stageName; it })
+    def stage(String stageName, Closure closure) {
+        def stageDeclaration = new StageDeclaration(stageName)
+        executeWith(stageDeclaration, closure, Closure.DELEGATE_FIRST);
+        this.stages.put(stageName, stageDeclaration)
     }
 
-    def execute(Object delegate) {
+    def execute(Script script) {
         Map envValuestoRestore = [:]
 
         // set environment
         if (this.environment) {
-            envValuestoRestore = initEnvironment(this.environment, delegate)
+            envValuestoRestore = initEnvironment(this.environment, script)
         }
-        resetEnvironment(envValuestoRestore, delegate)
+        resetEnvironment(envValuestoRestore, script)
     }
 
     public static Map initEnvironment(Closure environment, Object delegate) {
         Map envValuestoRestore = [:]
         Binding subBinding = new Binding()
-        subBinding.metaClass.invokeMissingProperty = { propertyName ->
-            delegate.getProperty(propertyName)
-        }
         subBinding.metaClass.setProperty = { String propertyName, Object newValue ->
             if (delegate.hasProperty(propertyName)) {
                 envValuestoRestore.put(propertyName, delegate.getProperty(propertyName))
             }
             (delegate.env as Map).put(propertyName, newValue)
         }
-        def envClosure = environment.rehydrate(subBinding, delegate, this)
-        envClosure.resolveStrategy = DELEGATE_FIRST
+        def envClosure = environment.rehydrate(subBinding, environment, delegate)
+        envClosure.resolveStrategy = Closure.DELEGATE_FIRST
         envClosure.call()
         return envValuestoRestore
     }
 
-    public static resetEnvironment(LinkedHashMap envValuestoRestore, delegate) {
+    public static resetEnvironment(Map envValuestoRestore, Object delegate) {
         envValuestoRestore.entrySet().forEach { entry ->
             def envMap = delegate.env as Map
             envMap.put(entry.getKey(), entry.getValue())

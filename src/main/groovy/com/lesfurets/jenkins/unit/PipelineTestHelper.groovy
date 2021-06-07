@@ -185,9 +185,9 @@ class PipelineTestHelper {
             return callClosure(intercepted.value, args)
         }
         // if not search for the method declaration
-        MetaMethod m = delegate.metaClass.getMetaMethod(name, args)
+        MetaMethod metaMethod = delegate.metaClass.getMetaMethod(name, args)
         // ...and call it. If we cannot find it, delegate call to methodMissing
-        def result = (m ? this.callMethod(m, delegate, args) : delegate.metaClass.invokeMissingMethod(delegate, name, args))
+         def result = (metaMethod ? this.callMethod(metaMethod, delegate, args) : delegate.metaClass.invokeMissingMethod(delegate, name, args))
         return result
     }
 

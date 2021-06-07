@@ -1,7 +1,5 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static groovy.lang.Closure.*
-
 class DeclarativePipeline extends GenericPipelineDeclaration {
 
     def properties = [:]
@@ -24,11 +22,11 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         }
     }
 
-    def options(@DelegatesTo(DeclarativePipeline) Closure closure) {
+    def options(Closure closure) {
         options.add(closure)
     }
 
-    def triggers(@DelegatesTo(DeclarativePipeline) Closure closure) {
+    def triggers(Closure closure) {
         this.triggers = closure
     }
 
@@ -36,21 +34,25 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
         this.parameters = new ParametersDeclaration().with { it.label = o; it }
     }
 
-    def parameters(@DelegatesTo(strategy=DELEGATE_FIRST, value=ParametersDeclaration) Closure closure) {
-        this.parameters = createComponent(ParametersDeclaration, closure)
+    def parameters(Closure closure) {
+        this.parameters = new ParametersDeclaration()
+        this.parameters.binding = closure.binding;
+        executeWith(this.parameters, closure)
     }
 
-    def execute(Object delegate) {
-        super.execute(delegate)
+    def execute(Script script) {
+        super.execute(script)
         this.options.forEach {
-            executeWith(delegate, it)
+            executeWith(script, it)
         }
-        this.agent?.execute(delegate)
-        executeWith(delegate, this.triggers)
+        this.agent?.execute(script)
+        if (this.triggers) {
+            executeWith(script, this.triggers)
+        }
         this.stages.entrySet().forEach { e ->
-            e.value.execute(delegate)
+            e.value.execute(script)
         }
-        this.post?.execute(delegate)
+        this.post?.execute(script)
     }
 
 }

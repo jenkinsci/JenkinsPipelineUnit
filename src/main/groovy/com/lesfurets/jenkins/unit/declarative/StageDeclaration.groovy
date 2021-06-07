@@ -1,9 +1,5 @@
 package com.lesfurets.jenkins.unit.declarative
 
-
-import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.executeWith
-import static groovy.lang.Closure.DELEGATE_FIRST
-
 class StageDeclaration extends GenericPipelineDeclaration {
 
     String name
@@ -25,55 +21,63 @@ class StageDeclaration extends GenericPipelineDeclaration {
         this.failFast = failFast
     }
 
-    def parallel(@DelegatesTo(strategy = DELEGATE_FIRST, value = ParallelDeclaration) Closure closure) {
-        this.parallel = createComponent(ParallelDeclaration, closure).with { it.failFast = failFast; it }
+    def parallel(Closure closure) {
+        this.parallel = new ParallelDeclaration(failFast);
+        executeWith(this.parallel, closure);
     }
 
-    def when(@DelegatesTo(strategy = DELEGATE_FIRST, value = WhenDeclaration) Closure closure) {
-        this.when = createComponent(WhenDeclaration, closure)
+    def when(Closure closure) {
+        this.when = new WhenDeclaration();
+        executeWith(this.when, closure)
     }
 
-    def options(@DelegatesTo(StageDeclaration) Closure closure) {
+    def options(Closure closure) {
         options.add(closure)
     }
 
-    def execute(Object delegate) {
+    def execute(Script script) {
         String name = this.name
         this.options.each {
-            executeWith(delegate, it)
+            executeWith(script, it)
         }
-        if(parallel) {
-            parallel.execute(delegate)
+        if (parallel) {
+            parallel.execute(script)
         }
 
-        if (delegate.currentBuild.result == "FAILURE") {
-            executeWith(delegate, { echo "Stage \"$name\" skipped due to earlier failure(s)" })
+        if (script.currentBuild.result == "FAILURE") {
+            executeWith(script, { echo "Stage \"$name\" skipped due to earlier failure(s)" })
             return
         }
 
-        if (!when || when.execute(delegate)) {
+        if (!when || when.execute(script)) {
             Map envValuestoRestore = [:]
 
             // set environment
             if (this.environment) {
-                envValuestoRestore = initEnvironment(this.environment, delegate)
+                envValuestoRestore = initEnvironment(this.environment, script)
             }
 
             // TODO handle credentials
             this.stages.entrySet().forEach { stageEntry ->
-                stageEntry.value.execute(delegate)
+                stageEntry.value.execute(script)
             }
-            if(steps) {
-                Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, this, this)
-                Closure cl = { stage("$name", stageBody) }
-                executeWith(delegate, cl)
+            if (steps) {
+                Closure rehydratedSteps = steps.rehydrate(script, this, steps);
+                rehydratedSteps.setResolveStrategy(Closure.DELEGATE_FIRST)
+                Closure stageBody = {
+                    agent?.execute(script)
+                } >> rehydratedSteps
+                Closure cl = {
+                    stage("$name", stageBody)
+                }
+                executeWith(script, cl, Closure.DELEGATE_ONLY)
             }
             if (post) {
-                this.post.execute(delegate)
+                this.post.execute(script)
             }
-            resetEnvironment(envValuestoRestore, delegate)
+            resetEnvironment(envValuestoRestore, script)
         } else {
-            executeWith(delegate, { echo "Skipping stage $name" })
+            executeWith(script, { echo "Skipping stage $name" })
         }
     }
 
