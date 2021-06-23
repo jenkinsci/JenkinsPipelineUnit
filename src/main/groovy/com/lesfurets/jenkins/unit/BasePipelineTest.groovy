@@ -263,6 +263,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("withKubeConfig", [List,Closure])
         helper.registerAllowedMethod("withKubeCredentials", [Map,Closure])
         helper.registerAllowedMethod("withKubeCredentials", [List,Closure])
+        helper.registerAllowedMethod('wrap', [Map, Closure]) { Map args, Closure c ->
+          c.delegate = delegate
+          helper.callClosure(c)
+        }
         helper.registerAllowedMethod('writeFile', [Map])
         helper.registerAllowedMethod("ws", [String, Closure])
     }
