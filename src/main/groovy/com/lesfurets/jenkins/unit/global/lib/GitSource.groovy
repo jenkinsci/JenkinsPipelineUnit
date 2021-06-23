@@ -26,7 +26,7 @@ class GitSource implements SourceRetriever {
                         .inheritIO()
                         .directory(target)
         def proc = processBuilder.start()
-        proc.waitFor(CLONE_TIMEOUT, TimeUnit.SECONDS)
+        proc.waitFor(CLONE_TIMEOUT_MIN, TimeUnit.MINUTES)
         proc.exitValue()
         return [fetch.toURI().toURL()]
     }
