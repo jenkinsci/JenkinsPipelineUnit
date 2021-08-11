@@ -7,11 +7,16 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 class AllOfDeclaration extends WhenDeclaration {
 
     List<String> branches = []
+    List<ChangeRequestDeclaration> changeRequests = []
     List<Boolean> expressions = []
     List<AnyOfDeclaration> anyOfs = []
 
     def branch(String name) {
         this.branches.add(name)
+    }
+
+    def changeRequest(Object val) {
+        this.changeRequests.add(new ChangeRequestDeclaration(val))
     }
 
     def expression(Closure closure) {
@@ -38,6 +43,12 @@ class AllOfDeclaration extends WhenDeclaration {
         if (this.branches.size() > 0) {
             branches.each { branch ->
                 results.add(antPathMatcher.match(branch, delegate.env.BRANCH_NAME))
+            }
+        }
+
+        if (this.changeRequests.size() > 0) {
+            changeRequests.each { changeRequest ->
+                results.add(changeRequest.execute(delegate))
             }
         }
 

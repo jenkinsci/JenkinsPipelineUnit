@@ -21,5 +21,16 @@ pipeline {
                 echo 'Executing allOf with expression'
             }
         }
+         stage('Example allOf changeRequests') {
+            when {
+                allOf {
+                     changeRequest target: 'develop'
+                     changeRequest branch: 'feature/*', comparator:'GLOB'
+                }
+            }
+            steps {
+                echo 'Executing allOf with changeRequest'
+            }
+        }
     }
 }

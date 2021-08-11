@@ -44,5 +44,16 @@ pipeline {
                 echo 'Executing anyOf with tag'
             }
         }
+        stage('Example anyOf changeRequests') {
+            when {
+                anyOf {
+                     changeRequest target: 'develop'
+                     changeRequest target: 'release/*', comparator:'GLOB'
+                }
+            }
+            steps {
+                echo 'Executing anyOf with changeRequest'
+            }
+        }
     }
 }

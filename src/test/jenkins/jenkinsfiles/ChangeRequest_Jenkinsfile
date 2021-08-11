@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+    stages {
+        stage('Example Build') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('Example test') {
+            when {
+                changeRequest()
+            }
+            steps {
+                echo 'Test only change requests'
+            }
+        }
+        stage('Example test target develop') {
+            when {
+                changeRequest target: 'develop'
+            }
+            steps {
+                echo 'Test change requests with develop branch as target'
+            }
+        }
+        stage('Example test branch feature') {
+            when {
+                changeRequest branch: 'feature/*', comparator: 'GLOB'
+            }
+            steps {
+                echo 'Test change requests with any feature branch as source'
+            }
+        }
+        stage('Example test author') {
+            when {
+                changeRequest author: 'unreliableUser',
+                              authorDisplayName: 'Unreliable User',
+                              authorEmail: 'unreliable.user@com.com'
+            }
+            steps {
+                echo 'Test change requests with unreliableUser as author'
+            }
+        }
+        stage('Example test id equals') {
+            when {
+                changeRequest id: '42', comparator: 'EQUALS'
+            }
+            steps {
+                echo 'Test change request with id 42'
+            }
+        }
+        stage('Example test title') {
+            when {
+                changeRequest title: '^[a-zA-Z0-9 -]+$', comparator: 'REGEXP'
+            }
+            steps {
+                echo 'Test change requests with alphanumeric titles'
+            }
+        }
+        stage('Example test url and fork') {
+            when {
+                changeRequest url: 'https://github.com*',  fork: 'https://github.com*', comparator: 'GLOB'
+            }
+            steps {
+                echo 'Test change requests with github in url and fork'
+            }
+        }
+    }
+}

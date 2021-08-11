@@ -13,12 +13,13 @@ class WhenDeclaration extends GenericPipelineDeclaration {
     NotDeclaration not
     Boolean buildingTag
     String branch
+    ChangeRequestDeclaration changeRequest
     String tag
     Closure<Boolean> expression
     String envName
     String envValue
 
-    private static Pattern getPatternFromGlob(String glob) {
+    protected static Pattern getPatternFromGlob(String glob) {
         // from https://stackoverflow.com/a/3619098
         return Pattern.compile('^' + Pattern.quote(glob).replace('*', '\\E.*\\Q').replace('?', '\\E.\\Q') + '$')
     }
@@ -37,6 +38,10 @@ class WhenDeclaration extends GenericPipelineDeclaration {
 
     def branch (String name) {
         this.branch = name
+    }
+
+    def changeRequest(Object o) {
+        this.changeRequest = new ChangeRequestDeclaration(o)
     }
 
     def tag (String name) {
@@ -59,6 +64,7 @@ class WhenDeclaration extends GenericPipelineDeclaration {
     Boolean execute(Object delegate) {
         boolean expressionCheck = true
         boolean branchCheck = true
+        boolean changeRequestCheck = true
         boolean tagCheck = true
         boolean envCheck = true
         boolean allOfCheck = true
@@ -81,6 +87,9 @@ class WhenDeclaration extends GenericPipelineDeclaration {
             AntPathMatcher antPathMatcher = new AntPathMatcher()
             branchCheck = antPathMatcher.match(branch, delegate.env.BRANCH_NAME)
         }
+        if (changeRequest) {
+            changeRequestCheck = changeRequest.execute(delegate)
+        }
         if (buildingTag) {
             tagCheck = delegate?.env?.containsKey("TAG_NAME")
         }
@@ -92,7 +101,7 @@ class WhenDeclaration extends GenericPipelineDeclaration {
             envCheck = (val == envValue)
         }
 
-        return expressionCheck && branchCheck && tagCheck && envCheck && allOfCheck && anyOfCheck && notCheck
+        return expressionCheck && branchCheck && changeRequestCheck && tagCheck && envCheck && allOfCheck && anyOfCheck && notCheck
     }
 
 }
