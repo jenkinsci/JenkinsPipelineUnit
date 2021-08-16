@@ -166,6 +166,22 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void when_anyOf_changeRequest() throws Exception {
+        addEnvVar('CHANGE_TARGET', 'release/1.2.3')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing anyOf with changeRequest')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_anyOf_changeRequest_not() throws Exception {
+        addEnvVar('CHANGE_TARGET', 'master')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example anyOf changeRequests')
+        assertJobStatusSuccess()
+    }
+
     @Test void when_anyOf_expression_not() throws Exception {
         addEnvVar('SHOULD_EXECUTE', 'false')
         runScript('AnyOf_Jenkinsfile')
@@ -215,6 +231,24 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         runScript('AllOf_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Skipping stage Example allOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_allOf_changerequests() throws Exception {
+        addEnvVar('CHANGE_TARGET', 'develop')
+        addEnvVar('CHANGE_BRANCH', 'feature/ABC-123 new feature')
+        runScript('AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing allOf with changeRequest')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_allOf_changerequests_not() throws Exception {
+        addEnvVar('CHANGE_TARGET', 'develop')
+        addEnvVar('CHANGE_BRANCH', 'hotfix/ABC-123 problem solved')
+        runScript('AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example allOf changeRequests')
         assertJobStatusSuccess()
     }
 
@@ -358,6 +392,96 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         runScript('Branch_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Skipping stage Example Deploy')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request() throws Exception {
+        addEnvVar('CHANGE_ID', '1')
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Test only change requests')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request_not() throws Exception {
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example test')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request_target() throws Exception {
+        addEnvVar('CHANGE_TARGET', 'develop')
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Test change requests with develop branch as target')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request_branch_glob() throws Exception {
+        addEnvVar('CHANGE_BRANCH', 'feature/ABC-123 feature branch')
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Test change requests with any feature branch as source')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request_branch_glob_not() throws Exception {
+        addEnvVar('CHANGE_BRANCH', 'hotfix/ABC-123 hotfix branch')
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example test branch feature')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request_author() throws Exception {
+        addEnvVar('CHANGE_AUTHOR', 'unreliableUser')
+        addEnvVar('CHANGE_AUTHOR_EMAIL', 'unreliableUser@com.com')
+        addEnvVar('CHANGE_AUTHOR_DISPLAY_NAME', 'Unreliable User')
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Test change requests with unreliableUser as author')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request_id_equals() throws Exception {
+        addEnvVar('CHANGE_ID', '42')
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Test change request with id 42')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request_id_equals_not() throws Exception {
+        addEnvVar('CHANGE_ID', '042')
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example test id equals')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request_title_regexp() throws Exception {
+        addEnvVar('CHANGE_TITLE', 'ABC-123 new feature')
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Test change requests with alphanumeric titles')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request_title_regexp_not() throws Exception {
+        addEnvVar('CHANGE_TITLE', '[ABC-123] new feature')
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example test title')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_change_request_url_fork_glob() throws Exception {
+        addEnvVar('CHANGE_URL', 'https://github.com/JenkinsPipelineUnit')
+        addEnvVar('CHANGE_FORK', 'https://github.com/user/JenkinsPipelineUnit')
+        runScript('ChangeRequest_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Test change requests with github in url and fork')
         assertJobStatusSuccess()
     }
 
@@ -523,5 +647,4 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertCallStack().contains('echo(Deploy to someLabel)')
         assertJobStatusSuccess()
     }
-
 }
