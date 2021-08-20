@@ -41,7 +41,7 @@ Maven:
         <dependency>
             <groupId>com.lesfurets</groupId>
             <artifactId>jenkins-pipeline-unit</artifactId>
-            <version>1.3</version>
+            <version>1.9</version>
             <scope>test</scope>
         </dependency>
         ...
@@ -56,7 +56,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation "com.lesfurets:jenkins-pipeline-unit:1.3"
+    testImplementation "com.lesfurets:jenkins-pipeline-unit:1.9"
     ...
 }
 ```
