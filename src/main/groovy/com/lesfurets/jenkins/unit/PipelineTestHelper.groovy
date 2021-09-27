@@ -423,12 +423,12 @@ class PipelineTestHelper {
      */
     Script loadInlineScript(String scriptText, Binding binding) {
         Objects.requireNonNull(binding, "Binding cannot be null.")
-        Objects.requireNonNull(helper.gse, "GroovyScriptEngine is not initialized: Initialize the helper by calling init().")
-        GroovyShell shell = new GroovyShell(helper.gse.getParentClassLoader(), binding, helper.gse.getConfig())
+        Objects.requireNonNull(gse, "GroovyScriptEngine is not initialized: Initialize the helper by calling init().")
+        GroovyShell shell = new GroovyShell(gse.getParentClassLoader(), binding, gse.getConfig())
         Script script = shell.parse(scriptText)
         // make sure to set global vars after parsing the script as it will trigger library loads, otherwise library methods will be unregistered
-        helper.setGlobalVars(binding)
-        InterceptingGCL.interceptClassMethods(script.metaClass, helper, binding)
+        setGlobalVars(binding)
+        InterceptingGCL.interceptClassMethods(script.metaClass, this, binding)
         return script
     }
 
