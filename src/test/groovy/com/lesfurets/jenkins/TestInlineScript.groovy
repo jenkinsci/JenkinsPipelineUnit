@@ -24,12 +24,13 @@ class TestInlineScript extends BasePipelineTest {
                         .allowOverride(true)
                         .implicit(false)
                         .targetPath(sharedLibs)
-                        .retriever(projectSource())
+                        .retriever(localSource(sharedLibs))
                         .build()
 
         helper.registerSharedLibrary(library)
     }
 
+    @Test
     void load_inline_script_with_simple_commands() {
         def script = loadInlineScript('''
             node {
@@ -43,6 +44,7 @@ class TestInlineScript extends BasePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test
     void run_inline_script_with_simple_commands() {
         runInlineScript('''
             node {
@@ -54,6 +56,7 @@ class TestInlineScript extends BasePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test
     void load_inline_script_with_shared_library() {
         def script = loadInlineScript('''
             @Library('commons') _
@@ -69,6 +72,7 @@ class TestInlineScript extends BasePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test
     void run_inline_script_with_shared_library() {
         runInlineScript('''
             @Library('commons') _
