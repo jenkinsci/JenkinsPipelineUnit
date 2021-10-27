@@ -77,7 +77,7 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     def execute(Object delegate) {
         def agentDesc = null
 
-        if (label) {
+        if (label != null) {
             agentDesc = '[label:' + label.toString() + ']'
         }
         else if (docker) {

@@ -647,4 +647,12 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertCallStack().contains('echo(Deploy to someLabel)')
         assertJobStatusSuccess()
     }
+
+    @Test void should_agent_with_empty_label() throws Exception {
+        runScript('AgentEmptyLabel_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('[label:]')
+        assertCallStack().contains('echo(Hello using custom workspace and empty label)')
+        assertJobStatusSuccess()
+    }
 }
