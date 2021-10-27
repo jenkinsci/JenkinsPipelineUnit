@@ -1,0 +1,15 @@
+pipeline {
+    agent {
+        node {
+            label ''
+            customWorkspace "myworkspace"
+        }
+    }
+    stages {
+        stage('Example Build') {
+            steps {
+                echo "Hello using custom workspace and empty label"
+            }
+        }
+    }
+}
