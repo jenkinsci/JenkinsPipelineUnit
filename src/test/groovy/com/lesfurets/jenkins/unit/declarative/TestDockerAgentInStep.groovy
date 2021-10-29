@@ -18,4 +18,10 @@ class TestDockerAgentInStep extends DeclarativePipelineTest {
         runScript("Docker_agentInStep_JenkinsFile")
         assertJobStatusSuccess()
     }
+
+    @Test
+    void test_dockerfile_agent() {
+        runScript("Dockerfile_agent_JenkinsFile")
+        assertJobStatusSuccess()
+    }
 }

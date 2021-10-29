@@ -9,14 +9,27 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @ToString(includePackage = false, includeNames = true, ignoreNulls = true)
 class AgentDeclaration extends GenericPipelineDeclaration {
 
+    String additionalBuildArgs = null
+    String args = null
     String label
     DockerAgentDeclaration docker
     KubernetesAgentDeclaration kubernetes
     Boolean dockerfile = null
     String dockerfileDir
+    String filename = null
     Boolean reuseNode = null
     String customWorkspace
     def binding = null
+    String registryCredentialsId = null
+    String registryUrl = null
+
+    def additionalBuildArgs(String additionalBuildArgs) {
+        this.additionalBuildArgs = additionalBuildArgs
+    }
+
+    def args(String args) {
+        this.args = args
+    }
 
     def label(String label) {
         this.label = label
@@ -62,6 +75,10 @@ class AgentDeclaration extends GenericPipelineDeclaration {
         this.dockerfileDir = dir
     }
 
+    def filename(String filename) {
+        this.filename = filename
+    }
+
     def getCurrentBuild() {
         return binding?.currentBuild
     }
@@ -72,6 +89,14 @@ class AgentDeclaration extends GenericPipelineDeclaration {
 
     def getParams() {
         return binding?.params
+    }
+
+    def registryCredentialsId(String registryCredentialsId) {
+        this.registryCredentialsId = registryCredentialsId
+    }
+
+    def registryUrl(String registryUrl) {
+        this.registryUrl = registryUrl
     }
 
     def execute(Object delegate) {

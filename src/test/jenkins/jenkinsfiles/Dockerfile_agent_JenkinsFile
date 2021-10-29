@@ -1,0 +1,16 @@
+pipeline {
+    stages {
+        stage('Build') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile'
+                    label 'linux'
+                    registryUrl 'https://registry.example.com'
+                    registryCredentialsId 'MY_CREDENTIALS_ID'
+                    args '-v /tmp:/ws'
+                    additionalBuildArgs '--pull'
+                }
+            }
+        }
+    }
+}
