@@ -96,6 +96,10 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("gatlingArchive", [], null)
         helper.registerAllowedMethod("string", [Map.class], stringInterceptor)
         helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], withCredentialsInterceptor)
+        helper.registerAllowedMethod('withMaven', [Map.class, Closure.class]) { Map options, Closure c ->
+            c.delegate = delegate
+            helper.callClosure(c)
+        }
         helper.registerAllowedMethod("error", [String.class], { updateBuildStatus('FAILURE') })
         helper.registerAllowedMethod("unstable", [String.class], { updateBuildStatus('UNSTABLE') })
         helper.registerAllowedMethod("warnError", [String.class, Closure.class], { Closure c ->
