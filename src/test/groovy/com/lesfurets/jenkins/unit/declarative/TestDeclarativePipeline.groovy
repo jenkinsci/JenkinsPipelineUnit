@@ -655,4 +655,10 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertCallStack().contains('echo(Hello using custom workspace and empty label)')
         assertJobStatusSuccess()
     }
+
+    @Test void should_scope_this_in_closure() throws Exception {
+        runScript('ThisScope_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('writeFile({file=messages/messages.msg, text=text})')
+    }
 }

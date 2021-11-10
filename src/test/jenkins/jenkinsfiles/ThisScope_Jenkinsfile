@@ -1,0 +1,24 @@
+pipeline {
+    agent any
+    stages {
+        stage('issue#419') {
+            steps {
+                script {
+                    new Messages(this).add("text")
+                }
+            }
+        }
+    }
+}
+
+class Messages implements Serializable {
+    def steps
+
+    Messages(steps) {
+        this.steps = steps
+    }
+
+    def add(String message) {
+        this.steps.writeFile(file: "messages/messages.msg", text: message)
+    }
+}
