@@ -61,7 +61,7 @@ class StageDeclaration extends GenericPipelineDeclaration {
                 e.value.execute(delegate)
             }
             if(steps) {
-                Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, this, this)
+                Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, this, delegate)
                 Closure cl = { stage("$name", stageBody) }
                 executeWith(delegate, cl)
             }
