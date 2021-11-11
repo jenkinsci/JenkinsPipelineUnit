@@ -5,4 +5,4 @@
             globalVar.doWithProperties({PROP_1=VAL_1})
          globalVar.stage(Two, groovy.lang.Closure)
             globalVar.echo(Stage Two)
-            globalVar.doWithProperties({PROP_2=VAL_2, PROP_1=VAL_1})
+            globalVar.doWithProperties({PROP_1=VAL_1, PROP_2=VAL_2})
