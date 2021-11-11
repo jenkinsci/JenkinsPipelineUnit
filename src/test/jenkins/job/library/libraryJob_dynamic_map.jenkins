@@ -1,0 +1,9 @@
+def execute() {
+    node() {
+        def lib = library(identifier: 'commons', changelog: false)
+        def utils = lib.net.courtanet.jenkins.Utils.new()
+        sh "${utils.gitTools()}"
+    }
+}
+
+return this

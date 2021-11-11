@@ -53,6 +53,7 @@ class TestSharedLibrary extends BasePipelineTest {
          ['libraryJob_feature', false, false, true],
          ['libraryJob_feature2', true, false, true],
          ['libraryJob_inline_library', false, false, true],
+         ['libraryJob_dynamic_map', false, false, false],
         ].collect { it as Object[] }
     }
 

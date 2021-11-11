@@ -1,6 +1,5 @@
 package com.lesfurets.jenkins
 
-import com.lesfurets.jenkins.unit.LibClassLoader
 import com.lesfurets.jenkins.unit.BasePipelineTest
 
 import org.junit.Before
@@ -26,13 +25,13 @@ class TestInterceptingGCL extends BasePipelineTest {
         .getFile()
 
     /**
-    * 1. Load library dinamicaly, set implicity=true
+    * 1. Load library dynamically, set implicit=true
     * 2. Call vars/methodAB.groovy
     * should be able to call vars/methodA.groovy and
     * vars/methodB.groovy
     */
     @Test
-    void test_vars_interop_library_loaded_with_implicity() throws Exception {
+    void test_vars_interop_library_loaded_with_implicit() throws Exception {
         def library = library().name('test_cross_vars_uno')
                         .defaultVersion("alpha")
                         .allowOverride(false)
@@ -42,9 +41,9 @@ class TestInterceptingGCL extends BasePipelineTest {
                         .build()
         helper.registerSharedLibrary(library)
 
-        runScript('job/library/cross_vars/test_implicity.jenkins')
+        runScript('job/library/cross_vars/test_implicit.jenkins')
         printCallStack()
-        assertCallStack().contains("""test_implicity.methodAB()""")
+        assertCallStack().contains("""test_implicit.methodAB()""")
         assertCallStack().contains("""methodAB.methodA()""")
         assertCallStack().contains("""methodA.echo(I'm A)""")
         assertCallStack().contains("""methodAB.methodB()""")
@@ -53,13 +52,13 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library dinamicaly, without implicity
+    * 1. Load library dynamically, without implicit
     * 2. Call vars/methodAB.groovy
     * should be able to call vars/methodA.groovy and
     * vars/methodB.groovy
     */
     @Test
-    void test_vars_interop_no_implicity_dynamic() throws Exception {
+    void test_vars_interop_no_implicit_dynamic() throws Exception {
         def library = library().name('test_cross_vars_dos')
                         .defaultVersion("beta")
                         .allowOverride(false)
@@ -79,13 +78,13 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library using @Library annotation, without implicity
+    * 1. Load library using @Library annotation, without implicit
     * 2. Call vars/methodAB.groovy
     * should be able to call vars/methodA.groovy and
     * vars/methodB.groovy
     */
     @Test
-    void test_vars_interop_no_implicity_annotation() throws Exception {
+    void test_vars_interop_no_implicit_annotation() throws Exception {
         def library = library().name('test_cross_vars_tres')
                         .defaultVersion("gamma")
                         .allowOverride(false)
@@ -105,13 +104,13 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library dinamicaly, without implicity
-    * 2. Create an instace of a library class
-    * 3. The library class method shoud be able to call pipeline methods
+    * 1. Load library dynamically, without implicit
+    * 2. Create an instance of a library class
+    * 3. The library class method should be able to call pipeline methods
     *    e.g. someMethod() {sh "whoami"}
     */
     @Test
-    void test_lib_call_shell_no_implicity_dynamic() throws Exception {
+    void test_lib_call_shell_no_implicit_dynamic() throws Exception {
         def library = library().name('test_lib_call_shell_uno')
                         .defaultVersion("alpha")
                         .allowOverride(false)
@@ -125,13 +124,13 @@ class TestInterceptingGCL extends BasePipelineTest {
         assertCallStack().contains("""LaClass.sh(echo 'run ls -la with bash')""")
     }
     /**
-    * 1. Load library unsing @library annotation, without implicity
-    * 2. Create an instace of a library class
-    * 3. The library class method shoud be able to call pipeline methods
+    * 1. Load library using @library annotation, without implicit
+    * 2. Create an instance of a library class
+    * 3. The library class method should be able to call pipeline methods
     *    e.g. someMethod() {sh "whoami"}
     */
     @Test
-    void test_lib_call_shell_no_implicity_annotation() throws Exception {
+    void test_lib_call_shell_no_implicit_annotation() throws Exception {
         def library = library().name('test_lib_call_shell_dos')
                         .defaultVersion("beta")
                         .allowOverride(false)
@@ -146,14 +145,14 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library dinamicaly, set implicity=true
-    * 2. Create instaces of a library class
+    * 1. Load library dynamically, set implicit=true
+    * 2. Create instances of a library class
     * 3. Make sure that within a class method you can create an object of another class
     * 4. Make sure you can call methods of such objects
-    * 5. Make sure interceprion of missing methods of pipeline works propertly
+    * 5. Make sure interception of missing methods of pipeline works properly
     */
     @Test
-    void test_cross_class_interop_library_loaded_with_implicity() throws Exception {
+    void test_cross_class_interop_library_loaded_with_implicit() throws Exception {
         def library = library().name('test_cross_class_uno')
                         .defaultVersion("alpha")
                         .allowOverride(false)
@@ -163,7 +162,7 @@ class TestInterceptingGCL extends BasePipelineTest {
                         .build()
         helper.registerSharedLibrary(library)
 
-        runScript('job/library/cross_class/test_implicity.jenkins')
+        runScript('job/library/cross_class/test_implicit.jenkins')
         printCallStack()
         assertCallStack().contains("""ClassAB.methodAB()""")
         assertCallStack().contains("""ClassA.methodA()""")
@@ -173,14 +172,14 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library dinamicaly, without implicity
-    * 2. Create instace of a library class
+    * 1. Load library dynamically, without implicit
+    * 2. Create instance of a library class
     * 3. Make sure that within a class method you can create an object of another library class
     * 4. Make sure you can call methods of such objects
-    * 5. Make sure interceprion of pipeline methods works propertly
+    * 5. Make sure interception of pipeline methods works properly
     */
     @Test
-    void test_cross_class_interop_no_implicity_dynamic() throws Exception {
+    void test_cross_class_interop_no_implicit_dynamic() throws Exception {
         def library = library().name('test_cross_class_dos')
                         .defaultVersion("beta")
                         .allowOverride(false)
@@ -199,14 +198,14 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library by annotation, without implicity
-    * 2. Create instaces of library class
+    * 1. Load library by annotation, without implicit
+    * 2. Create instances of library class
     * 3. Make sure that within a class method you can create an object of another class
     * 4. Make sure you can call methods of such objects
-    * 5. Make sure interceprion of pipeline methods works propertly
+    * 5. Make sure interception of pipeline methods works properly
     */
     @Test
-    void test_cross_class_interop_no_implicity_annotation() throws Exception {
+    void test_cross_class_interop_no_implicit_annotation() throws Exception {
         def library = library().name('test_cross_class_tres')
                         .defaultVersion("gamma")
                         .allowOverride(false)
@@ -225,14 +224,14 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library dinamicaly, set implicity=true
+    * 1. Load library dynamically, set implicit=true
     * 2. Create instances of all library classes
     * 3. Make sure that within a class method you can create an object of another class
     * 4. Make sure you can call methods of such objects
-    * 5. Make sure interceprion of missing methods of pipeline works propertly
+    * 5. Make sure interception of missing methods of pipeline works properly
     */
     @Test
-    void test_pre_loaded_cross_class_interop_library_loaded_with_implicity() throws Exception {
+    void test_pre_loaded_cross_class_interop_library_loaded_with_implicit() throws Exception {
         def library = library().name('test_pre_loaded_cross_class_uno')
                         .defaultVersion("alpha")
                         .allowOverride(false)
@@ -242,7 +241,7 @@ class TestInterceptingGCL extends BasePipelineTest {
                         .build()
         helper.registerSharedLibrary(library)
 
-        runScript('job/library/cross_class_pre_loaded/test_implicity.jenkins')
+        runScript('job/library/cross_class_pre_loaded/test_implicit.jenkins')
         printCallStack()
         assertCallStack().contains("""ClassAB.methodAB()""")
         assertCallStack().contains("""ClassA.methodA()""")
@@ -252,14 +251,14 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library dinamicaly, without implicity
-    * 2. Create instace of all library classes
+    * 1. Load library dynamically, without implicit
+    * 2. Create instance of all library classes
     * 3. Make sure that within a class method you can create an object of another library class
     * 4. Make sure you can call methods of such objects
-    * 5. Make sure interceprion of pipeline methods works propertly
+    * 5. Make sure interception of pipeline methods works properly
     */
     @Test
-    void test_pre_loaded_cross_class_interop_no_implicity_dynamic() throws Exception {
+    void test_pre_loaded_cross_class_interop_no_implicit_dynamic() throws Exception {
         def library = library().name('test_pre_loaded_cross_class_dos')
                         .defaultVersion("beta")
                         .allowOverride(false)
@@ -278,14 +277,14 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library by annotation, without implicity
-    * 2. Create instaces of library classes
+    * 1. Load library by annotation, without implicit
+    * 2. Create instances of library classes
     * 3. Make sure that within a class method you can create an object of another class
     * 4. Make sure you can call methods of such objects
-    * 5. Make sure interceprion of pipeline methods works propertly
+    * 5. Make sure interception of pipeline methods works properly
     */
     @Test
-    void test_pre_loaded_cross_class_interop_no_implicity_annotation() throws Exception {
+    void test_pre_loaded_cross_class_interop_no_implicit_annotation() throws Exception {
         def library = library().name('test_pre_loaded_cross_class_tres')
                         .defaultVersion("gamma")
                         .allowOverride(false)
@@ -304,14 +303,14 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library dinamicaly, set implicity=true
-    * 2. Create instaces of library classes passing there the reference to the script object
+    * 1. Load library dynamically, set implicit=true
+    * 2. Create instances of library classes passing there the reference to the script object
     * 3. Make sure that within a class method you can create an object of another class
     * 4. Make sure you can call methods of such objects
-    * 5. Make sure interceprion of missing methods of pipeline works propertly
+    * 5. Make sure interception of missing methods of pipeline works properly
     */
     @Test
-    void test_cross_class_with_pipeline_ref_interop_library_loaded_with_implicity() throws Exception {
+    void test_cross_class_with_pipeline_ref_interop_library_loaded_with_implicit() throws Exception {
         def library = library().name('test_cross_class_with_pipeline_ref_uno')
                         .defaultVersion("alpha")
                         .allowOverride(false)
@@ -321,22 +320,22 @@ class TestInterceptingGCL extends BasePipelineTest {
                         .build()
         helper.registerSharedLibrary(library)
 
-        runScript('job/library/cross_class_with_pipeline_ref/test_implicity.jenkins')
+        runScript('job/library/cross_class_with_pipeline_ref/test_implicit.jenkins')
         printCallStack()
         assertCallStack().contains("""ClassAB.methodAB()""")
-        assertCallStack().contains("""test_implicity.sh(echo 'ClassA: I'm field of A')""")
-        assertCallStack().contains("""test_implicity.sh(echo 'ClassB: I'm field of B')""")
+        assertCallStack().contains("""test_implicit.sh(echo 'ClassA: I'm field of A')""")
+        assertCallStack().contains("""test_implicit.sh(echo 'ClassB: I'm field of B')""")
     }
 
     /**
-    * 1. Load library dinamicaly, without implicity
-    * 2. Create instaces of library classes passing there the reference to the script object
+    * 1. Load library dynamically, without implicit
+    * 2. Create instances of library classes passing there the reference to the script object
     * 3. Make sure that within a class method you can create an object of another library class
     * 4. Make sure you can call methods of such objects
-    * 5. Make sure interceprion of pipeline methods works propertly
+    * 5. Make sure interception of pipeline methods works properly
     */
     @Test
-    void test_cross_class_with_pipeline_ref_interop_no_implicity_dynamic() throws Exception {
+    void test_cross_class_with_pipeline_ref_interop_no_implicit_dynamic() throws Exception {
         def library = library().name('test_cross_class_with_pipeline_ref_dos')
                         .defaultVersion("beta")
                         .allowOverride(false)
@@ -354,14 +353,14 @@ class TestInterceptingGCL extends BasePipelineTest {
     }
 
     /**
-    * 1. Load library by annotation, without implicity
-    * 2. Create instaces of library classes passing there the reference to the script object
+    * 1. Load library by annotation, without implicit
+    * 2. Create instances of library classes passing there the reference to the script object
     * 3. Make sure that within a class method you can create an object of another class
     * 4. Make sure you can call methods of such objects
-    * 5. Make sure interceprion of pipeline methods works propertly
+    * 5. Make sure interception of pipeline methods works properly
     */
     @Test
-    void test_cross_class_with_pipeline_ref_interop_no_implicity_annotation() throws Exception {
+    void test_cross_class_with_pipeline_ref_interop_no_implicit_annotation() throws Exception {
         def library = library().name('test_cross_class_with_pipeline_ref_tres')
                         .defaultVersion("gamma")
                         .allowOverride(false)
