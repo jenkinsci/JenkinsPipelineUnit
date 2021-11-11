@@ -6,3 +6,7 @@ build
 *.swp
 out
 .DS_store
+.classpath
+.project
+.settings/
+bin/
