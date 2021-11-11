@@ -168,7 +168,7 @@ abstract class BasePipelineTest {
             return !System.properties['os.name'].toLowerCase().contains('windows')
         })
         helper.registerAllowedMethod("junit", [String])
-        helper.registerAllowedMethod("library", [String], {String expression ->
+        helper.registerAllowedMethod("library", [String], { String expression ->
             helper.getLibLoader().loadImplicitLibraries()
             helper.getLibLoader().loadLibrary(expression)
             helper.setGlobalVars(binding)
