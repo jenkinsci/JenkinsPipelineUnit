@@ -270,7 +270,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod("withKubeConfig", [List,Closure])
         helper.registerAllowedMethod("withKubeCredentials", [Map,Closure])
         helper.registerAllowedMethod("withKubeCredentials", [List,Closure])
-        helper.registerAllowedMethod('withMaven', [Map.class, Closure.class]) { Map options, Closure c ->
+        helper.registerAllowedMethod('withMaven', [Map, Closure]) { Map args, Closure c ->
             c.delegate = delegate
             helper.callClosure(c)
         }
