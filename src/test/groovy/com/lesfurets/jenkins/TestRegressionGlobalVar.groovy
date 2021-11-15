@@ -11,7 +11,7 @@ class TestRegressionGlobalVar extends BaseRegressionTestCPS {
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
-        helper.registerAllowedMethod("doWithProperties", [Properties.class], null)
+        helper.registerAllowedMethod("doWithProperties", [TreeMap.class], null)
     }
 
     @Test

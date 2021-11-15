@@ -12,11 +12,16 @@ import static org.assertj.core.api.Assertions.assertThat
 
 class TestHelperSingleton extends BasePipelineTest {
 
-    static PipelineTestHelper HELPER
+    static PipelineTestHelper HELPER = new PipelineTestHelper()
 
-    @BeforeClass
-    static void beforeClass() {
-        HELPER = new PipelineTestHelper()
+    TestHelperSingleton() {
+        super(HELPER)
+    }
+
+    @Override
+    @Before
+    void setUp() throws Exception {
+        scriptRoots += 'src/test/jenkins'
 
         String sharedLibs = this.class.getResource('/libs').getFile()
 
@@ -29,16 +34,7 @@ class TestHelperSingleton extends BasePipelineTest {
                 .build()
 
         HELPER.registerSharedLibrary(library)
-    }
 
-    TestHelperSingleton() {
-        super(HELPER)
-    }
-
-    @Override
-    @Before
-    void setUp() throws Exception {
-        scriptRoots += 'src/test/jenkins'
         super.setUp()
     }
 

@@ -10,7 +10,7 @@ node() {
 
         p.setProperty('PROP_1', 'VAL_1')
 
-        doWithProperties(p)
+        doWithProperties(new TreeMap(p))
     }
 
     stage('Two') {
@@ -19,7 +19,7 @@ node() {
 
         p.setProperty('PROP_2', 'VAL_2')
 
-        doWithProperties(p)
+        doWithProperties(new TreeMap(p))
     }
 }
 
