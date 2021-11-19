@@ -2,7 +2,13 @@ pipeline {
 
     stages {
         stage('Maven Build') {
-            agent { docker { image 'maven' } }
+            agent {
+                docker {
+                    image 'maven'
+                    label 'latest'
+                    alwaysPull true
+                }
+            }
             steps {
                 sh 'mvn install'
             }

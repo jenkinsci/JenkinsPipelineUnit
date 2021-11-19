@@ -16,6 +16,7 @@ class DockerAgentDeclaration extends GenericPipelineDeclaration {
     String customWorkspace
     boolean reuseNode
     boolean containerPerStageRoot
+    boolean alwaysPull
     String image
 
     def label(final String label) {
@@ -24,6 +25,10 @@ class DockerAgentDeclaration extends GenericPipelineDeclaration {
 
     def args(final String args) {
         this.args = args
+    }
+
+    def alwaysPull(final boolean alwaysPull) {
+        this.alwaysPull = alwaysPull
     }
 
     def registryUrl(final String registryUrl) {

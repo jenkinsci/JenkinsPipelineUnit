@@ -642,7 +642,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         runScript('Agent_bindings_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('[label:someVar]')
-        assertCallStack().contains('docker:[', ', image:someVar, ', ']')
+        assertCallStack().contains('docker:[', 'image:someVar',)
         assertCallStack().contains('[label:someLabel]')
         assertCallStack().contains('echo(Deploy to someLabel)')
         assertJobStatusSuccess()
