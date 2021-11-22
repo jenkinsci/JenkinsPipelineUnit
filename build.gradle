@@ -41,7 +41,7 @@ dependencies {
 
     testImplementation('junit:junit:4.13.2')
 
-    grape('org.apache.commons:commons-math3:3.4.1')
+    grape('org.apache.commons:commons-math3:3.6.1')
 }
 
 defaultTasks 'test'
