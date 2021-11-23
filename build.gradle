@@ -33,7 +33,7 @@ configurations {
 dependencies {
     implementation('org.codehaus.groovy:groovy-all:2.4.14')
     implementation('com.cloudbees:groovy-cps:1.31')
-    implementation('commons-io:commons-io:2.5')
+    implementation('commons-io:commons-io:2.11.0')
     implementation('org.apache.ivy:ivy:2.5.0')
     api('org.assertj:assertj-core:3.21.0')
     implementation('org.apache.commons:commons-lang3:3.12.0')
