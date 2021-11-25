@@ -24,9 +24,10 @@ pipeline {
         stage('Example anyOf branches') {
             when {
                 anyOf {
-                    branch 'production'
-                    branch 'release'
-                    branch 'main-**'
+                    branch pattern: 'production', comparator: 'EQUALS'
+                    branch pattern: /^release\/[A-Z].[A-Z].[A-Z]$/, comparator: 'REGEXP'
+                    branch pattern: 'main-**', comparator: 'GLOB'
+                    branch 'feature/*'
                 }
             }
             steps {
@@ -36,7 +37,9 @@ pipeline {
         stage('Example anyOf tags') {
             when {
                 anyOf {
-                    tag 'release-*'
+                    tag pattern: 'latest', comparator: 'EQUALS'
+                    tag pattern: /^release-[A-Z].[A-Z].[A-Z]$/, comparator: 'REGEXP'
+                    tag pattern: 'v-*', comparator: 'GLOB'
                     tag 'version-*'
                 }
             }
@@ -48,7 +51,7 @@ pipeline {
             when {
                 anyOf {
                      changeRequest target: 'develop'
-                     changeRequest target: 'release/*', comparator:'GLOB'
+                     changeRequest target: 'release/*', comparator: 'GLOB'
                 }
             }
             steps {

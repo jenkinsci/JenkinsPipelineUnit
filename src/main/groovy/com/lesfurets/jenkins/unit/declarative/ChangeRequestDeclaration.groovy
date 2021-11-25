@@ -5,95 +5,84 @@ import java.util.regex.Pattern
 class ChangeRequestDeclaration extends WhenDeclaration {
 
     boolean all
-    String id
-    String target
-    String branch
-    String fork
-    String url
-    String title
-    String author
-    String authorDisplayName
-    String authorEmail
-    String comparator
+    Tuple2<String,ComparatorEnum> id
+    Tuple2<String,ComparatorEnum> target
+    Tuple2<String,ComparatorEnum> branch
+    Tuple2<String,ComparatorEnum> fork
+    Tuple2<String,ComparatorEnum> url
+    Tuple2<String,ComparatorEnum> title
+    Tuple2<String,ComparatorEnum> author
+    Tuple2<String,ComparatorEnum> authorDisplayName
+    Tuple2<String,ComparatorEnum> authorEmail
 
     def ChangeRequestDeclaration (Map val) {
         if (val) {
-            this.all = false
-            this.id = val.id
-            this.target = val.target
-            this.branch = val.branch
-            this.fork = val.fork
-            this.title = val.title
-            this.url = val.url
-            this.author = val.author
-            this.authorDisplayName = val.authorDisplayName
-            this.authorEmail = val.authorEmail
-            this.comparator = val.comparator
-        }
-        else {
-            this.all = true
-        }
-    }
+            all = false
 
-    Boolean compare(String expected, String actual) {
-        Boolean result
-        if (!this.comparator || this.comparator == "EQUALS") {
-            result = actual == expected
-        }
-        else if (this.comparator == "GLOB") {
-            Pattern expectedPattern = getPatternFromGlob(expected)
-            result = actual ==~ expectedPattern.pattern()
-        }
-        else if (this.comparator == "REGEXP") {
-            result = actual ==~ expected
+            ComparatorEnum comparator = null
+            if (val.comparator == null) {
+                comparator = ComparatorEnum.EQUALS
+            }
+            else {
+                comparator = ComparatorEnum.getComparator(val.comparator)
+            }
+
+            id = val.id ? new Tuple2(val.id, comparator) : null
+            target = val.target ? new Tuple2(val.target, comparator) : null
+            branch = val.branch ? new Tuple2(val.branch, comparator) : null
+            fork = val.fork ? new Tuple2(val.fork, comparator) : null
+            title = val.title ? new Tuple2(val.title, comparator) : null
+            url = val.url ? new Tuple2(val.url, comparator) : null
+            author = val.author ? new Tuple2(val.author, comparator) : null
+            authorDisplayName = val.authorDisplayName ? new Tuple2(val.authorDisplayName, comparator) : null
+            authorEmail = val.authorEmail ? new Tuple2(val.authorEmail, comparator) : null
         }
         else {
-            throw new IllegalArgumentException("Invalid comparator for changeRequest '${this.comparator}'")
+            all = true
         }
-        return result
     }
 
     Boolean execute(Object delegate) {
         def results = []
 
-        if (this.all) {
-            results.add(delegate?.env?.containsKey("CHANGE_ID"))
+        if (all) {
+            results.add(delegate?.env?.containsKey('CHANGE_ID'))
         }
         else {
-            if (this.id) {
-                results.add(compare(this.id, delegate.env.CHANGE_ID))
+            if (id) {
+                results.add(compareStringToPattern(delegate.env.CHANGE_ID, id))
             }
 
-            if (this.target) {
-                results.add(compare(this.target, delegate.env.CHANGE_TARGET))
+            if (target) {
+                results.add(compareStringToPattern(delegate.env.CHANGE_TARGET, target))
             }
 
-            if (this.branch) {
-                results.add(compare(this.branch, delegate.env.CHANGE_BRANCH))
+            if (branch) {
+                results.add(compareStringToPattern(delegate.env.CHANGE_BRANCH, branch))
             }
 
-            if (this.fork) {
-                results.add(compare(this.fork, delegate.env.CHANGE_FORK))
+            if (fork) {
+                results.add(compareStringToPattern(delegate.env.CHANGE_FORK, fork))
             }
 
-            if (this.url) {
-                results.add(compare(this.url, delegate.env.CHANGE_URL))
+            if (url) {
+                results.add(compareStringToPattern(delegate.env.CHANGE_URL, url))
             }
 
-            if (this.title) {
-                results.add(compare(this.title, delegate.env.CHANGE_TITLE))
+            if (title) {
+                results.add(compareStringToPattern(delegate.env.CHANGE_TITLE, title))
             }
 
-            if (this.author) {
-                results.add(compare(this.author, delegate.env.CHANGE_AUTHOR))
+            if (author) {
+                results.add(compareStringToPattern(delegate.env.CHANGE_AUTHOR, author))
             }
 
-            if (this.authorDisplayName) {
-                results.add(compare(this.authorDisplayName, delegate.env.CHANGE_AUTHOR_DISPLAY_NAME))
+            if (authorDisplayName) {
+                results.add(compareStringToPattern(delegate.env.CHANGE_AUTHOR_DISPLAY_NAME, authorDisplayName))
             }
 
-            if (this.authorEmail) {
-                results.add(compare(this.authorEmail, delegate.env.CHANGE_AUTHOR_EMAIL))
+            if (authorEmail) {
+                results.add(compareStringToPattern(delegate.env.CHANGE_AUTHOR_EMAIL, authorEmail))
             }
         }
 

@@ -1,18 +1,41 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import org.springframework.util.AntPathMatcher
-
 import static groovy.lang.Closure.DELEGATE_FIRST
 
 class AllOfDeclaration extends WhenDeclaration {
 
-    List<String> branches = []
+    List<Tuple2<String,ComparatorEnum>> tags = []
+    List<Tuple2<String,ComparatorEnum>> branches = []
     List<ChangeRequestDeclaration> changeRequests = []
     List<Boolean> expressions = []
     List<AnyOfDeclaration> anyOfs = []
 
-    def branch(String name) {
-        this.branches.add(name)
+    def tag(String pattern) {
+        tags.add(new Tuple2(pattern, ComparatorEnum.GLOB))
+    }
+
+    def tag(Map args) {
+        if (args.comparator) {
+            ComparatorEnum comparator = ComparatorEnum.getComparator(args.comparator as String)
+            this.tags.add(new Tuple2(args.pattern as String, comparator))
+        }
+        else {
+            tag(args.pattern)
+        }
+    }
+
+    def branch(String pattern) {
+        branches.add(new Tuple2(pattern, ComparatorEnum.GLOB))
+    }
+
+    def branch(Map args) {
+        if (args.comparator) {
+            ComparatorEnum comparator = ComparatorEnum.getComparator(args.comparator as String)
+            this.branches.add(new Tuple2(args.pattern as String, comparator))
+        }
+        else {
+            branch(args.pattern)
+        }
     }
 
     def changeRequest(Object val) {
@@ -38,28 +61,33 @@ class AllOfDeclaration extends WhenDeclaration {
     Boolean execute(Object delegate) {
         def results = []
 
-        AntPathMatcher antPathMatcher = new AntPathMatcher()
-
-        if (this.branches.size() > 0) {
-            branches.each { branch ->
-                results.add(antPathMatcher.match(branch, delegate.env.BRANCH_NAME))
+        if (tags) {
+            tags.each { tag ->
+                results.add(compareStringToPattern(delegate.env.TAG_NAME, tag))
             }
         }
 
-        if (this.changeRequests.size() > 0) {
+        if (branches) {
+            branches.each { branch ->
+                results.add(compareStringToPattern(delegate.env.BRANCH_NAME, branch))
+            }
+        }
+
+        if (changeRequests) {
             changeRequests.each { changeRequest ->
                 results.add(changeRequest.execute(delegate))
             }
         }
 
-        if (this.expressions.size() > 0) {
+        if (expressions) {
             results.add(expressions(delegate))
         }
 
-        if (this.anyOfs.size() > 0) {
+        if (anyOfs) {
             results.addAll(anyOf(delegate))
         }
 
         return results.every()
     }
+
 }
