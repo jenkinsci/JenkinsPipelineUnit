@@ -12,23 +12,6 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
         GenericPipelineDeclaration.createComponent(DeclarativePipeline, closure).execute(delegate)
     }
 
-    def paramInterceptor = { Map desc ->
-        addParam(desc.name, desc.defaultValue, false)
-    }
-
-    def stringInterceptor = { Map desc->
-        if (desc) {
-            // we are in context of parameters { string(...)}
-            if (desc.name) {
-                addParam(desc.name, desc.defaultValue, false)
-            }
-            // we are in context of withCredentials([string()..]) { }
-            if(desc.variable) {
-                return desc.variable
-            }
-        }
-    }
-
     @Override
     void setUp() throws Exception {
         super.setUp()

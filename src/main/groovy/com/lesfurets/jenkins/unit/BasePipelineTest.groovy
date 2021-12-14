@@ -23,7 +23,22 @@ abstract class BasePipelineTest {
 
     ClassLoader baseClassLoader = this.class.classLoader
 
-    def stringInterceptor = { m -> m.variable }
+    def paramInterceptor = { Map desc ->
+        addParam(desc.name, desc.defaultValue, false)
+    }
+
+    def stringInterceptor = { Map desc->
+        if (desc) {
+            // we are in context of parameters { string(...)}
+            if (desc.name) {
+                addParam(desc.name, desc.defaultValue, false)
+            }
+            // we are in context of withCredentials([string()..]) { }
+            if(desc.variable) {
+                return desc.variable
+            }
+        }
+    }
 
     def usernamePasswordInterceptor = { m -> [m.usernameVariable, m.passwordVariable] }
 
@@ -131,6 +146,7 @@ abstract class BasePipelineTest {
                 getProjectName:{"some_job"},
             ]
         })
+        helper.registerAllowedMethod('booleanParam', [Map], paramInterceptor)
         helper.registerAllowedMethod("buildDiscarder", [Object])
         helper.registerAllowedMethod("checkout", [Map])
         helper.registerAllowedMethod("choice", [Map])
