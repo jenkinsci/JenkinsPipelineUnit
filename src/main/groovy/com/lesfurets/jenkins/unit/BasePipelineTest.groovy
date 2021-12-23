@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat
 
 import org.assertj.core.api.AbstractCharSequenceAssert
 
-import groovy.transform.Memoized
-
 abstract class BasePipelineTest {
 
     PipelineTestHelper helper
