@@ -6,12 +6,36 @@ pipeline {
                 echo 'Hello World'
             }
         }
-        stage('Example Deploy') {
+        stage('Example - EQUALS comparator') {
+            when {
+                tag pattern: 'x.y.z', comparator: 'EQUALS'
+            }
+            steps {
+                echo 'EQUALS (explicit)'
+            }
+        }
+        stage('Example - GLOB comparator (implicit)') {
             when {
                 tag 'v*'
             }
             steps {
-                echo 'Deploying only tags matching the pattern v*'
+                echo 'GLOB (implicit)'
+            }
+        }
+        stage('Example - GLOB comparator (explicit)') {
+            when {
+                tag pattern: 'v-*', comparator: 'GLOB'
+            }
+            steps {
+                echo 'GLOB (explicit)'
+            }
+        }
+        stage('Example - REGEXP comparator') {
+            when {
+                tag pattern: /^[0-9].[0-9].[0-9]$/, comparator: 'REGEXP'
+            }
+            steps {
+                echo 'REGEXP (explicit)'
             }
         }
         stage('Example Release Notes') {

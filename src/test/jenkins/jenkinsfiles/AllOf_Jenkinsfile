@@ -21,11 +21,37 @@ pipeline {
                 echo 'Executing allOf with expression'
             }
         }
-         stage('Example allOf changeRequests') {
+        stage('Example allOf branches') { // Contrived example
             when {
                 allOf {
-                     changeRequest target: 'develop'
-                     changeRequest branch: 'feature/*', comparator:'GLOB'
+                    branch pattern: 'production', comparator: 'EQUALS'
+                    branch pattern: /^release\/[A-Z].[A-Z].[A-Z]$/, comparator: 'REGEXP'
+                    branch pattern: 'main-**', comparator: 'GLOB'
+                    branch 'feature/*'
+                }
+            }
+            steps {
+                echo 'Executing allOf with branches'
+            }
+        }
+        stage('Example allOf tags') { // Contrived example
+            when {
+                allOf {
+                    tag pattern: 'latest', comparator: 'EQUALS'
+                    tag pattern: /^release-[A-Z].[A-Z].[A-Z]$/, comparator: 'REGEXP'
+                    tag pattern: 'v-*', comparator: 'GLOB'
+                    tag 'version-*'
+                }
+            }
+            steps {
+                echo 'Executing allOf with tags'
+            }
+        }
+        stage('Example allOf changeRequests') {
+            when {
+                allOf {
+                    changeRequest target: 'develop'
+                    changeRequest branch: 'feature/*', comparator:'GLOB'
                 }
             }
             steps {

@@ -1,25 +1,43 @@
 package com.lesfurets.jenkins.unit.declarative
 
 import static com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration.executeWith
-import org.springframework.util.AntPathMatcher
 
 import static groovy.lang.Closure.DELEGATE_FIRST
 
-
 class AnyOfDeclaration extends WhenDeclaration {
 
-    List<String> tags = []
-    List<String> branches = []
+    List<Tuple2<String,ComparatorEnum>> tags = []
+    List<Tuple2<String,ComparatorEnum>> branches = []
     List<ChangeRequestDeclaration> changeRequests = []
     List<Boolean> expressions = []
     List<AllOfDeclaration> allOfs = []
 
-    def tag(String name) {
-        this.tags.add(name)
+    def tag(String pattern) {
+        this.tags.add(new Tuple2(pattern, ComparatorEnum.GLOB))
     }
 
-    def branch(String name) {
-        this.branches.add(name)
+    def tag(Map args) {
+        if (args.comparator) {
+            ComparatorEnum comparator = ComparatorEnum.getComparator(args.comparator as String)
+            this.tags.add(new Tuple2(args.pattern as String, comparator))
+        }
+        else {
+            tag(args.pattern)
+        }
+    }
+
+    def branch(String pattern) {
+        this.branches.add(new Tuple2(pattern, ComparatorEnum.GLOB))
+    }
+
+    def branch(Map args) {
+        if (args.comparator) {
+            ComparatorEnum comparator = ComparatorEnum.getComparator(args.comparator as String)
+            this.branches.add(new Tuple2(args.pattern as String, comparator))
+        }
+        else {
+            branch(args.pattern)
+        }
     }
 
     def changeRequest(Object val) {
@@ -45,34 +63,33 @@ class AnyOfDeclaration extends WhenDeclaration {
     Boolean execute(Object delegate) {
         def results = []
 
-        AntPathMatcher antPathMatcher = new AntPathMatcher()
-
-        if (this.tags.size() > 0) {
+        if (tags) {
             tags.each { tag ->
-                results.add(antPathMatcher.match(tag, delegate.env.TAG_NAME))
+                results.add(compareStringToPattern(delegate.env.TAG_NAME, tag))
             }
         }
 
-        if (this.branches.size() > 0) {
+        if (branches) {
             branches.each { branch ->
-                results.add(antPathMatcher.match(branch, delegate.env.BRANCH_NAME))
+                results.add(compareStringToPattern(delegate.env.BRANCH_NAME, branch))
             }
         }
 
-        if (this.changeRequests.size() > 0) {
+        if (changeRequests) {
             changeRequests.each { changeRequest ->
                 results.add(changeRequest.execute(delegate))
             }
         }
 
-        if (this.expressions.size() > 0) {
+        if (expressions) {
             results.add(expressions(delegate))
         }
 
-        if (this.allOfs.size() > 0) {
+        if (allOfs) {
             results.addAll(allOf(delegate))
         }
 
         return results.any()
     }
+
 }

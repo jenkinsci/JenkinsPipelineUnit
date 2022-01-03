@@ -111,7 +111,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     }
 
     @Test void when_anyOf_branch_release() throws Exception {
-        addEnvVar('BRANCH_NAME', 'release')
+        addEnvVar('BRANCH_NAME', 'release/A.B.C')
         runScript('AnyOf_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Executing anyOf with branch')
@@ -134,16 +134,24 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
-    @Test void when_anyOf_branch_pattern_main_not() throws Exception {
-        addEnvVar('BRANCH_NAME', 'main2')
+    @Test void when_anyOf_branch_feature() throws Exception {
+        addEnvVar('BRANCH_NAME', 'feature/jenkins')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing anyOf with branch')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_anyOf_branch_pattern_not() throws Exception {
+        addEnvVar('BRANCH_NAME', '?')
         runScript('AnyOf_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Skipping stage Example anyOf branch')
         assertJobStatusSuccess()
     }
 
-    @Test void when_anyOf_tag_version_pattern() throws Exception {
-        addEnvVar('TAG_NAME', 'version-X.Y.Z')
+    @Test void when_anyOf_tag_latest() throws Exception {
+        addEnvVar('TAG_NAME', 'latest')
         runScript('AnyOf_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Executing anyOf with tag')
@@ -158,8 +166,24 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
-    @Test void when_anyOf_tag_release_pattern_main_not() throws Exception {
-        addEnvVar('TAG_NAME', 'releaseX.Y.Z')
+    @Test void when_anyOf_tag_v_pattern() throws Exception {
+        addEnvVar('TAG_NAME', 'v-X.Y.Z')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing anyOf with tag')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_anyOf_tag_version_pattern() throws Exception {
+        addEnvVar('TAG_NAME', 'version-X.Y.Z')
+        runScript('AnyOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing anyOf with tag')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_anyOf_tag_not() throws Exception {
+        addEnvVar('TAG_NAME', '?')
         runScript('AnyOf_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Skipping stage Example anyOf tag')
@@ -231,6 +255,22 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         runScript('AllOf_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Skipping stage Example allOf expression')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_allOf_branches() throws Exception {
+        addEnvVar('BRANCH_NAME', 'production')
+        runScript('AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example allOf branches')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_allOf_tags() throws Exception {
+        addEnvVar('TAG_NAME', 'latest')
+        runScript('AllOf_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example allOf tags')
         assertJobStatusSuccess()
     }
 
@@ -379,11 +419,35 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
-    @Test void when_branch() throws Exception {
-        addEnvVar('BRANCH_NAME', 'production')
+    @Test void when_branch_using_explicit_equals_comparator() throws Exception {
+        addEnvVar('BRANCH_NAME', 'develop')
         runScript('Branch_Jenkinsfile')
         printCallStack()
-        assertCallStack().contains('Deploying')
+        assertCallStack().contains('EQUALS (explicit)')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_branch_using_implicit_glob_comparator() throws Exception {
+        addEnvVar('BRANCH_NAME', 'feature/xyz')
+        runScript('Branch_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('GLOB (implicit)')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_branch_using_explicit_glob_comparator() throws Exception {
+        addEnvVar('BRANCH_NAME', 'bugfix/xyz')
+        runScript('Branch_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('GLOB (explicit)')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_branch_using_explicit_regexp_comparator() throws Exception {
+        addEnvVar('BRANCH_NAME', 'hotfix/xyz')
+        runScript('Branch_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('REGEXP (explicit)')
         assertJobStatusSuccess()
     }
 
@@ -391,7 +455,10 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         addEnvVar('BRANCH_NAME', 'master')
         runScript('Branch_Jenkinsfile')
         printCallStack()
-        assertCallStack().contains('Skipping stage Example Deploy')
+        assertCallStack().contains('Skipping stage Example - EQUALS comparator')
+        assertCallStack().contains('Skipping stage Example - GLOB comparator (implicit)')
+        assertCallStack().contains('Skipping stage Example - GLOB comparator (explicit)')
+        assertCallStack().contains('Skipping stage Example - REGEXP comparator')
         assertJobStatusSuccess()
     }
 
@@ -489,7 +556,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         addEnvVar('TAG_NAME', 'release-1.0.0')
         runScript('Tag_Jenkinsfile')
         printCallStack()
-        assertCallStack().contains('Generating Release Notes')
+        assertCallStack().contains('Generating Release Notes for any tag')
         assertJobStatusSuccess()
     }
 
@@ -497,16 +564,43 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         // no TAG_NAME variable defined
         runScript('Tag_Jenkinsfile')
         printCallStack()
-        assertCallStack().contains('Skipping stage Example Release Notes') // No stage bound to a "buildingTag()" condition
-        assertCallStack().contains('Skipping stage Example Deploy') // No stage bound to a "tag <arg>" condition
+        assertCallStack().contains('Skipping stage Example - EQUALS comparator')
+        assertCallStack().contains('Skipping stage Example - GLOB comparator (implicit)')
+        assertCallStack().contains('Skipping stage Example - GLOB comparator (explicit)')
+        assertCallStack().contains('Skipping stage Example - REGEXP comparator')
+        assertCallStack().contains('Skipping stage Example Release Notes')
         assertJobStatusSuccess()
     }
 
-    @Test void when_tag() throws Exception {
-        addEnvVar('TAG_NAME', 'v1.1.1')
+    @Test void when_tag_using_explicit_equals_comparator() throws Exception {
+        addEnvVar('TAG_NAME', 'x.y.z')
         runScript('Tag_Jenkinsfile')
         printCallStack()
-        assertCallStack().contains('Deploying')
+        assertCallStack().contains('EQUALS (explicit)')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_tag_using_implicit_glob_comparator() throws Exception {
+        addEnvVar('TAG_NAME', 'v1.0.0')
+        runScript('Tag_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('GLOB (implicit)')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_tag_using_explicit_glob_comparator() throws Exception {
+        addEnvVar('TAG_NAME', 'v-1.0.0')
+        runScript('Tag_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('GLOB (explicit)')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_tag_using_explicit_regexp_comparator() throws Exception {
+        addEnvVar('TAG_NAME', '1.0.0')
+        runScript('Tag_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('REGEXP (explicit)')
         assertJobStatusSuccess()
     }
 
@@ -514,7 +608,10 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         addEnvVar('TAG_NAME', 'someothertag')
         runScript('Tag_Jenkinsfile')
         printCallStack()
-        assertCallStack().contains('Skipping stage Example Deploy')
+        assertCallStack().contains('Skipping stage Example - EQUALS comparator')
+        assertCallStack().contains('Skipping stage Example - GLOB comparator (implicit)')
+        assertCallStack().contains('Skipping stage Example - GLOB comparator (explicit)')
+        assertCallStack().contains('Skipping stage Example - REGEXP comparator')
         assertJobStatusSuccess()
     }
 

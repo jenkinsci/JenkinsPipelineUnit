@@ -6,12 +6,36 @@ pipeline {
                 echo 'Hello World'
             }
         }
-        stage('Example Deploy') {
+        stage('Example - EQUALS comparator') {
             when {
-                branch 'production'
+                branch pattern: 'develop', comparator: 'EQUALS'
             }
             steps {
-                echo 'Deploying'
+                echo 'EQUALS (explicit)'
+            }
+        }
+        stage('Example - GLOB comparator (implicit)') {
+            when {
+                branch 'feature/*'
+            }
+            steps {
+                echo 'GLOB (implicit)'
+            }
+        }
+        stage('Example - GLOB comparator (explicit)') {
+            when {
+                branch pattern: 'bugfix/*', comparator: 'GLOB'
+            }
+            steps {
+                echo 'GLOB (explicit)'
+            }
+        }
+        stage('Example - REGEXP comparator') {
+            when {
+                branch pattern: /^[a-z]*\/[a-z]*$/, comparator: 'REGEXP'
+            }
+            steps {
+                echo 'REGEXP (explicit)'
             }
         }
     }
