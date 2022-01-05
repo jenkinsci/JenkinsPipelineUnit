@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+    stages {
+        stage('withenvequals') {
+            steps {
+                withEnv(["SOMEVAR=SOMETHING=SOME_OTHER_VAR"]) {
+                    echo "SOMEVAR inside closure = ${env.SOMEVAR}"
+                }
+            }
+        }
+    }
+}
