@@ -98,16 +98,23 @@ class PipelineTestHelperTest {
         Assertions.assertThat(output).isNull()
     }
 
-    @Test(expected = Exception)
+    @Test
     void runShWithScriptFailure() {
         // given:
         def helper = new PipelineTestHelper()
         helper.addShMock('evil', '/foo/bar', 666)
+        Exception caught = null
 
         // when:
-        helper.runSh('evil')
+        try {
+            helper.runSh('evil')
+        } catch (e) {
+            caught = e
+        }
 
         // then: Exception raised
+        Assertions.assertThat(caught).isNotNull()
+        Assertions.assertThat(caught.message).isEqualTo('script returned exit code 666')
     }
 
     @Test
