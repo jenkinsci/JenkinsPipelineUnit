@@ -18,7 +18,7 @@ class InterceptingGCL extends GroovyClassLoader {
             Map.Entry<MethodSignature, Closure> matchingMethod = helper.allowedMethodCallbacks.find { k, v -> k == signature }
             if (matchingMethod) {
                 // a matching method was registered, replace script method execution call with the registered closure (mock)
-                metaClazz."$scriptMethod.name" = matchingMethod.value
+                metaClazz."$scriptMethod.name" = matchingMethod.value ?: {}
             }
         }
     }
