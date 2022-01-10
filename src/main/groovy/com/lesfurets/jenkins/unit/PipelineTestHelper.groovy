@@ -596,6 +596,25 @@ class PipelineTestHelper {
     }
 
     /**
+     * Verifies if a method was called, with the preconditions defined in times and methodVerification, if wanted.
+     * @param name the method name
+     * @param times times the method shall be called.
+     * @param methodVerification a closure with the a MethodSignature object as input parameter, which verifies a condition
+     */
+    void verify(String name, int times = 1, Closure methodVerification = { return true }) {
+        List<MethodCall> methodCalls = callStack.findAll { it.getMethodName() == name }
+        methodCalls.each { call ->
+            if (!methodVerification(call)) {
+                throw new VerificationException("Method call $call failed to be verified")
+            }
+        }
+        int timesCalled = methodCalls.size()
+        if (times != timesCalled) {
+            throw new VerificationException("Expected method $name to be called $times times, but was called $timesCalled times")
+        }
+    }
+
+    /**
      * Call closure by handling spreading of parameter default values
      *
      * @param closure to call

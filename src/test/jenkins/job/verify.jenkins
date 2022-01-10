@@ -1,0 +1,7 @@
+def someStringMethod(String someString1, String someString2="") {
+    return someString1 + someString2
+}
+
+def voidMethod() {
+    echo "some output"
+}
