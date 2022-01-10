@@ -706,6 +706,13 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertCallStack().contains('echo(SOMEVAR outside closure = null)')
     }
 
+    @Test void withEnv_can_have_equals_in_value() throws Exception {
+        runScript('WithEnvEquals_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('SOMEVAR inside closure = SOMETHING=SOME_OTHER_VAR')
+        assertJobStatusSuccess()
+    }
+
     @Test void agent_with_param_label() throws Exception {
         runScript('AgentParam_Jenkinsfile')
         printCallStack()

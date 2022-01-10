@@ -267,7 +267,7 @@ abstract class BasePipelineTest {
             }
 
             list.each {
-                def item = it.split('=')
+                def item = it.split('=', 2)
                 assert item.size() == 2, "withEnv list does not look right: ${list.toString()}"
                 addEnvVar(item[0], item[1])
             }
