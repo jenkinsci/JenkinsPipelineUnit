@@ -37,7 +37,7 @@ dependencies {
     implementation('org.apache.ivy:ivy:2.5.0')
     api('org.assertj:assertj-core:3.22.0')
     implementation('org.apache.commons:commons-lang3:3.12.0')
-    api('org.springframework:spring-core:5.3.14')
+    api('org.springframework:spring-core:5.3.15')
 
     testImplementation('junit:junit:4.13.2')
 
