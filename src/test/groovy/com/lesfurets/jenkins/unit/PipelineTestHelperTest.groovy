@@ -61,6 +61,31 @@ class PipelineTestHelperTest {
     }
 
     @Test
+    void readFileMapParameters() {
+        // given:
+        def helper = new PipelineTestHelper()
+        helper.addFileExistsMock('test', true)
+
+        // when:
+        def result = helper.fileExists(file: 'test')
+
+        // then:
+        Assertions.assertThat(result).isTrue()
+    }
+
+    @Test
+    void readFileNotMockedMapParameters() {
+        // given:
+        def helper = new PipelineTestHelper()
+
+        // when:
+        def result = helper.fileExists(file: 'test')
+
+        // then:
+        Assertions.assertThat(result).isFalse()
+    }
+
+    @Test
     void readFileWithMap() {
         // given:
         def helper = new PipelineTestHelper()

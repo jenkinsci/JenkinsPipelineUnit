@@ -643,6 +643,10 @@ class PipelineTestHelper {
         return mockFileExistsResults[arg] ?: false
     }
 
+    Boolean fileExists(Map args) {
+        return mockFileExistsResults[args.file] ?: false
+    }
+
     void addReadFileMock(String file, String contents) {
         mockReadFileOutputs[file] = contents
     }
