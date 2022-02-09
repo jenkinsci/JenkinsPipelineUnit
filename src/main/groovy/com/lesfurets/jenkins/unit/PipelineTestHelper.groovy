@@ -41,7 +41,7 @@ class PipelineTestHelper {
     }
 
     /** Holds configured mock output values for the `sh` command. */
-    Map<String, MockScriptOutput> mockScriptOutputs = [:]
+    Map<String, MockScriptOutput> mockShOutputs = [:]
 
     /**
      * Search paths for scripts
@@ -300,7 +300,7 @@ class PipelineTestHelper {
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
         gse.setConfig(configuration)
 
-        mockScriptOutputs.clear()
+        mockShOutputs.clear()
         mockFileExistsResults.clear()
         mockReadFileOutputs.clear()
         return this
@@ -667,7 +667,7 @@ class PipelineTestHelper {
      * @param exitValue Exit value for the command.
      */
     void addShMock(String script, String stdout, int exitValue) {
-        mockScriptOutputs[script] = new MockScriptOutput(stdout, exitValue)
+        mockShOutputs[script] = new MockScriptOutput(stdout, exitValue)
     }
 
     /**
@@ -684,11 +684,16 @@ class PipelineTestHelper {
      *                 </ul>
      */
     void addShMock(String script, Closure callback) {
-        mockScriptOutputs[script] = new MockScriptOutput(callback)
+        mockShOutputs[script] = new MockScriptOutput(callback)
     }
 
     @SuppressWarnings('ThrowException')
     def runSh(def args) {
+        return runScript(args, mockShOutputs)
+    }
+
+    @SuppressWarnings('ThrowException')
+    def runScript(def args, def mockScriptOutputs) {
         String script = null
         boolean returnStdout = false
         boolean returnStatus = false
