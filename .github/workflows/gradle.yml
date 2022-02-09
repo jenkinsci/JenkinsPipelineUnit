@@ -1,0 +1,13 @@
+name: Gradle Tests
+on: [push]
+jobs:
+  gradle_test:
+    name: Run tests with Gradle
+    runs-on: ubuntu-latest
+    container: gradle:6.6-jre14-hotspot
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Run Gradle tests
+      run: gradle --console plain
