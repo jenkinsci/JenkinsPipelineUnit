@@ -711,14 +711,11 @@ class PipelineTestHelper {
             if (returnStatus) {
                 return 0
             }
-            // If no output is given, we return these strings for backwards-compatibility. Ideally at some point in the
-            // future, we should make a breaking change and remove this special use-case and either raise an exception
-            // here or return an empty string.
-            if(returnStdout && script.contains("git rev-parse HEAD")) {
-                return 'abcd123\n'
-            } else {
-                return '\nbbb\nccc\n'
+            if (returnStdout) {
+                return ''
             }
+
+            return null
         }
 
         String stdout
