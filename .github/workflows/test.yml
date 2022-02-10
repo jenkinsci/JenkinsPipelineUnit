@@ -1,5 +1,5 @@
 name: test
-on: [push, pull_request
+on: [push, pull_request]
 jobs:
   test:
     name: Run tests with Gradle
