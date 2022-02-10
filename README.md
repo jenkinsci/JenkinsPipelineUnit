@@ -3,7 +3,8 @@
 Jenkins Pipeline Unit is a testing framework for unit testing Jenkins pipelines, written in
 [Groovy Pipeline DSL](https://jenkins.io/doc/book/pipeline/).
 
-[![Build status](https://github.com/jenkinsci/JenkinsPipelineUnit/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/jenkinsci/JenkinsPipelineUnit/actions?query=event%3Apush+branch%3Amaster)
+[![Linux/Windows Build status](https://ci.jenkins.io/job/jenkinsci-libraries/job/JenkinsPipelineUnit/job/master/badge/icon)](https://ci.jenkins.io/blue/organizations/jenkins/jenkinsci-libraries%2FJenkinsPipelineUnit/activity?branch=master)
+[![Mac Build status](https://github.com/jenkinsci/JenkinsPipelineUnit/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/jenkinsci/JenkinsPipelineUnit/actions?query=event%3Apush+branch%3Amaster)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/jenkinsci/JenkinsPipelineUnit?label=changelog)](https://github.com/jenkinsci/JenkinsPipelineUnit/releases)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/JenkinsPipelineUnit)
 
