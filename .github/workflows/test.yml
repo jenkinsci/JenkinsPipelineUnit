@@ -1,0 +1,16 @@
+---
+name: test
+on: [push, pull_request
+jobs:
+  test:
+    name: Run tests with Gradle
+    runs-on: macos-latest
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run Tests
+        run: ./gradlew --no-daemon cleanTest build
