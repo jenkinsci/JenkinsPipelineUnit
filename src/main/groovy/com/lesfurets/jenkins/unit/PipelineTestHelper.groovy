@@ -41,7 +41,10 @@ class PipelineTestHelper {
     }
 
     /** Holds configured mock output values for the `sh` command. */
-    Map<String, MockScriptOutput> mockScriptOutputs = [:]
+    Map<String, MockScriptOutput> mockShOutputs = [:]
+
+    /** Holds configured mock output values for the `bat` command. */
+    Map<String, MockScriptOutput> mockBatOutputs = [:]
 
     /**
      * Search paths for scripts
@@ -300,7 +303,8 @@ class PipelineTestHelper {
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
         gse.setConfig(configuration)
 
-        mockScriptOutputs.clear()
+        mockShOutputs.clear()
+        mockBatOutputs.clear()
         mockFileExistsResults.clear()
         mockReadFileOutputs.clear()
         return this
@@ -667,7 +671,7 @@ class PipelineTestHelper {
      * @param exitValue Exit value for the command.
      */
     void addShMock(String script, String stdout, int exitValue) {
-        mockScriptOutputs[script] = new MockScriptOutput(stdout, exitValue)
+        mockShOutputs[script] = new MockScriptOutput(stdout, exitValue)
     }
 
     /**
@@ -684,11 +688,49 @@ class PipelineTestHelper {
      *                 </ul>
      */
     void addShMock(String script, Closure callback) {
-        mockScriptOutputs[script] = new MockScriptOutput(callback)
+        mockShOutputs[script] = new MockScriptOutput(callback)
     }
 
     @SuppressWarnings('ThrowException')
     def runSh(def args) {
+        return runScript(args, mockShOutputs)
+    }
+
+    /**
+     * Configure mock output for the `bat` command. This function should be called before
+     * attempting to call `JenkinsMocks.bat()`.
+     * @param script Script command to mock.
+     * @param stdout Standard output text to return for the given command.
+     * @param exitValue Exit value for the command.
+     */
+    void addBatMock(String script, String stdout, int exitValue) {
+        mockBatOutputs[script] = new MockScriptOutput(stdout, exitValue)
+    }
+
+    /**
+     * Configure mock callback for the `bat` command. This function should be called before
+     * attempting to call `JenkinsMocks.bat()`.
+     * @param script Script command to mock.
+     * @param callback Closure to be called when the mock is executed. This closure will be
+     *                 passed the script call which is being executed, and
+     *                 <strong>must</strong> return a {@code Map} with the following
+     *                 key/value pairs:
+     *                 <ul>
+     *                   <li>{@code stdout}: {@code String} with the mocked output.</li>
+     *                   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
+     *                 </ul>
+     */
+    void addBatMock(String script, Closure callback) {
+        mockBatOutputs[script] = new MockScriptOutput(callback)
+    }
+
+    @SuppressWarnings('ThrowException')
+    def runBat(def args) {
+        return runScript(args, mockBatOutputs)
+    }
+
+    @SuppressWarnings('ThrowException')
+    def runScript(def args, def mockScriptOutputs) {
         String script = null
         boolean returnStdout = false
         boolean returnStatus = false
