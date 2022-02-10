@@ -1,8 +1,14 @@
-name: test
-on: [push, pull_request]
+name: Tests
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
 jobs:
   test:
-    name: Run tests with Gradle
+    name: macos-11
     runs-on: macos-latest
     steps:
       - name: Setup Java
