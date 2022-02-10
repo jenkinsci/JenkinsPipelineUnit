@@ -131,8 +131,11 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('archiveArtifacts', [String])
         helper.registerAllowedMethod("bat", [String])
         helper.registerAllowedMethod('bat', [Map.class], {m->
-            if(m.returnStdout){
-                return """uno-dos@localhost> "${m.script}"\r\naaa\r\nbbb\r\nccc"""
+            if (m.returnStatus) {
+                return 0
+            }
+            if (m.returnStdout) {
+                return ''
             }
             return null
         })

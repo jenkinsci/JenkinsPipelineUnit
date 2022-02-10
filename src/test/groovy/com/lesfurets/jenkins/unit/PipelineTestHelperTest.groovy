@@ -293,7 +293,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh('unregistered-mock-output')
 
         // then:
-        Assertions.assertThat(output).isEqualTo('\nbbb\nccc\n')
+        Assertions.assertThat(output).isNull()
     }
 
     @Test()
@@ -309,15 +309,15 @@ class PipelineTestHelperTest {
     }
 
     @Test()
-    void runShWithoutMockOutputForGitRevParse() {
+    void runShWithoutMockOutputAndReturnStdout() {
         // given:
         def helper = new PipelineTestHelper()
 
         // when:
-        def output = helper.runSh(returnStdout: true, script: 'git rev-parse HEAD')
+        def output = helper.runSh(returnStdout: true, script: 'unregistered-mock-output')
 
         // then:
-        Assertions.assertThat(output).isEqualTo('abcd123\n')
+        Assertions.assertThat(output).isEqualTo('')
     }
 
     @Test(expected = IllegalArgumentException)
