@@ -2,14 +2,14 @@ package com.lesfurets.gradle
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 class CopyDependenciesToMavenTreeTask extends DefaultTask {
 
-    @Input
+    @Internal
     Configuration configuration
 
     def outputDir
@@ -30,5 +30,6 @@ class CopyDependenciesToMavenTreeTask extends DefaultTask {
                 from artifact.file
             }
         }
+        //return getOutputDir()
     }
 }
