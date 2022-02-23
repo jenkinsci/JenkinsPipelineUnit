@@ -20,16 +20,6 @@ archivesBaseName = "jenkins-pipeline-unit"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-// Grape configuration is used to test @Grape annotation in unit tests
-// using grapeConfig.xml
-configurations {
-    grape {
-        // Note our simple use case does not use or support
-        // transitive dependencies
-        transitive = false
-    }
-}
-
 dependencies {
     implementation('org.codehaus.groovy:groovy-all:2.4.14')
     implementation('com.cloudbees:groovy-cps:1.31')
@@ -40,8 +30,6 @@ dependencies {
     api('org.springframework:spring-core:5.3.15')
 
     testImplementation('junit:junit:4.13.2')
-
-    grape('org.apache.commons:commons-math3:3.6.1')
 }
 
 defaultTasks 'test'
@@ -56,22 +44,7 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-// Copy the resolved grapes configuration to a maven2 like directory
-// structure (no transitive dependencies)
-task copyGrapesDependencies(type: CopyDependenciesToMavenTreeTask) {
-    configuration = configurations.grape
-    outputDir = "$buildDir/grapes"
-}
-
-test.dependsOn copyGrapesDependencies
-
 test {
-    inputs.files ("$projectDir/src/test/jenkins", "$projectDir/grapeConfig.xml")
-    systemProperty "grape.config", "$projectDir/grapeConfig.xml"
-    systemProperty "grape.home", file("$buildDir/grapes").toURI()
-    // Settings for debugging @Grape() resolution in test cases
-    //systemProperty "groovy.grape.report.downloads", "true"
-    //systemProperty "ivy.message.logger.level", "4"
 
     // Enable writing stacks with -Ppipeline.stack.write
     if (project.hasProperty("pipeline.stack.write")) {
