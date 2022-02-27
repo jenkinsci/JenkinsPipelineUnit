@@ -1,14 +1,20 @@
 package com.lesfurets.jenkins.unit
 
 import org.assertj.core.api.Assertions
+import org.junit.Before
 import org.junit.Test
 
 class PipelineTestHelperTest {
+    private PipelineTestHelper helper
+
+    @Before
+    void setUp() throws Exception {
+        helper = new PipelineTestHelper()
+    }
 
     @Test
     void testRegisterAllowedMethodWithoutArgs() {
         // given:
-        def helper = new PipelineTestHelper()
         def closure = { println 'withoutArgs' }
         helper.registerAllowedMethod('withoutArgs', closure)
 
@@ -23,7 +29,6 @@ class PipelineTestHelperTest {
     @Test
     void testRegisterAllowedMethodEmptyArgs() {
         // given:
-        def helper = new PipelineTestHelper()
         def closure = { println 'emptyArgsList' }
         helper.registerAllowedMethod('emptyArgsList', closure)
 
@@ -38,7 +43,6 @@ class PipelineTestHelperTest {
     @Test
     void readFile() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addFileExistsMock('test', true)
 
         // when:
@@ -51,7 +55,6 @@ class PipelineTestHelperTest {
     @Test
     void readFileNotMocked() {
         // given:
-        def helper = new PipelineTestHelper()
 
         // when:
         def result = helper.fileExists('test')
@@ -63,7 +66,6 @@ class PipelineTestHelperTest {
     @Test
     void readFileWithMap() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addReadFileMock('test', 'contents')
 
         // when:
@@ -76,7 +78,6 @@ class PipelineTestHelperTest {
     @Test
     void readFileWithNoMockOutput() {
         // given:
-        def helper = new PipelineTestHelper()
 
         // when:
         def output = helper.readFile('test')
@@ -88,7 +89,6 @@ class PipelineTestHelperTest {
     @Test
     void runSh() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd', '/foo/bar', 0)
 
         // when:
@@ -101,7 +101,6 @@ class PipelineTestHelperTest {
     @Test
     void runShWithScriptFailure() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('evil', '/foo/bar', 666)
         Exception caught = null
 
@@ -120,7 +119,6 @@ class PipelineTestHelperTest {
     @Test
     void runShWithStdout() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd', '/foo/bar', 0)
 
         // when:
@@ -133,7 +131,6 @@ class PipelineTestHelperTest {
     @Test(expected = Exception)
     void runShWithStdoutFailure() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd', '/foo/bar', 1)
 
         // when:
@@ -145,7 +142,6 @@ class PipelineTestHelperTest {
     @Test
     void runShWithReturnCode() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd', '/foo/bar', 0)
 
         // when:
@@ -158,7 +154,6 @@ class PipelineTestHelperTest {
     @Test
     void runShWithNonZeroReturnCode() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('evil', '/foo/bar', 666)
 
         // when:
@@ -171,7 +166,6 @@ class PipelineTestHelperTest {
     @Test
     void runShWithCallback() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd') { script ->
             return [stdout: '/foo/bar', exitValue: 0]
         }
@@ -186,7 +180,6 @@ class PipelineTestHelperTest {
     @Test(expected = Exception)
     void runShWithCallbackScriptFailure() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('evil') { script ->
             return [stdout: '/foo/bar', exitValue: 666]
         }
@@ -200,7 +193,6 @@ class PipelineTestHelperTest {
     @Test
     void runShWithCallbackStdout() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd') { script ->
             return [stdout: '/foo/bar', exitValue: 0]
         }
@@ -215,7 +207,6 @@ class PipelineTestHelperTest {
     @Test
     void runShWithCallbackReturnCode() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd') { script ->
             return [stdout: '/foo/bar', exitValue: 0]
         }
@@ -230,7 +221,6 @@ class PipelineTestHelperTest {
     @Test
     void runShWithCallbackNonZeroReturnCode() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd') { script ->
             return [stdout: '/foo/bar', exitValue: 666]
         }
@@ -245,7 +235,6 @@ class PipelineTestHelperTest {
     @Test(expected = IllegalArgumentException)
     void runShWithCallbackOutputNotMap() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd') { script ->
             return 'invalid'
         }
@@ -259,7 +248,6 @@ class PipelineTestHelperTest {
     @Test(expected = IllegalArgumentException)
     void runShWithCallbackNoStdoutKey() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd') { script ->
             return [exitValue: 666]
         }
@@ -273,7 +261,6 @@ class PipelineTestHelperTest {
     @Test(expected = IllegalArgumentException)
     void runShWithCallbackNoExitValueKey() {
         // given:
-        def helper = new PipelineTestHelper()
         helper.addShMock('pwd') { script ->
             return [stdout: '/foo/bar']
         }
@@ -287,7 +274,6 @@ class PipelineTestHelperTest {
     @Test()
     void runShWithoutMockOutput() {
         // given:
-        def helper = new PipelineTestHelper()
 
         // when:
         def output = helper.runSh('unregistered-mock-output')
@@ -299,7 +285,6 @@ class PipelineTestHelperTest {
     @Test()
     void runShWithoutMockOutputAndReturnStatus() {
         // given:
-        def helper = new PipelineTestHelper()
 
         // when:
         def output = helper.runSh(returnStatus: true, script: 'unregistered-mock-output')
@@ -311,7 +296,6 @@ class PipelineTestHelperTest {
     @Test()
     void runShWithoutMockOutputAndReturnStdout() {
         // given:
-        def helper = new PipelineTestHelper()
 
         // when:
         def output = helper.runSh(returnStdout: true, script: 'unregistered-mock-output')
@@ -323,7 +307,6 @@ class PipelineTestHelperTest {
     @Test(expected = IllegalArgumentException)
     void runShWithBothStatusAndStdout() {
         // given:
-        def helper = new PipelineTestHelper()
 
         // when:
         helper.runSh(returnStatus: true, returnStdout: true, script: 'invalid')
