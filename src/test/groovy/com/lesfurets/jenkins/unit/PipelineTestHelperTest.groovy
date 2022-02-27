@@ -304,6 +304,33 @@ class PipelineTestHelperTest {
         assertThat(output).isEqualTo('')
     }
 
+    @Test()
+    void runShWithDefaultHandler() {
+        // given:
+        helper.addShMock('command', 'ignored', 0)
+        helper.addShMock(null, 'default', 1)
+        helper.addShMock('pwd', 'ignored', 2)
+
+        // when:
+        def status = helper.runSh(script: 'command', returnStatus: true)
+
+        // then:
+        assertThat(status).isEqualTo(1)
+    }
+
+    @Test()
+    void runShWithOverriddenHandler() {
+        // given:
+        helper.addShMock('command', 'base', 1)
+        helper.addShMock('command', 'override', 2)
+
+        // when:
+        def status = helper.runSh(script: 'command', returnStatus: true)
+
+        // then:
+        assertThat(status).isEqualTo(2)
+    }
+
     @Test(expected = IllegalArgumentException)
     void runShWithBothStatusAndStdout() {
         // given:

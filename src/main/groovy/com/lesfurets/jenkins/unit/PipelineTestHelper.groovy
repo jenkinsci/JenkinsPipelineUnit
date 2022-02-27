@@ -23,28 +23,96 @@ class PipelineTestHelper {
     protected static Method SCRIPT_SET_BINDING = Script.getMethod('setBinding', Binding.class)
 
     /**
-     * Simple container for holding mock script output.
+     * Simple container for handling mocked scripts (`bat`, `sh`, etc).
      */
-    class MockScriptOutput {
+    class MockScriptHandler {
+        // optional filter used to determine whether a script matches this mock
+        String filter = null
+
+        // mocked script results, specified as either value or callback
         String stdout = null
         int exitValue = -1
         Closure callback = null
 
-        MockScriptOutput(String stdout, int exitValue) {
+        MockScriptHandler(String filter, String stdout, int exitValue) {
+            this.filter = filter
             this.stdout = stdout
             this.exitValue = exitValue
         }
 
-        MockScriptOutput(Closure callback) {
+        MockScriptHandler(String filter, Closure callback) {
+            this.filter = filter
             this.callback = callback
+        }
+
+        /**
+         * match a script invocation against our filter
+         */
+        private boolean match(String script) {
+            // if no filter is set, this matches everything
+            if (filter == null) {
+                return true
+            }
+
+            // compare script with filter
+            return filter == script
+        }
+
+        /**
+         * execute a mocked script
+         */
+        private Map execute(String script) {
+            if (callback) {
+                // execute callback
+                def results = callback()
+
+                // validate the output
+                if (!(results instanceof Map)) {
+                    throw new IllegalArgumentException("Mocked shell callback for ${script} was not a map")
+                }
+                if (!results.containsKey('stdout') || !(results['stdout'] instanceof String)) {
+                    throw new IllegalArgumentException("Mocked shell callback for ${script} did not contain a valid value for the stdout key")
+                }
+                if (!results.containsKey('exitValue') || !(results['exitValue'] instanceof Integer)) {
+                    throw new IllegalArgumentException("Mocked shell callback for ${script} did not contain a valid value for the exitValue key")
+                }
+
+                return results
+            } else {
+                // If no callback is given, use the variables as results
+                return [
+                    stdout: stdout,
+                    exitValue: exitValue,
+                ]
+            }
+        }
+
+        /**
+         * handle a mocked script
+         *
+         * If this handler matches the script, it returns a {@code Map} with the two elements
+         * <ul>
+         *   <li>{@code stdout}: {@code String} with the mocked output.</li>
+         *   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
+         * </ul>
+         * Otherwise, it returns null.
+         *
+         * @param script The script being executed.
+         * @return the mocked script results or null when the script was not handled
+         */
+        Map handle(String script) {
+            if (!match(script)) {
+                return null
+            }
+            return execute(script)
         }
     }
 
-    /** Holds configured mock output values for the `sh` command. */
-    Map<String, MockScriptOutput> mockShOutputs = [:]
+    /** Holds configured mock script handlers for the `sh` command. */
+    List<MockScriptHandler> mockShHandlers = [new MockScriptHandler(null, '', 0)]
 
-    /** Holds configured mock output values for the `bat` command. */
-    Map<String, MockScriptOutput> mockBatOutputs = [:]
+    /** Holds configured mock script handlers for the `bat` command. */
+    List<MockScriptHandler> mockBatHandlers = [new MockScriptHandler(null, '', 0)]
 
     /**
      * Search paths for scripts
@@ -303,8 +371,8 @@ class PipelineTestHelper {
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
         gse.setConfig(configuration)
 
-        mockShOutputs.clear()
-        mockBatOutputs.clear()
+        mockShHandlers = [new MockScriptHandler(null, '', 0)]
+        mockBatHandlers = [new MockScriptHandler(null, '', 0)]
         mockFileExistsResults.clear()
         mockReadFileOutputs.clear()
         return this
@@ -666,18 +734,18 @@ class PipelineTestHelper {
     /**
      * Configure mock output for the `sh` command. This function should be called before
      * attempting to call `JenkinsMocks.sh()`.
-     * @param script Script command to mock.
+     * @param script Script command to mock or null if any command is matched.
      * @param stdout Standard output text to return for the given command.
      * @param exitValue Exit value for the command.
      */
     void addShMock(String script, String stdout, int exitValue) {
-        mockShOutputs[script] = new MockScriptOutput(stdout, exitValue)
+        mockShHandlers << new MockScriptHandler(script, stdout, exitValue)
     }
 
     /**
      * Configure mock callback for the `sh` command. This function should be called before
      * attempting to call `JenkinsMocks.sh()`.
-     * @param script Script command to mock.
+     * @param script Script command to mock or null if any command is matched.
      * @param callback Closure to be called when the mock is executed. This closure will be
      *                 passed the script call which is being executed, and
      *                 <strong>must</strong> return a {@code Map} with the following
@@ -688,29 +756,29 @@ class PipelineTestHelper {
      *                 </ul>
      */
     void addShMock(String script, Closure callback) {
-        mockShOutputs[script] = new MockScriptOutput(callback)
+        mockShHandlers << new MockScriptHandler(script, callback)
     }
 
     @SuppressWarnings('ThrowException')
     def runSh(def args) {
-        return runScript(args, mockShOutputs)
+        return runScript(args, mockShHandlers)
     }
 
     /**
      * Configure mock output for the `bat` command. This function should be called before
      * attempting to call `JenkinsMocks.bat()`.
-     * @param script Script command to mock.
+     * @param script Script command to mock or null if any command is matched.
      * @param stdout Standard output text to return for the given command.
      * @param exitValue Exit value for the command.
      */
     void addBatMock(String script, String stdout, int exitValue) {
-        mockBatOutputs[script] = new MockScriptOutput(stdout, exitValue)
+        mockBatHandlers << new MockScriptHandler(script, stdout, exitValue)
     }
 
     /**
      * Configure mock callback for the `bat` command. This function should be called before
      * attempting to call `JenkinsMocks.bat()`.
-     * @param script Script command to mock.
+     * @param script Script command to mock or null if any command is matched.
      * @param callback Closure to be called when the mock is executed. This closure will be
      *                 passed the script call which is being executed, and
      *                 <strong>must</strong> return a {@code Map} with the following
@@ -721,16 +789,16 @@ class PipelineTestHelper {
      *                 </ul>
      */
     void addBatMock(String script, Closure callback) {
-        mockBatOutputs[script] = new MockScriptOutput(callback)
+        mockBatHandlers << new MockScriptHandler(script, callback)
     }
 
     @SuppressWarnings('ThrowException')
     def runBat(def args) {
-        return runScript(args, mockBatOutputs)
+        return runScript(args, mockBatHandlers)
     }
 
     @SuppressWarnings('ThrowException')
-    def runScript(def args, def mockScriptOutputs) {
+    def runScript(def args, List<MockScriptHandler> mockScriptHandlers) {
         String script = null
         boolean returnStdout = false
         boolean returnStatus = false
@@ -748,55 +816,27 @@ class PipelineTestHelper {
         }
         assert script
 
-        MockScriptOutput output = mockScriptOutputs[script]
-        if (!output) {
-            if (returnStatus) {
-                return 0
-            }
-            if (returnStdout) {
-                return ''
-            }
-
-            return null
+        // find the last handler added matching the script
+        Map results
+        mockScriptHandlers.reverse().find { handler ->
+            results = handler.handle(script)
+            return results != null
         }
-
-        String stdout
-        int exitValue
-
-        // If the callback closure is not null, execute it and grab the output.
-        if (output.callback) {
-            Map callbackOutput
-            try {
-                callbackOutput = output.callback(script)
-            } catch (GroovyCastException) {
-                throw new IllegalArgumentException("Mocked shell callback for ${script} was not a map")
-            }
-            if (!callbackOutput.containsKey('stdout') || !(callbackOutput['stdout'] instanceof String)) {
-                throw new IllegalArgumentException("Mocked shell callback for ${script} did not contain a valid value for the stdout key")
-            }
-            if (!callbackOutput.containsKey('exitValue') || !(callbackOutput['exitValue'] instanceof Integer)) {
-                throw new IllegalArgumentException("Mocked shell callback for ${script} did not contain a valid value for the exitValue key")
-            }
-            stdout = callbackOutput['stdout']
-            exitValue = callbackOutput['exitValue']
-        } else {
-            stdout = output.stdout
-            exitValue = output.exitValue
-        }
+        assert results
 
         // Jenkins also prints the output from the shell when returnStdout is true if the script fails
-        if (!returnStdout || exitValue != 0) {
-            println stdout
+        if (!returnStdout || results.exitValue != 0) {
+            println results.stdout
         }
 
-        if (returnStdout && exitValue == 0) {
-            return stdout
+        if (returnStdout && results.exitValue == 0) {
+            return results.stdout
         }
         if (returnStatus) {
-            return exitValue
+            return results.exitValue
         }
-        if (exitValue != 0) {
-            throw new Exception('script returned exit code ' + exitValue)
+        if (results.exitValue != 0) {
+            throw new Exception('script returned exit code ' + results.exitValue)
         }
         return null
     }
