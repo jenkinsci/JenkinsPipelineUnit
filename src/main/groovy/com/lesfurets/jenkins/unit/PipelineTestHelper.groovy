@@ -7,6 +7,7 @@ import java.nio.charset.Charset
 import java.nio.file.Paths
 import java.util.function.Consumer
 import java.util.function.Function
+import java.util.regex.Pattern
 
 import org.apache.commons.io.IOUtils
 import org.codehaus.groovy.control.CompilerConfiguration
@@ -26,21 +27,30 @@ class PipelineTestHelper {
      * Simple container for handling mocked scripts (`bat`, `sh`, etc).
      */
     class MockScriptHandler {
-        // optional filter used to determine whether a script matches this mock
-        String filter = null
+        /**
+         * filter used to determine whether a script matches this mock
+         *
+         * The given pattern can be
+         * - null, which matches anything
+         * - a string, which means a full match
+         * - a pattern, which means a pattern match
+         */
+        Object filter = null
 
         // mocked script results, specified as either value or callback
         String stdout = null
         int exitValue = -1
         Closure callback = null
 
-        MockScriptHandler(String filter, String stdout, int exitValue) {
+        MockScriptHandler(Object filter, String stdout, int exitValue) {
+            assert (filter == null || filter instanceof String || filter instanceof Pattern)
             this.filter = filter
             this.stdout = stdout
             this.exitValue = exitValue
         }
 
-        MockScriptHandler(String filter, Closure callback) {
+        MockScriptHandler(Object filter, Closure callback) {
+            assert (filter == null || filter instanceof String || filter instanceof Pattern)
             this.filter = filter
             this.callback = callback
         }
@@ -48,33 +58,54 @@ class PipelineTestHelper {
         /**
          * match a script invocation against our filter
          */
-        private boolean match(String script) {
+        private List match(String script) {
             // if no filter is set, this matches everything
             if (filter == null) {
-                return true
+                return [script]
             }
 
-            // compare script with filter
-            return filter == script
+            // if a string is specified, perform a simple string comparison
+            if (filter instanceof String) {
+                return (filter == script) ? [script] : null
+            }
+
+            // if an actual pattern is specified, perform a pattern match
+            // Note that this does a full match, i.e. the call string must
+            // match completely!
+            if (filter instanceof Pattern) {
+                def matcher = script =~ filter
+                if (!matcher.matches()) {
+                    return null
+                }
+
+                List results = []
+                for (int i = 0; i <= matcher.groupCount(); i++) {
+                    results << matcher.group(i)
+                }
+                return results
+            }
+
+            // should not be reached
+            throw new IllegalArgumentException('Invalid filter')
         }
 
         /**
          * execute a mocked script
          */
-        private Map execute(String script) {
+        private Map execute(List matches) {
             if (callback) {
                 // execute callback
-                def results = callback()
+                def results = callback(*matches)
 
                 // validate the output
                 if (!(results instanceof Map)) {
-                    throw new IllegalArgumentException("Mocked shell callback for ${script} was not a map")
+                    throw new IllegalArgumentException("Mocked shell callback for ${matches[0]} was not a map")
                 }
                 if (!results.containsKey('stdout') || !(results['stdout'] instanceof String)) {
-                    throw new IllegalArgumentException("Mocked shell callback for ${script} did not contain a valid value for the stdout key")
+                    throw new IllegalArgumentException("Mocked shell callback for ${matches[0]} did not contain a valid value for the stdout key")
                 }
                 if (!results.containsKey('exitValue') || !(results['exitValue'] instanceof Integer)) {
-                    throw new IllegalArgumentException("Mocked shell callback for ${script} did not contain a valid value for the exitValue key")
+                    throw new IllegalArgumentException("Mocked shell callback for ${matches[0]} did not contain a valid value for the exitValue key")
                 }
 
                 return results
@@ -101,10 +132,11 @@ class PipelineTestHelper {
          * @return the mocked script results or null when the script was not handled
          */
         Map handle(String script) {
-            if (!match(script)) {
+            List matches = match(script)
+            if (matches == null) {
                 return null
             }
-            return execute(script)
+            return execute(matches)
         }
     }
 
@@ -734,18 +766,18 @@ class PipelineTestHelper {
     /**
      * Configure mock output for the `sh` command. This function should be called before
      * attempting to call `JenkinsMocks.sh()`.
-     * @param script Script command to mock or null if any command is matched.
+     * @param filter Script command or pattern to mock or null if any command is matched.
      * @param stdout Standard output text to return for the given command.
      * @param exitValue Exit value for the command.
      */
-    void addShMock(String script, String stdout, int exitValue) {
-        mockShHandlers << new MockScriptHandler(script, stdout, exitValue)
+    void addShMock(Object filter, String stdout, int exitValue) {
+        mockShHandlers << new MockScriptHandler(filter, stdout, exitValue)
     }
 
     /**
      * Configure mock callback for the `sh` command. This function should be called before
      * attempting to call `JenkinsMocks.sh()`.
-     * @param script Script command to mock or null if any command is matched.
+     * @param filter Script command or pattern to mock or null if any command is matched.
      * @param callback Closure to be called when the mock is executed. This closure will be
      *                 passed the script call which is being executed, and
      *                 <strong>must</strong> return a {@code Map} with the following
@@ -755,8 +787,8 @@ class PipelineTestHelper {
      *                   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
      *                 </ul>
      */
-    void addShMock(String script, Closure callback) {
-        mockShHandlers << new MockScriptHandler(script, callback)
+    void addShMock(Object filter, Closure callback) {
+        mockShHandlers << new MockScriptHandler(filter, callback)
     }
 
     @SuppressWarnings('ThrowException')
@@ -767,18 +799,18 @@ class PipelineTestHelper {
     /**
      * Configure mock output for the `bat` command. This function should be called before
      * attempting to call `JenkinsMocks.bat()`.
-     * @param script Script command to mock or null if any command is matched.
+     * @param filter Script command or pattern to mock or null if any command is matched.
      * @param stdout Standard output text to return for the given command.
      * @param exitValue Exit value for the command.
      */
-    void addBatMock(String script, String stdout, int exitValue) {
-        mockBatHandlers << new MockScriptHandler(script, stdout, exitValue)
+    void addBatMock(Object filter, String stdout, int exitValue) {
+        mockBatHandlers << new MockScriptHandler(filter, stdout, exitValue)
     }
 
     /**
      * Configure mock callback for the `bat` command. This function should be called before
      * attempting to call `JenkinsMocks.bat()`.
-     * @param script Script command to mock or null if any command is matched.
+     * @param filter Script command or pattern to mock or null if any command is matched.
      * @param callback Closure to be called when the mock is executed. This closure will be
      *                 passed the script call which is being executed, and
      *                 <strong>must</strong> return a {@code Map} with the following
@@ -788,8 +820,8 @@ class PipelineTestHelper {
      *                   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
      *                 </ul>
      */
-    void addBatMock(String script, Closure callback) {
-        mockBatHandlers << new MockScriptHandler(script, callback)
+    void addBatMock(Object filter, Closure callback) {
+        mockBatHandlers << new MockScriptHandler(filter, callback)
     }
 
     @SuppressWarnings('ThrowException')
