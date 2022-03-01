@@ -1,0 +1,8 @@
+properties([
+    parameters([
+        booleanParam(name: 'myBooleanParam', description: 'My boolean typed parameter'),
+        string(name: 'myStringParam', defaultValue: 'my default value', description: 'My string typed parameter')
+  ])
+])
+
+echo("'myStringParam' value is default: ${params.myStringParam}")
