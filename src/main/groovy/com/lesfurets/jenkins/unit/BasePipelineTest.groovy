@@ -195,6 +195,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('mail', [Map])
         helper.registerAllowedMethod("node", [Closure])
         helper.registerAllowedMethod("node", [String, Closure])
+        helper.registerAllowedMethod("parameters", [List])
         helper.registerAllowedMethod("pipelineTriggers", [List])
         helper.registerAllowedMethod('pollSCM', [String])
         helper.registerAllowedMethod("properties", [List])
