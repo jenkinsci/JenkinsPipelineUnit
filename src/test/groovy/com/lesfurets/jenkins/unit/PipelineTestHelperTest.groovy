@@ -1,6 +1,6 @@
 package com.lesfurets.jenkins.unit
 
-import org.assertj.core.api.Assertions
+import static org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 
@@ -22,8 +22,8 @@ class PipelineTestHelperTest {
         Map.Entry<MethodSignature, Closure> allowedMethodEntry = helper.getAllowedMethodEntry('withoutArgs')
 
         // then:
-        Assertions.assertThat(allowedMethodEntry.getKey().getArgs().size()).isEqualTo(0)
-        Assertions.assertThat(allowedMethodEntry.getValue()).isEqualTo(closure)
+        assertThat(allowedMethodEntry.getKey().getArgs().size()).isEqualTo(0)
+        assertThat(allowedMethodEntry.getValue()).isEqualTo(closure)
     }
 
     @Test
@@ -36,8 +36,8 @@ class PipelineTestHelperTest {
         Map.Entry<MethodSignature, Closure> allowedMethodEntry = helper.getAllowedMethodEntry('emptyArgsList')
 
         // then:
-        Assertions.assertThat(allowedMethodEntry.getKey().getArgs().size()).isEqualTo(0)
-        Assertions.assertThat(allowedMethodEntry.getValue()).isEqualTo(closure)
+        assertThat(allowedMethodEntry.getKey().getArgs().size()).isEqualTo(0)
+        assertThat(allowedMethodEntry.getValue()).isEqualTo(closure)
     }
 
     @Test
@@ -49,7 +49,7 @@ class PipelineTestHelperTest {
         def result = helper.fileExists('test')
 
         // then:
-        Assertions.assertThat(result).isTrue()
+        assertThat(result).isTrue()
     }
 
     @Test
@@ -60,7 +60,7 @@ class PipelineTestHelperTest {
         def result = helper.fileExists('test')
 
         // then:
-        Assertions.assertThat(result).isFalse()
+        assertThat(result).isFalse()
     }
 
     @Test
@@ -72,7 +72,7 @@ class PipelineTestHelperTest {
         def output = helper.readFile(file: 'test')
 
         // then:
-        Assertions.assertThat(output).isEqualTo('contents')
+        assertThat(output).isEqualTo('contents')
     }
 
     @Test
@@ -83,7 +83,7 @@ class PipelineTestHelperTest {
         def output = helper.readFile('test')
 
         // then:
-        Assertions.assertThat(output).isEqualTo('')
+        assertThat(output).isEqualTo('')
     }
 
     @Test
@@ -95,7 +95,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh('pwd')
 
         // then:
-        Assertions.assertThat(output).isNull()
+        assertThat(output).isNull()
     }
 
     @Test
@@ -112,8 +112,8 @@ class PipelineTestHelperTest {
         }
 
         // then: Exception raised
-        Assertions.assertThat(caught).isNotNull()
-        Assertions.assertThat(caught.message).isEqualTo('script returned exit code 666')
+        assertThat(caught).isNotNull()
+        assertThat(caught.message).isEqualTo('script returned exit code 666')
     }
 
     @Test
@@ -125,7 +125,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh(returnStdout: true, script: 'pwd')
 
         // then:
-        Assertions.assertThat(output).isEqualTo('/foo/bar')
+        assertThat(output).isEqualTo('/foo/bar')
     }
 
     @Test(expected = Exception)
@@ -148,7 +148,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh(returnStatus: true, script: 'pwd')
 
         // then:
-        Assertions.assertThat(output).isEqualTo(0)
+        assertThat(output).isEqualTo(0)
     }
 
     @Test
@@ -160,7 +160,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh(returnStatus: true, script: 'evil')
 
         // then:
-        Assertions.assertThat(output).isEqualTo(666)
+        assertThat(output).isEqualTo(666)
     }
 
     @Test
@@ -174,7 +174,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh('pwd')
 
         // then:
-        Assertions.assertThat(output).isNull()
+        assertThat(output).isNull()
     }
 
     @Test(expected = Exception)
@@ -201,7 +201,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh(returnStdout: true, script: 'pwd')
 
         // then:
-        Assertions.assertThat(output).isEqualTo('/foo/bar')
+        assertThat(output).isEqualTo('/foo/bar')
     }
 
     @Test
@@ -215,7 +215,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh(returnStatus: true, script: 'pwd')
 
         // then:
-        Assertions.assertThat(output).isEqualTo(0)
+        assertThat(output).isEqualTo(0)
     }
 
     @Test
@@ -229,7 +229,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh(returnStatus: true, script: 'pwd')
 
         // then:
-        Assertions.assertThat(output).isEqualTo(666)
+        assertThat(output).isEqualTo(666)
     }
 
     @Test(expected = IllegalArgumentException)
@@ -279,7 +279,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh('unregistered-mock-output')
 
         // then:
-        Assertions.assertThat(output).isNull()
+        assertThat(output).isNull()
     }
 
     @Test()
@@ -290,7 +290,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh(returnStatus: true, script: 'unregistered-mock-output')
 
         // then:
-        Assertions.assertThat(output).isEqualTo(0)
+        assertThat(output).isEqualTo(0)
     }
 
     @Test()
@@ -301,7 +301,7 @@ class PipelineTestHelperTest {
         def output = helper.runSh(returnStdout: true, script: 'unregistered-mock-output')
 
         // then:
-        Assertions.assertThat(output).isEqualTo('')
+        assertThat(output).isEqualTo('')
     }
 
     @Test(expected = IllegalArgumentException)
