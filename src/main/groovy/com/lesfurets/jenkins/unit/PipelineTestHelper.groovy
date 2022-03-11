@@ -735,7 +735,7 @@ class PipelineTestHelper {
         boolean returnStdout = false
         boolean returnStatus = false
 
-        // The `sh` function can be called with either a string, or a map of key/value pairs.
+        // The shell functions can be called with either a string, or a map of key/value pairs.
         if (args instanceof String || args instanceof GString) {
             script = args
         } else if (args instanceof Map) {
@@ -769,13 +769,13 @@ class PipelineTestHelper {
             try {
                 callbackOutput = output.callback(script)
             } catch (GroovyCastException) {
-                throw new IllegalArgumentException("Mocked sh callback for ${script} was not a map")
+                throw new IllegalArgumentException("Mocked shell callback for ${script} was not a map")
             }
             if (!callbackOutput.containsKey('stdout') || !(callbackOutput['stdout'] instanceof String)) {
-                throw new IllegalArgumentException("Mocked sh callback for ${script} did not contain a valid value for the stdout key")
+                throw new IllegalArgumentException("Mocked shell callback for ${script} did not contain a valid value for the stdout key")
             }
             if (!callbackOutput.containsKey('exitValue') || !(callbackOutput['exitValue'] instanceof Integer)) {
-                throw new IllegalArgumentException("Mocked sh callback for ${script} did not contain a valid value for the exitValue key")
+                throw new IllegalArgumentException("Mocked shell callback for ${script} did not contain a valid value for the exitValue key")
             }
             stdout = callbackOutput['stdout']
             exitValue = callbackOutput['exitValue']
@@ -784,7 +784,7 @@ class PipelineTestHelper {
             exitValue = output.exitValue
         }
 
-        // Jenkins also prints the output from sh when returnStdout is true if the script fails
+        // Jenkins also prints the output from the shell when returnStdout is true if the script fails
         if (!returnStdout || exitValue != 0) {
             println stdout
         }
