@@ -213,15 +213,16 @@ void exampleReadFileTest() {
 }
 ```
 
-### Mocking sh
+### Mocking Shell Steps
 
-The `sh` step is used by many pipelines for a variety of tasks. It can be mocked to either (a) statically return:
+The shell steps (`sh`, `bat`, etc) are used by many pipelines for a variety of tasks.
+They can be mocked to either (a) statically return:
 
 - A string for standard output
 - A return code
 
-..., or (b) execute a closure that will be executed when `sh` is called before returning a `Map` (with `stdout` and
-`exitValue` entries) allowing for dynamic behaviour.
+..., or (b) execute a closure that returns a `Map` (with `stdout` and `exitValue` entries).
+The closure will be executed when the shell is called, allowing for dynamic behaviour.
 
 Here is a sample pipeline and corresponding unit tests for each of these variants.
 
@@ -278,6 +279,28 @@ void debianBuildUnstable() {
 
 Note that in all cases, the `script` executed by `sh` must *exactly* match the string passed to `helper.addShMock`,
 including the script arguments, whitespace etc.
+For less strict matching, you can use a pattern (regular expression) and even capture groups:
+```groovy
+helper.addShMock(~/.\/build.sh\s--(.*)/) { String script, String arg ->
+    assert (arg == 'debug') || (arg == 'release')
+    return [stdout: '', exitValue: 2]
+}
+```
+
+Also, mocks are stacked, so if two mocks match a call, the last one counts.
+Combined with a match-everything mock, you can tighten your tests a bit:
+```groovy
+@Before
+void setUp() throws Exception {
+    helper = new PipelineTestHelper()
+    // Basic `sh` mock setup:
+    // - generate an error on unexpected calls
+    // - ignore any echo (debug) outputs, they are not relevant
+    // - all further shell mocks are configured in the test
+    helper.addShMock(null) { throw new Exception('unexpected sh call') }
+    helper.addShMock(~/echo\s.*/, '', 0)
+}
+```
 
 ### Analyze the mock execution
 
