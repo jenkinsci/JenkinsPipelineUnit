@@ -786,5 +786,9 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
 
     }
 
+    @Test(expected = IllegalArgumentException)
+    void test_stage_and_steps() {
+        runScript("StageAndSteps_Jenkinsfile")
+    }
 }
 

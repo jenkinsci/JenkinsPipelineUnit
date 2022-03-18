@@ -42,9 +42,24 @@ class StageDeclaration extends GenericPipelineDeclaration {
 
     def execute(Object delegate) {
         String name = this.name
+        def actions = 0
+        if(parallel) {
+            actions++
+        }
+        if(stages.size()>0) {
+            actions++
+        }
+        if(steps) {
+            actions++
+        }
+        if (actions > 1 ) {
+            throw new IllegalArgumentException ("""Only one of "matrix", "parallel", "stages", or "steps" allowed for stage "${name}" """)
+        }
+
         this.options.each {
             executeOn(delegate, it)
         }
+
         if(parallel) {
             parallel.execute(delegate)
         }
