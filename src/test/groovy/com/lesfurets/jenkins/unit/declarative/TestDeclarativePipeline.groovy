@@ -765,4 +765,26 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         printCallStack()
         assertCallStack().contains('writeFile({file=messages/messages.msg, text=text})')
     }
+
+    @Test void test_agent_in_stage_with_no_steps() {
+        runScript("AgentStageNoSteps_Jenkinsfile")
+        assertJobStatusSuccess()
+
+        assertCallStack().contains('post A')
+        assertCallStack().contains('post B')
+        assertCallStack().contains('post C')
+
+        assertCallStack().contains('echo(A)')
+        assertCallStack().contains('echo(C)')
+        assertCallStack().contains('stage(A, groovy.lang.Closure)')
+        assertCallStack().contains('stage(C, groovy.lang.Closure)')
+        assertCallStack().contains('labelA')
+        assertCallStack().contains('labelC')
+        // assertion bellow would fail
+        assertCallStack().contains('stage(B, groovy.lang.Closure)')
+        assertCallStack().contains('labelB')
+
+    }
+
 }
+
