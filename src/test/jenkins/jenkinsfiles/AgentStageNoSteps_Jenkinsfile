@@ -1,0 +1,25 @@
+pipeline {
+    agent none
+    stages {
+        stage('A') {
+            agent { label 'labelA' }
+            post { always {echo 'post A'}}
+            steps {
+                echo 'A'
+            }
+        }
+        stage('B') {
+            agent {label 'labelB'}
+            post { always {echo 'post B'}}
+            stages {
+                stage('C') {
+                    agent {label 'labelC'}
+                    post { always {echo 'post C'}}
+                    steps {
+                        echo 'C'
+                    }
+                }
+            }
+        }
+    }
+}
