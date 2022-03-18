@@ -7,6 +7,7 @@ import java.nio.charset.Charset
 import java.nio.file.Paths
 import java.util.function.Consumer
 import java.util.function.Function
+import java.util.regex.Pattern
 
 import org.apache.commons.io.IOUtils
 import org.codehaus.groovy.control.CompilerConfiguration
@@ -23,28 +24,127 @@ class PipelineTestHelper {
     protected static Method SCRIPT_SET_BINDING = Script.getMethod('setBinding', Binding.class)
 
     /**
-     * Simple container for holding mock script output.
+     * Simple container for handling mocked scripts (`bat`, `sh`, etc).
      */
-    class MockScriptOutput {
+    class MockScriptHandler {
+        /**
+         * filter used to determine whether a script matches this mock
+         *
+         * The given pattern can be
+         * - null, which matches anything
+         * - a string, which means a full match
+         * - a pattern, which means a pattern match
+         */
+        Object filter = null
+
+        // mocked script results, specified as either value or callback
         String stdout = null
         int exitValue = -1
         Closure callback = null
 
-        MockScriptOutput(String stdout, int exitValue) {
+        MockScriptHandler(Object filter, String stdout, int exitValue) {
+            assert (filter == null || filter instanceof String || filter instanceof Pattern)
+            this.filter = filter
             this.stdout = stdout
             this.exitValue = exitValue
         }
 
-        MockScriptOutput(Closure callback) {
+        MockScriptHandler(Object filter, Closure callback) {
+            assert (filter == null || filter instanceof String || filter instanceof Pattern)
+            this.filter = filter
             this.callback = callback
+        }
+
+        /**
+         * match a script invocation against our filter
+         */
+        private List match(String script) {
+            // if no filter is set, this matches everything
+            if (filter == null) {
+                return [script]
+            }
+
+            // if a string is specified, perform a simple string comparison
+            if (filter instanceof String) {
+                return (filter == script) ? [script] : null
+            }
+
+            // if an actual pattern is specified, perform a pattern match
+            // Note that this does a full match, i.e. the call string must
+            // match completely!
+            if (filter instanceof Pattern) {
+                def matcher = script =~ filter
+                if (!matcher.matches()) {
+                    return null
+                }
+
+                List results = []
+                for (int i = 0; i <= matcher.groupCount(); i++) {
+                    results << matcher.group(i)
+                }
+                return results
+            }
+
+            // should not be reached
+            throw new IllegalArgumentException('Invalid filter')
+        }
+
+        /**
+         * execute a mocked script
+         */
+        private Map execute(List matches) {
+            if (callback) {
+                // execute callback
+                def results = callback(*matches)
+
+                // validate the output
+                if (!(results instanceof Map)) {
+                    throw new IllegalArgumentException("Mocked shell callback for ${matches[0]} was not a map")
+                }
+                if (!results.containsKey('stdout') || !(results['stdout'] instanceof String)) {
+                    throw new IllegalArgumentException("Mocked shell callback for ${matches[0]} did not contain a valid value for the stdout key")
+                }
+                if (!results.containsKey('exitValue') || !(results['exitValue'] instanceof Integer)) {
+                    throw new IllegalArgumentException("Mocked shell callback for ${matches[0]} did not contain a valid value for the exitValue key")
+                }
+
+                return results
+            } else {
+                // If no callback is given, use the variables as results
+                return [
+                    stdout: stdout,
+                    exitValue: exitValue,
+                ]
+            }
+        }
+
+        /**
+         * handle a mocked script
+         *
+         * If this handler matches the script, it returns a {@code Map} with the two elements
+         * <ul>
+         *   <li>{@code stdout}: {@code String} with the mocked output.</li>
+         *   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
+         * </ul>
+         * Otherwise, it returns null.
+         *
+         * @param script The script being executed.
+         * @return the mocked script results or null when the script was not handled
+         */
+        Map handle(String script) {
+            List matches = match(script)
+            if (matches == null) {
+                return null
+            }
+            return execute(matches)
         }
     }
 
-    /** Holds configured mock output values for the `sh` command. */
-    Map<String, MockScriptOutput> mockShOutputs = [:]
+    /** Holds configured mock script handlers for the `sh` command. */
+    List<MockScriptHandler> mockShHandlers = [new MockScriptHandler(null, '', 0)]
 
-    /** Holds configured mock output values for the `bat` command. */
-    Map<String, MockScriptOutput> mockBatOutputs = [:]
+    /** Holds configured mock script handlers for the `bat` command. */
+    List<MockScriptHandler> mockBatHandlers = [new MockScriptHandler(null, '', 0)]
 
     /**
      * Search paths for scripts
@@ -303,8 +403,8 @@ class PipelineTestHelper {
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
         gse.setConfig(configuration)
 
-        mockShOutputs.clear()
-        mockBatOutputs.clear()
+        mockShHandlers = [new MockScriptHandler(null, '', 0)]
+        mockBatHandlers = [new MockScriptHandler(null, '', 0)]
         mockFileExistsResults.clear()
         mockReadFileOutputs.clear()
         return this
@@ -666,18 +766,18 @@ class PipelineTestHelper {
     /**
      * Configure mock output for the `sh` command. This function should be called before
      * attempting to call `JenkinsMocks.sh()`.
-     * @param script Script command to mock.
+     * @param filter Script command or pattern to mock or null if any command is matched.
      * @param stdout Standard output text to return for the given command.
      * @param exitValue Exit value for the command.
      */
-    void addShMock(String script, String stdout, int exitValue) {
-        mockShOutputs[script] = new MockScriptOutput(stdout, exitValue)
+    void addShMock(Object filter, String stdout, int exitValue) {
+        mockShHandlers << new MockScriptHandler(filter, stdout, exitValue)
     }
 
     /**
      * Configure mock callback for the `sh` command. This function should be called before
      * attempting to call `JenkinsMocks.sh()`.
-     * @param script Script command to mock.
+     * @param filter Script command or pattern to mock or null if any command is matched.
      * @param callback Closure to be called when the mock is executed. This closure will be
      *                 passed the script call which is being executed, and
      *                 <strong>must</strong> return a {@code Map} with the following
@@ -687,30 +787,30 @@ class PipelineTestHelper {
      *                   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
      *                 </ul>
      */
-    void addShMock(String script, Closure callback) {
-        mockShOutputs[script] = new MockScriptOutput(callback)
+    void addShMock(Object filter, Closure callback) {
+        mockShHandlers << new MockScriptHandler(filter, callback)
     }
 
     @SuppressWarnings('ThrowException')
     def runSh(def args) {
-        return runScript(args, mockShOutputs)
+        return runScript(args, mockShHandlers)
     }
 
     /**
      * Configure mock output for the `bat` command. This function should be called before
      * attempting to call `JenkinsMocks.bat()`.
-     * @param script Script command to mock.
+     * @param filter Script command or pattern to mock or null if any command is matched.
      * @param stdout Standard output text to return for the given command.
      * @param exitValue Exit value for the command.
      */
-    void addBatMock(String script, String stdout, int exitValue) {
-        mockBatOutputs[script] = new MockScriptOutput(stdout, exitValue)
+    void addBatMock(Object filter, String stdout, int exitValue) {
+        mockBatHandlers << new MockScriptHandler(filter, stdout, exitValue)
     }
 
     /**
      * Configure mock callback for the `bat` command. This function should be called before
      * attempting to call `JenkinsMocks.bat()`.
-     * @param script Script command to mock.
+     * @param filter Script command or pattern to mock or null if any command is matched.
      * @param callback Closure to be called when the mock is executed. This closure will be
      *                 passed the script call which is being executed, and
      *                 <strong>must</strong> return a {@code Map} with the following
@@ -720,22 +820,22 @@ class PipelineTestHelper {
      *                   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
      *                 </ul>
      */
-    void addBatMock(String script, Closure callback) {
-        mockBatOutputs[script] = new MockScriptOutput(callback)
+    void addBatMock(Object filter, Closure callback) {
+        mockBatHandlers << new MockScriptHandler(filter, callback)
     }
 
     @SuppressWarnings('ThrowException')
     def runBat(def args) {
-        return runScript(args, mockBatOutputs)
+        return runScript(args, mockBatHandlers)
     }
 
     @SuppressWarnings('ThrowException')
-    def runScript(def args, def mockScriptOutputs) {
+    def runScript(def args, List<MockScriptHandler> mockScriptHandlers) {
         String script = null
         boolean returnStdout = false
         boolean returnStatus = false
 
-        // The `sh` function can be called with either a string, or a map of key/value pairs.
+        // The shell functions can be called with either a string, or a map of key/value pairs.
         if (args instanceof String || args instanceof GString) {
             script = args
         } else if (args instanceof Map) {
@@ -748,55 +848,27 @@ class PipelineTestHelper {
         }
         assert script
 
-        MockScriptOutput output = mockScriptOutputs[script]
-        if (!output) {
-            if (returnStatus) {
-                return 0
-            }
-            if (returnStdout) {
-                return ''
-            }
+        // find the last handler added matching the script
+        Map results
+        mockScriptHandlers.reverse().find { handler ->
+            results = handler.handle(script)
+            return results != null
+        }
+        assert results
 
-            return null
+        // Jenkins also prints the output from the shell when returnStdout is true if the script fails
+        if (!returnStdout || results.exitValue != 0) {
+            println results.stdout
         }
 
-        String stdout
-        int exitValue
-
-        // If the callback closure is not null, execute it and grab the output.
-        if (output.callback) {
-            Map callbackOutput
-            try {
-                callbackOutput = output.callback(script)
-            } catch (GroovyCastException) {
-                throw new IllegalArgumentException("Mocked sh callback for ${script} was not a map")
-            }
-            if (!callbackOutput.containsKey('stdout') || !(callbackOutput['stdout'] instanceof String)) {
-                throw new IllegalArgumentException("Mocked sh callback for ${script} did not contain a valid value for the stdout key")
-            }
-            if (!callbackOutput.containsKey('exitValue') || !(callbackOutput['exitValue'] instanceof Integer)) {
-                throw new IllegalArgumentException("Mocked sh callback for ${script} did not contain a valid value for the exitValue key")
-            }
-            stdout = callbackOutput['stdout']
-            exitValue = callbackOutput['exitValue']
-        } else {
-            stdout = output.stdout
-            exitValue = output.exitValue
-        }
-
-        // Jenkins also prints the output from sh when returnStdout is true if the script fails
-        if (!returnStdout || exitValue != 0) {
-            println stdout
-        }
-
-        if (returnStdout && exitValue == 0) {
-            return stdout
+        if (returnStdout && results.exitValue == 0) {
+            return results.stdout
         }
         if (returnStatus) {
-            return exitValue
+            return results.exitValue
         }
-        if (exitValue != 0) {
-            throw new Exception('script returned exit code ' + exitValue)
+        if (results.exitValue != 0) {
+            throw new Exception('script returned exit code ' + results.exitValue)
         }
         return null
     }

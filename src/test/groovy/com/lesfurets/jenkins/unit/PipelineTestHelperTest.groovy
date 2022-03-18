@@ -272,6 +272,39 @@ class PipelineTestHelperTest {
     }
 
     @Test()
+    void runShWithPattern() {
+        // given:
+        def helper = new PipelineTestHelper()
+        helper.addShMock(~/echo\s(.*)/) { String script, String arg ->
+            assertThat(script).isEqualTo('echo foo')
+            assertThat(arg).isEqualTo('foo')
+            return [stdout: '', exitValue: 2]
+        }
+
+        // when:
+        def status = helper.runSh(returnStatus: true, script: 'echo foo')
+
+        // then:
+        assertThat(status).isEqualTo(2)
+    }
+
+    @Test()
+    void runShWithDefaultPattern() {
+        // given:
+        helper.addShMock(~/.*/) { String script, String ...args ->
+            assertThat(script).isEqualTo('echo foo')
+            assertThat(args as List).isEqualTo([])
+            return [stdout: '', exitValue: 2]
+        }
+
+        // when:
+        def status = helper.runSh(returnStatus: true, script: 'echo foo')
+
+        // then:
+        assertThat(status).isEqualTo(2)
+    }
+
+    @Test()
     void runShWithoutMockOutput() {
         // given:
 
@@ -302,6 +335,33 @@ class PipelineTestHelperTest {
 
         // then:
         assertThat(output).isEqualTo('')
+    }
+
+    @Test()
+    void runShWithDefaultHandler() {
+        // given:
+        helper.addShMock('command', 'ignored', 0)
+        helper.addShMock(null, 'default', 1)
+        helper.addShMock('pwd', 'ignored', 2)
+
+        // when:
+        def status = helper.runSh(script: 'command', returnStatus: true)
+
+        // then:
+        assertThat(status).isEqualTo(1)
+    }
+
+    @Test()
+    void runShWithOverriddenHandler() {
+        // given:
+        helper.addShMock('command', 'base', 1)
+        helper.addShMock('command', 'override', 2)
+
+        // when:
+        def status = helper.runSh(script: 'command', returnStatus: true)
+
+        // then:
+        assertThat(status).isEqualTo(2)
     }
 
     @Test(expected = IllegalArgumentException)
