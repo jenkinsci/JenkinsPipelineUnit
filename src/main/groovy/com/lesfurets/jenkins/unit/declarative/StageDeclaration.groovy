@@ -42,9 +42,24 @@ class StageDeclaration extends GenericPipelineDeclaration {
 
     def execute(Object delegate) {
         String name = this.name
+        def actions = 0
+        if(parallel) {
+            actions++
+        }
+        if(stages.size()>0) {
+            actions++
+        }
+        if(steps) {
+            actions++
+        }
+        if (actions > 1 ) {
+            throw new IllegalArgumentException ("""Only one of "matrix", "parallel", "stages", or "steps" allowed for stage "${name}" """)
+        }
+
         this.options.each {
             executeOn(delegate, it)
         }
+
         if(parallel) {
             parallel.execute(delegate)
         }
@@ -56,15 +71,20 @@ class StageDeclaration extends GenericPipelineDeclaration {
 
         if (!when || when.execute(delegate)) {
             super.execute(delegate)
+
             // TODO handle credentials
+
+            Closure stageBody = { agent?.execute(delegate) }
+            Closure cl = { stage("$name", stageBody) }
+            if(steps) {
+                stageBody =  stageBody >> steps.rehydrate(delegate, this, delegate)
+            }
+            executeWith(delegate, cl)
+
             this.stages.entrySet().forEach { e ->
                 e.value.execute(delegate)
             }
-            if(steps) {
-                Closure stageBody = { agent?.execute(delegate) } >> steps.rehydrate(delegate, this, delegate)
-                Closure cl = { stage("$name", stageBody) }
-                executeWith(delegate, cl)
-            }
+
             if (post) {
                 this.post.execute(delegate)
             }
