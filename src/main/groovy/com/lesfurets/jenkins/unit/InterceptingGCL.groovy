@@ -18,9 +18,18 @@ class InterceptingGCL extends GroovyClassLoader {
             Map.Entry<MethodSignature, Closure> matchingMethod = helper.allowedMethodCallbacks.find { k, v -> k == signature }
             if (matchingMethod) {
                 // a matching method was registered, replace script method execution call with the registered closure (mock)
-                metaClazz."$scriptMethod.name" = matchingMethod.value ?: {}
+                metaClazz."$scriptMethod.name" = matchingMethod.value ?: defaultClosure(matchingMethod.key.args)
             }
         }
+    }
+
+    static Closure defaultClosure(Class[] args) {
+        String argumentsString = args.inject("") { acc, value ->
+            acc + value.name + " " + "a"*(acc.count(',') + 1) + ","}
+        String argumentsStringWithoutComma = argumentsString.size() > 0 ?
+                argumentsString.substring(0, argumentsString.length()-1) : argumentsString
+        String closureString = "{$argumentsStringWithoutComma -> }"
+        return (Closure)new GroovyShell().evaluate(closureString)
     }
 
     PipelineTestHelper helper

@@ -5,6 +5,9 @@ import org.junit.Test
 
 class TestMockLocalFunction extends DeclarativePipelineTest {
 
+    private static String SCRIPT_NO_PARAMS = "Mock_existing_function_Jenkinsfile"
+    private static String SCRIPT_PARAMS = SCRIPT_NO_PARAMS + "_params"
+
     @Before
     @Override
     void setUp() throws Exception {
@@ -14,13 +17,24 @@ class TestMockLocalFunction extends DeclarativePipelineTest {
     }
 
     @Test(expected=MissingMethodException.class)
-    void should_execute_with_errors() {
-        runScript("Mock_existing_function_Jenkinsfile")
+    void no_params_should_execute_with_errors() {
+        runScript(SCRIPT_NO_PARAMS)
     }
 
     @Test
-    void should_execute_without_errors() {
+    void no_params_should_execute_without_errors() {
         helper.registerAllowedMethod("runFunc")
-        runScript("Mock_existing_function_Jenkinsfile")
+        runScript(SCRIPT_NO_PARAMS)
+    }
+
+    @Test(expected=MissingMethodException.class)
+    void params_should_execute_with_errors() {
+        runScript(SCRIPT_PARAMS)
+    }
+
+    @Test
+    void params_should_execute_without_errors() {
+        helper.registerAllowedMethod("runFuncWithParam", [String])
+        runScript(SCRIPT_PARAMS)
     }
 }

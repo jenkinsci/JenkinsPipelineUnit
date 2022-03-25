@@ -1,0 +1,16 @@
+pipeline {
+    agent { node { label 'test1' } }
+    stages {
+        stage('sdfsdf') {
+            steps {
+                githubNotify status: 'PENDING', context: 'Pipeline'
+                runFuncWithParam("one")
+            }
+        }
+    }
+}
+
+def runFuncWithParam(String oneString) {
+    echo "inside runFuncWithParam"
+    doSomeStuffWithParam()
+}
