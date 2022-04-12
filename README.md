@@ -19,6 +19,7 @@ You can mock built-in Jenkins commands, job configurations, see the stacktrace o
 1. [Configuration](#configuration)
 1. [Declarative Pipeline](#declarative-pipeline)
 1. [Testing Shared Libraries](#testing-shared-libraries)
+1. [Writing Testable Libraries](#writing-testable-libraries)
 1. [Note On CPS](#note-on-cps)
 1. [Contributing](#contributing)
 1. [Demos and Examples](#demos-and-examples)
@@ -816,6 +817,125 @@ You may need to do this for on a test-by-test basis as disabling class preload
 can cause problems in other use cases. For example, when you have library
 classes that require access to the `env` global.
 
+## Writing Testable Libraries
+
+We recommend the following best-practices for organizing pipeline code:
+
+* Keep complex logic in the `Jenkinsfile` to a minimum
+  - When possible, move complexity to external scripts that the `Jenkinsfile` executes
+  - Move shared functionality to [pipeline libraries](https://www.jenkins.io/doc/book/pipeline/shared-libraries/)
+  - Likewise, any tricky Groovy logic that can't be easily moved to external scripts
+    should also be placed in pipeline libraries
+* In pipeline libraries, organize logic in classes under `src`
+  - Ideally, JenkinsPipelineUnit is used to test *only* these classes
+* Use the `vars` singletons to instantiate classes from `src`
+
+### On External Scripts
+
+In general, it's better to avoid having complex build logic inside of build pipelines.
+Although tools like JenkinsPipelineUnit are useful in testing pipelines, it's much easier
+to run build scripts locally (meaning, outside of a Jenkins environment). Languages like
+Python have much more sophisticated linting and testing tools than Groovy does.
+
+That said, [CodeNarc](https://codenarc.org/) can be used to lint Groovy code, including
+`Jenkinsfile` files.
+
+### On Pipeline Library Organization
+
+We recommend organizing pipeline libraries such that the bulk of the logic is organized
+into classes, and the singletons being thin wrappers around these classes. This approach
+has several advantages:
+
+* It makes it easier to use OOP practices to organize the code
+* It solves the problem of having to mock singletons inside of other singletons for tests
+* It forces the script context to be injected into the class, which means less mocking of
+  `@Library` calls and such
+
+#### Example Pipeline Library Organization
+
+Let's say we have a library responsible for a very complex operation, in this case, adding
+two numbers together. 😄 Here's what that library (let's call it `HardMath`) might look like:
+
+In `src/com/example/HardMath.groovy`
+
+```groovy
+package com.example
+
+class HardMath implements Serializable {
+  // Jenkinsfile script context, note that all pipeline steps must use this context
+  Object script = null
+
+  int complexOperation(int a, int b) {
+    // Note the script context is required for `echo`, as it is a pipeline step
+    script.echo "Adding ${a} to ${b}"
+    return a + b
+  }
+}
+```
+
+In `vars/hardmath.groovy`:
+
+```groovy
+import com.example.HardMath
+
+int complexOperation(int a, int b) {
+  return new HardMath(script: this).complexOperation(a, b)
+}
+```
+
+In `test/com/example/HardMathTest.groovy`:
+
+```groovy
+package com.example
+
+import static org.junit.Assert.assertEquals
+
+import com.lesfurets.jenkins.unit.BasePipelineTest
+import org.junit.Before
+import org.junit.Test
+
+
+class HardMathTest extends BasePipelineTest {
+  Object script = null
+
+  @Override
+  @Before
+  void setUp() {
+    super.setUp()
+    this.script = loadScript('test/resources/EmptyPipeline.groovy')
+  }
+
+  @Test
+  void testComplexOperation() {
+    int result = new HardMath(script: script).complexOperation(1, 3)
+    assertEquals(4, result)
+  }
+}
+```
+
+In `test/resources/EmptyPipeline.groovy`:
+
+```groovy
+return this
+```
+
+And finally, in some other project's `Jenkinsfile`:
+
+```groovy
+@Library('hardmath')
+
+node {
+  stage('Hard Math') {
+    int result = hardmath.complexOperation(5, 6)
+    echo "The result is ${result}"
+  }
+}
+```
+
+For a larger real-world example of a pipeline library organized like the above and tested
+with JenkinsPipelineUnit, have a look at
+[`python-pipeline-utils`](https://github.com/Ableton/python-pipeline-utils/).
+
 ## Note on CPS
 
 If you already fiddled with Jenkins pipeline DSL, you experienced strange errors during execution on Jenkins.
@@ -845,7 +965,7 @@ If you are willing to contribute please don't hesitate to discuss in issues and 
 ## Demos and Examples
 | URL | Frameworks and Tools | Test Subject | Test Layers |
 |-----|----------------------|--------------|-------------|
-| https://github.com/macg33zr/pipelineUnit | Spock, Gradle(Groovy)  | JenkinsFile, scripted pipeline, SharedLibrary | UnitTest |
+| https://github.com/macg33zr/pipelineUnit | Spock, Gradle(Groovy)  | Jenkinsfile, scripted pipeline, SharedLibrary | UnitTest |
 | https://github.com/mkobit/jenkins-pipeline-shared-library-example | Spock, Gradle (Kotlin), Junit | SharedLibrary | Integration, Unit|
 | https://github.com/stchar/pipeline-sharedlib-testharness          | Junit, Gradle(Groovy) | SharedLibrary | Integration, Unit |
 | https://github.com/stchar/pipeline-dsl-seed                       | Junit, Spock, Gradle(Groovy) | scripted pipeline | Integration(jobdsl), Unit |
