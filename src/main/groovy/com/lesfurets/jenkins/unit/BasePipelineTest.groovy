@@ -176,6 +176,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('fileExists', [Map], { Map args -> helper.fileExists(args.file) })
         helper.registerAllowedMethod('fileExists', [String], { String arg -> helper.fileExists(arg) })
         helper.registerAllowedMethod("gatlingArchive")
+        helper.registerAllowedMethod('getContext', [Object])
         helper.registerAllowedMethod("gitlabBuilds", [Map, Closure])
         helper.registerAllowedMethod("gitlabCommitStatus", [String, Closure], { String name, Closure c ->
             c.delegate = delegate
