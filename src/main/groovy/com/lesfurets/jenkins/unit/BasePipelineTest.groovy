@@ -141,6 +141,14 @@ abstract class BasePipelineTest {
         })
         helper.registerAllowedMethod('booleanParam', [Map], paramInterceptor)
         helper.registerAllowedMethod("buildDiscarder", [Object])
+        helper.registerAllowedMethod('catchError', [Closure]) { Closure c ->
+            c.delegate = delegate
+            try {
+                helper.callClosure(c)
+            } catch(ignored) {
+                updateBuildStatus('FAILURE')
+            }
+        }
         helper.registerAllowedMethod("checkout", [Map])
         helper.registerAllowedMethod("choice", [Map])
         helper.registerAllowedMethod('cifsPublisher', [Map], {true})
@@ -168,6 +176,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('fileExists', [Map], { Map args -> helper.fileExists(args.file) })
         helper.registerAllowedMethod('fileExists', [String], { String arg -> helper.fileExists(arg) })
         helper.registerAllowedMethod("gatlingArchive")
+        helper.registerAllowedMethod('getContext', [Object])
         helper.registerAllowedMethod("gitlabBuilds", [Map, Closure])
         helper.registerAllowedMethod("gitlabCommitStatus", [String, Closure], { String name, Closure c ->
             c.delegate = delegate
@@ -240,6 +249,8 @@ abstract class BasePipelineTest {
             helper.callClosure(c)
         })
         helper.registerAllowedMethod('tool', [Map], { t -> "${t.name}_HOME" })
+        helper.registerAllowedMethod('unarchive')
+        helper.registerAllowedMethod('unarchive', [Map])
         helper.registerAllowedMethod("unstable", [String], { updateBuildStatus('UNSTABLE') })
         helper.registerAllowedMethod('unstash', [Map])
         helper.registerAllowedMethod('unzip', [Map])
@@ -253,6 +264,10 @@ abstract class BasePipelineTest {
                 updateBuildStatus('UNSTABLE')
             }
         })
+        helper.registerAllowedMethod('withContext', [Object, Closure]) { Object arg, Closure c ->
+            c.delegate = delegate
+            helper.callClosure(c)
+        }
         helper.registerAllowedMethod("withCredentials", [Map, Closure])
         helper.registerAllowedMethod("withCredentials", [List, Closure], withCredentialsInterceptor)
         helper.registerAllowedMethod('withEnv', [List, Closure], { List list, Closure c ->
