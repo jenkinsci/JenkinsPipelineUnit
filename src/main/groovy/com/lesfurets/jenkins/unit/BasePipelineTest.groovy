@@ -240,6 +240,8 @@ abstract class BasePipelineTest {
             helper.callClosure(c)
         })
         helper.registerAllowedMethod('tool', [Map], { t -> "${t.name}_HOME" })
+        helper.registerAllowedMethod('unarchive')
+        helper.registerAllowedMethod('unarchive', [Map])
         helper.registerAllowedMethod("unstable", [String], { updateBuildStatus('UNSTABLE') })
         helper.registerAllowedMethod('unstash', [Map])
         helper.registerAllowedMethod('unzip', [Map])
