@@ -141,6 +141,14 @@ abstract class BasePipelineTest {
         })
         helper.registerAllowedMethod('booleanParam', [Map], paramInterceptor)
         helper.registerAllowedMethod("buildDiscarder", [Object])
+        helper.registerAllowedMethod('catchError', [Closure]) { Closure c ->
+            c.delegate = delegate
+            try {
+                helper.callClosure(c)
+            } catch(ignored) {
+                updateBuildStatus('FAILURE')
+            }
+        }
         helper.registerAllowedMethod("checkout", [Map])
         helper.registerAllowedMethod("choice", [Map])
         helper.registerAllowedMethod('cifsPublisher', [Map], {true})
