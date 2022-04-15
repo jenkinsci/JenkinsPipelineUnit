@@ -264,6 +264,10 @@ abstract class BasePipelineTest {
                 updateBuildStatus('UNSTABLE')
             }
         })
+        helper.registerAllowedMethod('withContext', [Object, Closure]) { Object arg, Closure c ->
+            c.delegate = delegate
+            helper.callClosure(c)
+        }
         helper.registerAllowedMethod("withCredentials", [Map, Closure])
         helper.registerAllowedMethod("withCredentials", [List, Closure], withCredentialsInterceptor)
         helper.registerAllowedMethod('withEnv', [List, Closure], { List list, Closure c ->
