@@ -343,6 +343,7 @@ abstract class BasePipelineTest {
      */
     void updateBuildStatus(String status) {
         binding.getVariable('currentBuild').result = status
+        binding.getVariable('currentBuild').currentResult = status
     }
 
     /**
