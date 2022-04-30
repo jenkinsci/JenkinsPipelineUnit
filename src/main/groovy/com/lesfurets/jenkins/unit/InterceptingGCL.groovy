@@ -25,9 +25,12 @@ class InterceptingGCL extends GroovyClassLoader {
 
     static Closure defaultClosure(Class[] args) {
         int maxLength = 254
-        if (args.length > maxLength) { throw new IllegalArgumentException("Only $maxLength arguments allowed")}
+        if (args.length > maxLength) {
+            throw new IllegalArgumentException("Only $maxLength arguments allowed")
+        }
         String argumentsString = args.inject("") { acc, value ->
-            return "${acc}${value.name} ${'a'*(acc.count(',') + 1)},"}
+            return "${acc}${value.name} ${'a'*(acc.count(',') + 1)},"
+        }
         String argumentsStringWithoutComma = argumentsString.size() > 0 ?
                 argumentsString.substring(0, argumentsString.length()-1) : argumentsString
         String closureString = "{$argumentsStringWithoutComma -> }"
