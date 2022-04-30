@@ -6,6 +6,7 @@ pipeline {
         stage('Test stage'){
             steps {
                 out = new LibClass().getX()
+                testVar = 'changedValue'
                 echo "Printing ${out}"
             }
         }
