@@ -1,0 +1,14 @@
+@Library('params_not_accessible')
+import org.test.LibClass
+
+pipeline {
+    stages {
+        stage('Test stage'){
+            steps {
+                out = new LibClass().getX()
+                testVar = 'changedValue'
+                echo "Printing ${out}"
+            }
+        }
+    }
+}
