@@ -1,0 +1,17 @@
+pipeline {
+    agent none
+    parameters {
+        string name: 'VERSION', defaultValue: 'default-version'
+    }
+    environment {
+        VERSION = "${params.VERSION}"
+    }
+    stages {
+        stage('Print VERSION') {
+            steps {
+                echo env.VERSION // null when VERSION = "${VERSION}"
+                echo VERSION // default-version when VERSION = "${VERSION}"
+            }
+        }
+    }
+}

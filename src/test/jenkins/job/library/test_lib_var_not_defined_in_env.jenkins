@@ -1,0 +1,16 @@
+@Library("env_var_not_defined") _
+
+pipeline {
+
+    environment {
+        prop1 = envHelper.property1()
+    }
+
+    stages {
+        stage('Test stage'){
+            steps {
+                echo "prop1=${env.prop1}"
+            }
+        }
+    }
+}
