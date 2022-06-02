@@ -1,84 +1,109 @@
-node('master') {
-  String testImageName = 'test'
 
+def test_docker_build(testImageName) {
   stage('Test docker.build()') {
     def image = docker.build(testImageName)
     assert image.id == testImageName
   }
+}
 
+def test_docker_build_two_args(testImageName) {
   stage('Test docker.build() args as singlestring') {
     def image = docker.build(testImageName, '--build_arg arg1=val1 --build_arg arg2=val2')
     assert image.id == testImageName
   }
+}
 
+def test_docker_build_multiple_args(testImageName) {
   stage('Test docker.build() multiple args') {
     def image = docker.build(testImageName, '--build_arg arg1=val1', '--build_arg arg2=val2' )
     assert image.id == testImageName
   }
+}
 
+def test_docker_image(testImageName) {
   stage('Test docker.image()') {
     def image = docker.image(testImageName)
     assert image.id == testImageName
   }
-
+}
+def test_with_registry(testImageName) {
   stage('Test docker.withRegistry') {
     docker.withRegistry('test.registry', 'fake-credentials') {
       def image = docker.image(testImageName)
+      echo "Hello from withRegistry ${image.id}"
       assert image.id == testImageName
     }
   }
-
+}
+def test_with_server(testImageName) {
   stage('Test docker.withServer()') {
     docker.withServer('test.server', 'fake-credentials') {
       def image = docker.image(testImageName)
+      echo "Hello from withServer ${image.id}"
       assert image.id == testImageName
     }
   }
-
+}
+def test_with_tool(testImageName) {
   stage('Test docker.withTool()') {
     docker.withTool('test-docker') {
       def image = docker.image(testImageName)
+      echo "Hello from withTool ${image.id}"
       assert image.id == testImageName
     }
   }
-
+}
+def test_image_name(testImageName) {
   stage('Test docker.image.imageName()') {
     def image = docker.image(testImageName)
     assert image.imageName() == testImageName
   }
+}
 
+def test_inside(testImageName) {
   stage('Test docker.image.inside()') {
     def image = docker.image(testImageName)
     image.inside {
+      echo "Hello from inside ${image.id}"
       assert image.id == testImageName
     }
   }
+}
 
+def test_image_pull(testImageName) {
   stage('Test docker.image.pull()') {
     docker.image(testImageName).pull()
   }
-
+}
+def test_image_push(testImageName) {
   stage('Test docker.image.push()') {
     def image = docker.image(testImageName)
     image.push('test-tag')
     assert image.tagname == 'test-tag'
   }
-
+}
+def test_image_run(testImageName){
   stage('Test docker.image.run()') {
     def container = docker.image(testImageName).run()
     container.stop()
   }
-
+}
+def test_image_tag(testImageName) {
   stage('Test docker.image.tag()') {
     def image = docker.image(testImageName)
     image.tag('test')
     assert image.tagname == 'test'
   }
-
+}
+def test_image_with_run(testImageName) {
   stage('Test docker.image.withRun()') {
     def image = docker.image(testImageName)
     image.withRun {
+      echo "Hello from withRun ${image.id}"
       assert image.id == testImageName
     }
   }
 }
+
+
+return this
