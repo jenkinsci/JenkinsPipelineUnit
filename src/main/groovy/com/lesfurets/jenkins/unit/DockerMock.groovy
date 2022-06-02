@@ -55,7 +55,7 @@ class DockerMock implements Serializable {
         }
     }
 
-    Image build(String image, String args = '') {
+    Image build(String image, String[] args = '') {
         return new Image(image)
     }
 

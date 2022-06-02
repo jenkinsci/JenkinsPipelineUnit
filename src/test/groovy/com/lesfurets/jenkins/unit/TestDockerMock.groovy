@@ -18,11 +18,11 @@ class DockerMockTest extends BasePipelineTest {
   @Override
   void setUp() {
     super.setUp()
-    this.script = loadScript('src/test/jenkins/jenkinsfiles/Docker_Jenkinsfile')
   }
 
   @Test
   void executePipeline() throws Exception {
-    script.execute()
+    runScript('src/test/jenkins/jenkinsfiles/Docker_Jenkinsfile')
+    printCallStack()
   }
 }
