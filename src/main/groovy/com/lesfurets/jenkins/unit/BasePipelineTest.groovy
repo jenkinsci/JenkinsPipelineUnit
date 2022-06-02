@@ -309,6 +309,7 @@ abstract class BasePipelineTest {
     }
 
     void setVariables() {
+
         binding.setVariable('currentBuild', [
             absoluteUrl: 'http://example.com/dummy',
             buildVariables: [:],
@@ -331,7 +332,13 @@ abstract class BasePipelineTest {
             timeInMillis: 1,
             upstreamBuilds: [],
         ])
+
+        // Initialize interceptors for DockerMock
+        InterceptingGCL.interceptClassMethods(DockerMock.metaClass, helper, binding)
+        InterceptingGCL.interceptClassMethods(DockerMock.Container.metaClass, helper, binding)
+        InterceptingGCL.interceptClassMethods(DockerMock.Image.metaClass, helper, binding)
         binding.setVariable('docker', new DockerMock())
+
         binding.setVariable('env', [:])
         binding.setVariable('scm', [:])
     }
