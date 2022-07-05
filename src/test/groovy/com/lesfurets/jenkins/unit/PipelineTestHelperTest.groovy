@@ -367,7 +367,7 @@ class PipelineTestHelperTest {
     void runShWithDefaultHandler() {
         // given:
         helper.addShMock('command', 'ignored', 0)
-        helper.addShMock(null, 'default', 1)
+        helper.addShMock('default', 1)
         helper.addShMock('pwd', 'ignored', 2)
 
         // when:
