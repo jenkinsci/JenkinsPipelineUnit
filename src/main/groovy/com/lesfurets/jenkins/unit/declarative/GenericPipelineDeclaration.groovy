@@ -102,9 +102,37 @@ abstract class GenericPipelineDeclaration {
             env.env = env
             env.currentBuild = delegate.binding.currentBuild
 
-            def cl = this.environment.rehydrate(env, delegate, this)
+            def cl = this.environment.rehydrate(wrapEnv(env as Map<String, Object>), delegate, this)
             cl.resolveStrategy = DELEGATE_FIRST
             cl.call()
+        }
+    }
+
+    private def wrapEnv(Map<String, Object> env) {
+        return new GroovyObject() {
+            Object invokeMethod(String name, Object args) {
+                GenericPipelineDeclaration.this.invokeMethod(name, args)
+            }
+
+            Object getProperty(String propertyName) {
+                if (env.containsKey(propertyName)) {
+                    env.get(propertyName)
+                } else {
+                    GenericPipelineDeclaration.this.getProperty(propertyName)
+                }
+            }
+
+            void setProperty(String propertyName, Object newValue) {
+                env.put(propertyName, newValue)
+            }
+
+            MetaClass getMetaClass() {
+                GenericPipelineDeclaration.this.metaClass
+            }
+
+            void setMetaClass(MetaClass metaClass) {
+                throw new UnsupportedOperationException("This is wrapper object. Setting metadata class is not supported here.")
+            }
         }
     }
 
