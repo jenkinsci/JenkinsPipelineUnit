@@ -341,7 +341,7 @@ abstract class BasePipelineTest {
 
         binding.setVariable('env', [:])
         binding.setVariable('scm', [:])
-        binding.setVariable('params', [:])
+        binding.setVariable('params', [:].asImmutable())
     }
 
     /**
@@ -507,9 +507,12 @@ abstract class BasePipelineTest {
      * Helper for adding a params value in tests
      */
     void addParam(String name, Object val, Boolean overWrite = false) {
-        Map params = binding.getVariable('params') as Map
-        if (params[name] == null || overWrite) {
-            params[name] = val
+        Map immutableParams = binding.getVariable('params') as Map
+        if (immutableParams[name] == null || overWrite) {
+            Map mutableParams = [:]
+            immutableParams.each { k, v -> mutableParams[k] = v }
+            mutableParams[name] = val
+            binding.setVariable('params', mutableParams.asImmutable())
         }
     }
 
