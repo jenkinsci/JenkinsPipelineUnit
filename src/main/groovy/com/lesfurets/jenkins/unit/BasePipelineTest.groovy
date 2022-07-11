@@ -341,6 +341,7 @@ abstract class BasePipelineTest {
 
         binding.setVariable('env', [:])
         binding.setVariable('scm', [:])
+        binding.setVariable('params', [:])
     }
 
     /**
@@ -506,10 +507,6 @@ abstract class BasePipelineTest {
      * Helper for adding a params value in tests
      */
     void addParam(String name, Object val, Boolean overWrite = false) {
-        if (!binding.hasVariable('params')) {
-            binding.setVariable('params', [:])
-        }
-
         Map params = binding.getVariable('params') as Map
         if (params[name] == null || overWrite) {
             params[name] = val
