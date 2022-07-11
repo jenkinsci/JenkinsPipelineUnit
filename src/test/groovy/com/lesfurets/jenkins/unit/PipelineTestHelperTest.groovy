@@ -289,6 +289,32 @@ class PipelineTestHelperTest {
     }
 
     @Test()
+    void runShWithPatternStatus() {
+        // given:
+        def helper = new PipelineTestHelper()
+        helper.addShMock(~/echo\s(.*)/, 'mock-output', 777)
+
+        // when:
+        def status = helper.runSh(returnStatus: true, script: 'echo foo')
+
+        // then:
+        assertThat(status).isEqualTo(777)
+    }
+
+    @Test()
+    void runShWithPatternStdout() {
+        // given:
+        def helper = new PipelineTestHelper()
+        helper.addShMock(~/echo\s(.*)/, 'mock-output', 0)
+
+        // when:
+        def status = helper.runSh(returnStdout: true, script: 'echo foo')
+
+        // then:
+        assertThat(status).isEqualTo('mock-output')
+    }
+
+    @Test()
     void runShWithDefaultPattern() {
         // given:
         helper.addShMock(~/.*/) { String script, String ...args ->
@@ -341,7 +367,7 @@ class PipelineTestHelperTest {
     void runShWithDefaultHandler() {
         // given:
         helper.addShMock('command', 'ignored', 0)
-        helper.addShMock(null, 'default', 1)
+        helper.addShMock('default', 1)
         helper.addShMock('pwd', 'ignored', 2)
 
         // when:

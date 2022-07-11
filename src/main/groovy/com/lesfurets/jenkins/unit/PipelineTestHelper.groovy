@@ -28,30 +28,47 @@ class PipelineTestHelper {
      */
     class MockScriptHandler {
         /**
-         * filter used to determine whether a script matches this mock
-         *
-         * The given pattern can be
-         * - null, which matches anything
-         * - a string, which means a full match
-         * - a pattern, which means a pattern match
+         * Filters used to determine whether a script matches this mock. If both values are null, then no filter is used
+         * and all scripts are matched.
          */
-        Object filter = null
+        String fullMatchFilter = null
+        Pattern regexpMatchFilter = null
 
         // mocked script results, specified as either value or callback
         String stdout = null
         int exitValue = -1
         Closure callback = null
 
-        MockScriptHandler(Object filter, String stdout, int exitValue) {
-            assert (filter == null || filter instanceof String || filter instanceof Pattern)
-            this.filter = filter
+        MockScriptHandler(String stdout, int exitValue) {
+            this.fullMatchFilter = null
+            this.regexpMatchFilter = null
             this.stdout = stdout
             this.exitValue = exitValue
         }
 
-        MockScriptHandler(Object filter, Closure callback) {
-            assert (filter == null || filter instanceof String || filter instanceof Pattern)
-            this.filter = filter
+        MockScriptHandler(String filter, String stdout, int exitValue) {
+            this.fullMatchFilter = filter
+            this.regexpMatchFilter = null
+            this.stdout = stdout
+            this.exitValue = exitValue
+        }
+
+        MockScriptHandler(Pattern filter, String stdout, int exitValue) {
+            this.fullMatchFilter = null
+            this.regexpMatchFilter = filter
+            this.stdout = stdout
+            this.exitValue = exitValue
+        }
+
+        MockScriptHandler(String filter, Closure callback) {
+            this.fullMatchFilter = filter
+            this.regexpMatchFilter = null
+            this.callback = callback
+        }
+
+        MockScriptHandler(Pattern filter, Closure callback) {
+            this.fullMatchFilter = null
+            this.regexpMatchFilter = filter
             this.callback = callback
         }
 
@@ -60,20 +77,20 @@ class PipelineTestHelper {
          */
         private List match(String script) {
             // if no filter is set, this matches everything
-            if (filter == null) {
+            if (fullMatchFilter == null && regexpMatchFilter == null) {
                 return [script]
             }
 
             // if a string is specified, perform a simple string comparison
-            if (filter instanceof String) {
-                return (filter == script) ? [script] : null
+            if (fullMatchFilter) {
+                return (fullMatchFilter == script) ? [script] : null
             }
 
             // if an actual pattern is specified, perform a pattern match
             // Note that this does a full match, i.e. the call string must
             // match completely!
-            if (filter instanceof Pattern) {
-                def matcher = script =~ filter
+            if (regexpMatchFilter) {
+                def matcher = script =~ regexpMatchFilter
                 if (!matcher.matches()) {
                     return null
                 }
@@ -141,10 +158,10 @@ class PipelineTestHelper {
     }
 
     /** Holds configured mock script handlers for the `sh` command. */
-    List<MockScriptHandler> mockShHandlers = [new MockScriptHandler(null, '', 0)]
+    List<MockScriptHandler> mockShHandlers = [new MockScriptHandler('', 0)]
 
     /** Holds configured mock script handlers for the `bat` command. */
-    List<MockScriptHandler> mockBatHandlers = [new MockScriptHandler(null, '', 0)]
+    List<MockScriptHandler> mockBatHandlers = [new MockScriptHandler('', 0)]
 
     /**
      * Search paths for scripts
@@ -403,8 +420,8 @@ class PipelineTestHelper {
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
         gse.setConfig(configuration)
 
-        mockShHandlers = [new MockScriptHandler(null, '', 0)]
-        mockBatHandlers = [new MockScriptHandler(null, '', 0)]
+        mockShHandlers = [new MockScriptHandler('', 0)]
+        mockBatHandlers = [new MockScriptHandler('', 0)]
         mockFileExistsResults.clear()
         mockReadFileOutputs.clear()
         return this
@@ -766,18 +783,39 @@ class PipelineTestHelper {
     /**
      * Configure mock output for the `sh` command. This function should be called before
      * attempting to call `JenkinsMocks.sh()`.
-     * @param filter Script command or pattern to mock or null if any command is matched.
      * @param stdout Standard output text to return for the given command.
      * @param exitValue Exit value for the command.
      */
-    void addShMock(Object filter, String stdout, int exitValue) {
+    void addShMock(String stdout, int exitValue) {
+        mockShHandlers << new MockScriptHandler(stdout, exitValue)
+    }
+
+    /**
+     * Configure mock output for the `sh` command. This function should be called before
+     * attempting to call `JenkinsMocks.sh()`.
+     * @param filter Script command to mock or null if any command is matched.
+     * @param stdout Standard output text to return for the given command.
+     * @param exitValue Exit value for the command.
+     */
+    void addShMock(String filter, String stdout, int exitValue) {
+        mockShHandlers << new MockScriptHandler(filter, stdout, exitValue)
+    }
+
+    /**
+     * Configure mock output for the `sh` command. This function should be called before
+     * attempting to call `JenkinsMocks.sh()`.
+     * @param filter Regexp pattern to mock or null if any command is matched.
+     * @param stdout Standard output text to return for the given command.
+     * @param exitValue Exit value for the command.
+     */
+    void addShMock(Pattern filter, String stdout, int exitValue) {
         mockShHandlers << new MockScriptHandler(filter, stdout, exitValue)
     }
 
     /**
      * Configure mock callback for the `sh` command. This function should be called before
      * attempting to call `JenkinsMocks.sh()`.
-     * @param filter Script command or pattern to mock or null if any command is matched.
+     * @param filter Script command to mock or null if any command is matched.
      * @param callback Closure to be called when the mock is executed. This closure will be
      *                 passed the script call which is being executed, and
      *                 <strong>must</strong> return a {@code Map} with the following
@@ -787,7 +825,24 @@ class PipelineTestHelper {
      *                   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
      *                 </ul>
      */
-    void addShMock(Object filter, Closure callback) {
+    void addShMock(String filter, Closure callback) {
+        mockShHandlers << new MockScriptHandler(filter, callback)
+    }
+
+    /**
+     * Configure mock callback for the `sh` command. This function should be called before
+     * attempting to call `JenkinsMocks.sh()`.
+     * @param filter Regexp pattern to mock or null if any command is matched.
+     * @param callback Closure to be called when the mock is executed. This closure will be
+     *                 passed the script call which is being executed, and
+     *                 <strong>must</strong> return a {@code Map} with the following
+     *                 key/value pairs:
+     *                 <ul>
+     *                   <li>{@code stdout}: {@code String} with the mocked output.</li>
+     *                   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
+     *                 </ul>
+     */
+    void addShMock(Pattern filter, Closure callback) {
         mockShHandlers << new MockScriptHandler(filter, callback)
     }
 
@@ -799,18 +854,29 @@ class PipelineTestHelper {
     /**
      * Configure mock output for the `bat` command. This function should be called before
      * attempting to call `JenkinsMocks.bat()`.
-     * @param filter Script command or pattern to mock or null if any command is matched.
+     * @param filter Script command to mock or null if any command is matched.
      * @param stdout Standard output text to return for the given command.
      * @param exitValue Exit value for the command.
      */
-    void addBatMock(Object filter, String stdout, int exitValue) {
+    void addBatMock(String filter, String stdout, int exitValue) {
+        mockBatHandlers << new MockScriptHandler(filter, stdout, exitValue)
+    }
+
+    /**
+     * Configure mock output for the `bat` command. This function should be called before
+     * attempting to call `JenkinsMocks.bat()`.
+     * @param filter Regexp pattern to mock or null if any command is matched.
+     * @param stdout Standard output text to return for the given command.
+     * @param exitValue Exit value for the command.
+     */
+    void addBatMock(Pattern filter, String stdout, int exitValue) {
         mockBatHandlers << new MockScriptHandler(filter, stdout, exitValue)
     }
 
     /**
      * Configure mock callback for the `bat` command. This function should be called before
      * attempting to call `JenkinsMocks.bat()`.
-     * @param filter Script command or pattern to mock or null if any command is matched.
+     * @param filter Script command to mock or null if any command is matched.
      * @param callback Closure to be called when the mock is executed. This closure will be
      *                 passed the script call which is being executed, and
      *                 <strong>must</strong> return a {@code Map} with the following
@@ -820,7 +886,24 @@ class PipelineTestHelper {
      *                   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
      *                 </ul>
      */
-    void addBatMock(Object filter, Closure callback) {
+    void addBatMock(String filter, Closure callback) {
+        mockBatHandlers << new MockScriptHandler(filter, callback)
+    }
+
+    /**
+     * Configure mock callback for the `bat` command. This function should be called before
+     * attempting to call `JenkinsMocks.bat()`.
+     * @param filter Regexp pattern to mock or null if any command is matched.
+     * @param callback Closure to be called when the mock is executed. This closure will be
+     *                 passed the script call which is being executed, and
+     *                 <strong>must</strong> return a {@code Map} with the following
+     *                 key/value pairs:
+     *                 <ul>
+     *                   <li>{@code stdout}: {@code String} with the mocked output.</li>
+     *                   <li>{@code exitValue}: {@code int} with the mocked exit value.</li>
+     *                 </ul>
+     */
+    void addBatMock(Pattern filter, Closure callback) {
         mockBatHandlers << new MockScriptHandler(filter, callback)
     }
 
