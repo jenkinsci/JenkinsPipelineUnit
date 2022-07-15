@@ -141,7 +141,12 @@ artifactory {
 }
 
 release {
-    tagTemplate='v$version' // single quotes are required
+    git {
+        // TODO: We can't set this like a normal property because of a bug in the release plugin.
+        // See: https://github.com/researchgate/gradle-release/issues/357
+        requireBranch.set('master')
+    }
+    tagTemplate = 'v$version' // single quotes are required
     failOnCommitNeeded = false
     failOnPublishNeeded = false
     failOnUpdateNeeded = false
