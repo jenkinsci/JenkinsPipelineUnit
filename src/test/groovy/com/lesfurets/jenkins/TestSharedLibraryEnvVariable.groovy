@@ -40,12 +40,10 @@ class TestSharedLibraryEnvVariable extends DeclarativePipelineTest {
 
     @Test
     void "test params not defined in env"() {
-        def version =  "1.2.0"
-        addParam("VERSION", version)
-
         runScript("job/library/test_params_not_defined_in_env.jenkins")
 
         def versionFromEnv = binding.env["VERSION"]
-        Assert.assertEquals(version, versionFromEnv.toString())
+        def versionFromParams = binding.params["VERSION"]
+        Assert.assertEquals(versionFromParams.toString(), versionFromEnv.toString())
     }
 }

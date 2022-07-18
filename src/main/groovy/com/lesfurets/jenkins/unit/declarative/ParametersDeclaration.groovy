@@ -3,10 +3,13 @@ package com.lesfurets.jenkins.unit.declarative
 
 class ParametersDeclaration extends GenericPipelineDeclaration {
 
-    void setParams(String key, Object val) {
-        Map params = this.params
-        if (params != null && (!params.containsKey(key))) {
-            params[key] = val
+    void setParams(String name, Object val) {
+        Map immutableParams = binding.getVariable('params') as Map
+        if (immutableParams[name] == null) {
+            Map mutableParams = [:]
+            immutableParams.each { k, v -> mutableParams[k] = v }
+            mutableParams[name] = val
+            binding.setVariable('params', mutableParams.asImmutable())
         }
     }
 

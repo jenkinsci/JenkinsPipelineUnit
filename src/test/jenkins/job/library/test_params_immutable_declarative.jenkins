@@ -1,0 +1,18 @@
+pipeline {
+    parameters {
+        string(
+            name: 'TEST_STRING',
+            defaultValue: 'original'
+        )
+    }
+
+    stages {
+        stage('Test declarative parameters') {
+            steps {
+                script {
+                    params.TEST_STRING = 'new'
+                }
+            }
+        }
+    }
+}
