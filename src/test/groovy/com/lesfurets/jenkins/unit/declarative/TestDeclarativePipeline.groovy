@@ -721,8 +721,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     }
 
     @Test void agent_with_mock_param_label() throws Exception {
-        def params = binding.getVariable('params')
-        params['AGENT'] = 'mockSlave'
+        addParam('AGENT', 'mockSlave')
         runScript('AgentParam_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('mockSlave')

@@ -31,6 +31,6 @@ abstract class DeclarativePipelineTest extends BasePipelineTest {
         helper.registerAllowedMethod('timeout', [Integer, Closure])
         helper.registerAllowedMethod('timestamps')
         binding.setVariable('credentials', [:])
-        binding.setVariable('params', [:])
+        binding.setVariable('params', [:].asImmutable())
     }
 }
