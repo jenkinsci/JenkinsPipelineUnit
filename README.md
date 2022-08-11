@@ -694,16 +694,6 @@ The `ProjectSource` retriever is useful if you write tests for the library itsel
 lets you load the library files directly from the project root folder (where the `src`
 and `vars` folders are located).
 
-```
-$ tree -L 1 .
-.
-├── resources
-├── src
-└── vars
-└── test
-└── build.gradle
-```
-
 Then you can use `projectSource` to point to the location of the library files. Calling
 `projectSource()` with no arguments will look for files in the project root. With
 `.defaultVersion('<notNeeded>')`,  you can load it in pipelines using `commons@master` or
@@ -757,13 +747,6 @@ class TestCase extends BasePipelineTest {
 
 In the above example, the retriever would assume that the library files are located at
 `/var/tmp/commons@master`.
-```
-$ tree -L 1 /var/tmp/commons@master
-/var/tmp/commons@master
-├── resources
-├── src
-└── vars
-```
 
 ### Loading Libraries Dynamically
 
