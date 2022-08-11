@@ -80,7 +80,7 @@ You can write your tests in Groovy or Java, using the test framework you prefer.
 easiest entry point is extending the abstract class `BasePipelineTest`, which initializes
 the framework with JUnit.
 
-Let's say you wrote this awesome pipeline script, which builds and tests your project :
+Let's say you wrote this awesome pipeline script, which builds and tests your project:
 
 ```groovy
 def execute() {
@@ -109,7 +109,7 @@ def execute() {
 return this
 ```
 
-Now using the Jenkins Pipeline Unit you can unit test if it does the job :
+Now using the Jenkins Pipeline Unit you can write a unit test to see if it does the job:
 
 ```groovy
 import com.lesfurets.jenkins.unit.BasePipelineTest
@@ -123,7 +123,7 @@ class TestExampleJob extends BasePipelineTest {
 }
 ```
 
-This test will print the call stack of the execution :
+This test will print the call stack of the execution, which should look like so:
 
 ```text
    exampleJob.run()
@@ -239,8 +239,8 @@ They can be mocked to either (a) statically return:
 - A string for standard output
 - A return code
 
-..., or (b) execute a closure that returns a `Map` (with `stdout` and `exitValue` entries).
-The closure will be executed when the shell is called, allowing for dynamic behaviour.
+Or (b), to execute a closure that returns a `Map` (with `stdout` and `exitValue` entries).
+The closure will be executed when the shell is called, allowing for dynamic behavior.
 
 Here is a sample pipeline and corresponding unit tests for each of these variants.
 
@@ -343,11 +343,11 @@ void shouldExecuteWithoutErrors() {
 }
 ```
 
-This will check as well `mvn verify` has been called during the job execution.
+This will also check that `mvn verify` was called during the job execution.
 
 ### Checking Pipeline Status
 
-Let's say you have a simple script and you'd like to check it behaviour if a step is failing
+Let's say you have a simple script, and you'd like to check its behavior if a step fails.
 
 ```groovy
 // Jenkinsfile
@@ -444,7 +444,7 @@ the time this is a perfect fallback. But for some complex types, or for types th
 implement `toString()`, it can be tricky or impossible to validate the call values in a
 test.
 
-Take the following simple example.
+Take the following simple example:
 
 ```groovy
 Map pretendArgsFromFarUpstream = [
@@ -460,7 +460,7 @@ node() {
 ```
 
 `pretendArgsFromFarUpstream` is an immutable map and will be recorded as a `String` in the
-callstack. Your test may want to perform fine grained validations via map key referencing
+callstack. Your test may want to perform fine-grained validations via map key referencing
 instead of pattern matching or similar parsing. For example:
 
 ```groovy
@@ -691,7 +691,7 @@ described `GitSource` one.
 #### ProjectSource Retriever
 
 The `ProjectSource` retriever is useful if you write tests for the library itself. So it
-lets you to load the library files directly from the project root folder (where the `src`
+lets you load the library files directly from the project root folder (where the `src`
 and `vars` folders are located).
 
 ```
