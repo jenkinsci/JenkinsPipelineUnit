@@ -82,23 +82,23 @@ the framework with JUnit.
 
 Let's say you wrote this awesome pipeline script, which builds and tests your project :
 
- ```groovy
+```groovy
 def execute() {
     node() {
-        def utils = load "src/test/jenkins/lib/utils.jenkins"
+        String utils = load 'src/test/jenkins/lib/utils.jenkins'
         String revision = stage('Checkout') {
             checkout scm
             return utils.currentRevision()
         }
-        gitlabBuilds(builds: ["build", "test"]) {
-            stage("build") {
-                gitlabCommitStatus("build") {
+        gitlabBuilds(builds: ['build', 'test']) {
+            stage('build') {
+                gitlabCommitStatus('build') {
                     sh "mvn clean package -DskipTests -DgitRevision=$revision"
                 }
             }
 
-            stage("test") {
-                gitlabCommitStatus("test") {
+            stage('test') {
+                gitlabCommitStatus('test') {
                     sh "mvn verify -DgitRevision=$revision"
                 }
             }
@@ -115,17 +115,12 @@ Now using the Jenkins Pipeline Unit you can unit test if it does the job :
 import com.lesfurets.jenkins.unit.BasePipelineTest
 
 class TestExampleJob extends BasePipelineTest {
-
-        //...
-
-        @Test
-        void should_execute_without_errors() throws Exception {
-            def script = loadScript("job/exampleJob.jenkins")
-            script.execute()
-            printCallStack()
-        }
+    @Test
+    void shouldExecuteWithoutErrors() {
+        loadScript('job/exampleJob.jenkins').execute()
+        printCallStack()
+    }
 }
-
 ```
 
 This test will print the call stack of the execution :
@@ -154,15 +149,19 @@ This test will print the call stack of the execution :
 You can define both environment variables and job execution parameters.
 
 ```groovy
+import com.lesfurets.jenkins.unit.BasePipelineTest
+
+class TestExampleJob extends BasePipelineTest {
     @Override
-    @Before
-    void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         super.setUp()
         // Assigns false to a job parameter ENABLE_TEST_STAGE
         binding.setVariable('ENABLE_TEST_STAGE', 'false')
         // Defines the previous execution status
         binding.getVariable('currentBuild').previousBuild = [result: 'UNSTABLE']
     }
+}
 ```
 
 The test helper already provides basic variables such as a very simple `currentBuild`
@@ -174,20 +173,21 @@ You can register interceptors to mock pipeline methods, including Jenkins comman
 may or may not return a result.
 
 ```groovy
+import com.lesfurets.jenkins.unit.BasePipelineTest
+
+class TestExampleJob extends BasePipelineTest {
     @Override
-    @Before
-    void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         super.setUp()
-        helper.registerAllowedMethod("sh", [Map.class], {c -> "bcc19744"})
-        helper.registerAllowedMethod("timeout", [Map.class, Closure.class], null)
-        helper.registerAllowedMethod("timestamps", [], { println 'Printing timestamp' })
-        helper.registerAllowedMethod(method("readFile", String.class), { file ->
-            return Files.contentOf(new File(file), Charset.forName("UTF-8"))
-        })
-        helper.registerAllowedMethod("customMethodWithArguments", [String, int, Collection], { String stringArg, int intArg, Collection collectionArg ->
-            return println "executing mock closure with arguments (arguments: '${stringArg}', '${intArg}', '${collectionArg}')"
-        })
+        helper.registerAllowedMethod('sh', [Map]) { args -> return 'bcc19744' }
+        helper.registerAllowedMethod('timeout', [Map, Closure], null)
+        helper.registerAllowedMethod('timestamps', []) { println 'Printing timestamp' }
+        helper.registerAllowedMethod('myMethod', [String, int]) { String s, int i ->
+            println "Executing myMethod mock with args: '${s}', '${i}'"
+        }
     }
+}
 ```
 
 The test helper already includes mocks for all base pipeline steps as well as a steps from
@@ -224,7 +224,9 @@ node {
 void exampleReadFileTest() {
     helper.addFileExistsMock('output', true)
     helper.addReadFileMock('output', 'FAILED!!!')
-    runScript("Jenkinsfile")
+
+    runScript('Jenkinsfile')
+
     assertJobStatusFailure()
 }
 ```
@@ -246,14 +248,17 @@ Here is a sample pipeline and corresponding unit tests for each of these variant
 // Jenkinsfile
 node {
     stage('Mock build') {
-        def systemType = sh(returnStdout: true, script: 'uname')
+        String systemType = sh(returnStdout: true, script: 'uname')
         if (systemType == 'Debian') {
             sh './build.sh --release'
             int status = sh(returnStatus: true, script: './test.sh')
             if (status > 0) {
                 currentBuild.result = 'UNSTABLE'
             } else {
-                def result = sh(returnStdout: true, script: './processTestResults.sh --platform debian')
+                def result = sh(
+                    returnStdout: true,
+                    script: './processTestResults.sh --platform debian',
+                )
                 if (!result.endsWith('SUCCESS')) {
                     currentBuild.result = 'FAILURE'
                     error 'Build failed!'
@@ -287,7 +292,7 @@ void debianBuildUnstable() {
     helper.addShMock('./build.sh --release', '', 0)
     helper.addShMock('./test.sh', '', 1)
 
-    runScript("Jenkinsfile")
+    runScript('Jenkinsfile')
 
     assertJobStatusUnstable()
 }
@@ -308,14 +313,14 @@ Also, mocks are stacked, so if two mocks match a call, the last one wins. Combin
 match-everything mock, you can tighten your tests a bit:
 
 ```groovy
-@Before
-void setUp() throws Exception {
+@BeforeEach
+void setUp() {
     helper = new PipelineTestHelper()
     // Basic `sh` mock setup:
     // - generate an error on unexpected calls
     // - ignore any echo (debug) outputs, they are not relevant
     // - all further shell mocks are configured in the test
-    helper.addShMock(null) { throw new Exception('unexpected sh call') }
+    helper.addShMock(null) { throw new Exception('Unexpected sh call') }
     helper.addShMock(~/echo\s.*/, '', 0)
 }
 ```
@@ -325,18 +330,17 @@ void setUp() throws Exception {
 The helper registers every method call to provide a stacktrace of the mock execution.
 
 ```groovy
-
 @Test
-void should_execute_without_errors() throws Exception {
-    runScript("Jenkinsfile")
-    assertThat(helper.callStack.findAll { call ->
-        call.methodName == "sh"
-    }.any { call ->
-        callArgsToString(call).contains("mvn verify")
-    }).isTrue()
-    assertJobStatusSuccess()
-}
+void shouldExecuteWithoutErrors() {
+    runScript('Jenkinsfile')
 
+    assertJobStatusSuccess()
+    assertThat(helper.callStack.findAll { call ->
+        call.methodName == 'sh'
+    }.any { call ->
+        callArgsToString(call).contains('mvn verify')
+    }).isTrue()
+}
 ```
 
 This will check as well `mvn verify` has been called during the job execution.
@@ -347,10 +351,9 @@ Let's say you have a simple script and you'd like to check it behaviour if a ste
 
 ```groovy
 // Jenkinsfile
-// ...
 node() {
-    git('some_repo_url')
-    sh "make"
+    git 'some_repo_url'
+    sh 'make'
 }
 ```
 
@@ -359,50 +362,55 @@ your pipeline is failing, you need to check the status with
 `BasePipelineTest.assertJobStatusFailure()`.
 
 ```groovy
-class TestCase extends BasePipelineTest {
-  @Test
-  void check_build_status() throws Exception {
-      helper.registerAllowedMethod("sh", [String.class], {cmd->
-          // cmd.contains is helpful to filter sh call which should fail the pipeline
-          if (cmd.contains("make")) {
-              binding.getVariable('currentBuild').result = 'FAILURE'
-          }
-      })
-      runScript("Jenkinsfile")
-      assertJobStatusFailure()
-  }
+@Test
+void checkBuildStatus() {
+    helper.registerAllowedMethod('sh', [String]) { cmd ->
+        if (cmd == 'make') {
+            binding.getVariable('currentBuild').result = 'FAILURE'
+        }
+    }
+
+    runScript('Jenkinsfile')
+
+    assertJobStatusFailure()
 }
 ```
 
 ### Checking Pipeline Exceptions
 
-Sometimes it is useful to verify exactly that exception is thrown during the pipeline run.
-For example by one of your `SharedLib` module
+Sometimes it is useful to verify that a specific exception was thrown during the pipeline
+run. JUnit 4 and 5 have slightly different mechanisms for doing this.
+
+For both examples below, assume that the following pipeline is being tested:
 
 To do so you can use `org.junit.rules.ExpectedException`
 
 ```groovy
-import org.junit.Rule
-import org.junit.rules.ExpectedException
-// ...
-@Rule
-public ExpectedException thrown = ExpectedException.none();
+// Jenkinsfile
+node {
+    throw new IllegalArgumentException('oh no!')
+}
 ```
 
-Here is a simple example to verify exception type and the message:
+#### JUnit 4
 
 ```groovy
-import org.junit.Rule
-import org.junit.rules.ExpectedException
 class TestCase extends BasePipelineTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    @Test(expected = IllegalArgumentException)
+    void verifyException() {
+        runScript('Jenkinsfile')
+    }
+}
+```
 
+#### JUnit 5
+```groovy
+import static org.junit.jupiter.api.Assertions.assertThrows
+
+class TestCase extends BasePipelineTest {
     @Test
-    void verify_exception() throws Exception {
-        thrown.expect(Exception)
-        thrown.expectMessage(containsString("error message"))
-        runScript("Jenkinsfile")
+    void verifyException() {
+        assertThrows(IllegalArgumentException) { runScript('Jenkinsfile') }
     }
 }
 ```
@@ -413,12 +421,11 @@ One other use of the callstacks is to check your pipeline executions for possibl
 regressions. You have a dedicated method you can call if you extend `BaseRegressionTest`:
 
 ```groovy
-    @Test
-    void testNonReg() throws Exception {
-        def script = loadScript("job/exampleJob.jenkins")
-        script.execute()
-        super.testNonRegression('example')
-    }
+@Test
+void testPipelineNonRegression() {
+    loadScript('job/exampleJob.jenkins').execute()
+    super.testNonRegression('example')
+}
 ```
 
 This will compare the current callstack of the job to the one you have in a text callstack
@@ -440,11 +447,11 @@ test.
 Take the following simple example.
 
 ```groovy
-pretendArgsFromFarUpstream = [
-    foo: "bar",
-    foo2: "more bar please",
-    aNestedMap: [ aa: 1, bb: 2, ],
-    plusAList: [ 1, 2, 3, 4, ],
+Map pretendArgsFromFarUpstream = [
+    foo: 'bar',
+    foo2: 'more bar please',
+    aNestedMap: [aa: 1, bb: 2],
+    plusAList: [1, 2, 3, 4],
 ].asImmutable()
 
 node() {
@@ -457,7 +464,7 @@ callstack. Your test may want to perform fine grained validations via map key re
 instead of pattern matching or similar parsing. For example:
 
 ```groovy
-assertEquals(arg.aNestedMap.bb, 2)
+assertEquals(2, arg.aNestedMap.bb)
 ```
 
 You may want to perform this kind of validation, particularly if your pipelines pass
@@ -465,7 +472,7 @@ You may want to perform this kind of validation, particularly if your pipelines 
 the variable in the callstack by setting this switch in your test setup:
 
 ```groovy
-       helper.cloneArgsOnMethodCallRegistration = false
+helper.cloneArgsOnMethodCallRegistration = false
 ```
 
 ### Running Inline Scripts
@@ -474,21 +481,21 @@ In case you want to have some script executed directly within a test case rather
 creating a resource file for it, `loadInlineScript` and `runInlineScript` can be used.
 
 ```groovy
-    @Test
-    void testSomeScript() throws Exception {
-        def script = loadInlineScript('''
-            node {
-                stage('Build') {
-                    sh 'make'
-                }
+@Test
+void testSomeScript() {
+    Object script = loadInlineScript('''
+        node {
+            stage('Build') {
+                sh 'make'
             }
-        ''')
+        }
+    ''')
 
-        script.execute()
+    script.execute()
 
-        printCallStack()
-        assertJobStatusSuccess()
-    }
+    printCallStack()
+    assertJobStatusSuccess()
+}
 ```
 
 Note that inline scripts cannot be debugged via breakpoints as there is no file to attach
@@ -510,20 +517,16 @@ The abstract class `BasePipelineTest` configures the helper with useful conventi
 Overriding these default values is easy:
 
 ```groovy
-
 class TestExampleJob extends BasePipelineTest {
-
     @Override
-    @Before
-    void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         baseScriptRoot = 'jenkinsJobs'
         scriptRoots += 'src/main/groovy'
         scriptExtension = 'pipeline'
         super.setUp()
     }
-
 }
-
 ```
 
 This will work fine for such a project structure:
@@ -571,12 +574,13 @@ pipeline {
 import com.lesfurets.jenkins.unit.declarative.*
 
 class TestExampleDeclarativeJob extends DeclarativePipelineTest {
-        @Test
-        void should_execute_without_errors() throws Exception {
-            def script = runScript("Jenkinsfile")
-            assertJobStatusSuccess()
-            printCallStack()
-        }
+    @Test
+    void shouldExecuteWithoutErrors() {
+        runScript("Jenkinsfile")
+
+        assertJobStatusSuccess()
+        printCallStack()
+    }
 }
 ```
 
@@ -600,6 +604,7 @@ Here is an example pipeline using a shared library:
 
 ```groovy
 @Library('commons')
+
 import net.courtanet.jenkins.Utils
 
 sayHello 'World'
@@ -625,20 +630,24 @@ This pipeline is using a shared library called `commons`. Now let's test it:
 // You need to import the class first
 import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
 
-    String clonePath = 'path/to/clone'
+class TestCase extends BasePipelineTest {
+    @Test
+    void testLibrary() {
+        Object library = library()
+            .name('commons')
+            .retriever(gitSource('git@example.com:libs/commons.git'))
+            .targetPath('path/to/clone')
+            .defaultVersion("master")
+            .allowOverride(true)
+            .implicit(false)
+            .build()
+        helper.registerSharedLibrary(library)
 
-    def library = library()
-                    .name('commons')
-                    .retriever(gitSource('git@gitlab.admin.courtanet.net:devteam/lesfurets-jenkins-shared.git'))
-                    .targetPath(clonePath)
-                    .defaultVersion("master")
-                    .allowOverride(true)
-                    .implicit(false)
-                    .build()
-    helper.registerSharedLibrary(library)
+        runScript('job/library/exampleJob.jenkins')
 
-    runScript("job/library/exampleJob.jenkins")
-    printCallStack()
+        printCallStack()
+    }
+}
 ```
 
 Notice how the shared library is defined and registered to the helper. The library
@@ -701,26 +710,23 @@ Then you can use `projectSource` to point to the location of the library files. 
 `commons@features` which would use the same repository.
 
 ```groovy
-    // TestCase file
-    // you need to import static method
-    import static com.lesfurets.jenkins.unit.global.lib.ProjectSource.projectSource
+import static com.lesfurets.jenkins.unit.global.lib.ProjectSource.projectSource
 
-    class TestCase extends BasePipelineTest {
-        ...
-        void setUp() throws Exception {
-            ...
-            def library = library().name('commons')
-                            .defaultVersion('<notNeeded>')
-                            .allowOverride(true)
-                            .implicit(true)
-                            .targetPath('<notNeeded>')
-                            .retriever(projectSource())
-                            .build()
-            helper.registerSharedLibrary(library)
-            ...
-        }
-        ...
+class TestCase extends BasePipelineTest {
+    @Override
+    @BeforeEach
+    void setUp() {
+        Object library = library()
+            .name('commons')
+            .defaultVersion('<notNeeded>')
+            .allowOverride(true)
+            .implicit(true)
+            .targetPath('<notNeeded>')
+            .retriever(projectSource())
+            .build()
+        helper.registerSharedLibrary(library)
     }
+}
 ```
 
 #### LocalSource Retriever
@@ -730,22 +736,23 @@ integrates with the pipelines. For example you may use pre-copied library files 
 different versions.
 
 ```groovy
-    import static com.lesfurets.jenkins.unit.global.lib.LocalSource.localSource
+import static com.lesfurets.jenkins.unit.global.lib.LocalSource.localSource
 
-    class TestCase extends BasePipelineTest {
-        ...
-        void setUp() throws Exception {
-            ...
-            def library = library().name('commons')
-                            .defaultVersion("master")
-                            .allowOverride(true)
-                            .implicit(false)
-                            .targetPath('<notNeeded>')
-                            .retriever(localSource('/var/tmp/'))
-                            .build()
-            helper.registerSharedLibrary(library)
-        }
-        ...
+class TestCase extends BasePipelineTest {
+    @Override
+    @BeforeEach
+    void setUp() {
+        Object library = library()
+            .name('commons')
+            .defaultVersion('master')
+            .allowOverride(true)
+            .implicit(false)
+            .targetPath('<notNeeded>')
+            .retriever(localSource('/var/tmp/'))
+            .build()
+        helper.registerSharedLibrary(library)
+    }
+}
 ```
 
 In the above example, the retriever would assume that the library files are located at
@@ -765,79 +772,78 @@ features, but it could be useful sometimes.
 
 Pipeline example:
 
-```
-def lib = library 'commons'
+```groovy
+Object commonsLib = library 'commons'
 
-// by the moment you call library method it enables vars
+// Assume that `sayHello` is a singleton in the `commons` library
 sayHello 'World'
 
-// creates an instance of a library's class
-def utils = net.courtanet.jenkins.Utils.new()
-
+// Create an instance of a class in the `commons` library
+Object utils = net.courtanet.jenkins.Utils.new()
 ```
 
 Test class example:
 
 ```groovy
-    String clonePath = 'path/to/clone'
-
-    def library = library()
-                    .name('commons')
-                    .retriever(gitSource('git@gitlab.admin.courtanet.net:devteam/lesfurets-jenkins-shared.git'))
-                    .targetPath(clonePath)
-                    .defaultVersion("master")
-                    .allowOverride(true)
-                    .implicit(false)
-                    .build()
-
+@Test
+void testDynamicLibrary() {
+    Object library = library()
+        .name('commons')
+        .retriever(gitSource('git@example.com:libs/commons.git'))
+        .targetPath('path/to/clone')
+        .defaultVersion('master')
+        .allowOverride(true)
+        .implicit(false)
+        .build()
     helper.registerSharedLibrary(library)
-
-    // Registration fo pipeline method 'library'
-    // should be after you register the shared library
-    // so unfortenatly you cannot move it to the super class
-    helper.registerAllowedMethod("library", [String.class], {String expression ->
-        helper.getLibLoader().loadLibrary(expression)
+    // Registration for pipeline method 'library' must be made after registering the
+    // shared library. Unfortunately, this cannot be moved to the super class.
+    helper.registerAllowedMethod('library', [String], { String name ->
+        helper.getLibLoader().loadLibrary(name)
         println helper.getLibLoader().libRecords
-        return new LibClassLoader(helper,null)
+        return new LibClassLoader(helper, null)
     })
 
-    loadScript("job/library/exampleJob.jenkins")
+    loadScript('job/library/exampleJob.jenkins')
+
     printCallStack()
+}
 ```
 
-### Library global variables accepting library class instances as arguments: troubleshooting
+### Library Global Variables with Library Object Arguments
 
-You might have a library defining global variables that implement custom steps
-accepting library class instances as arguments. For example consider the
-following library class and global variable.
+
+You might have a library that defines global variables with library class instances as
+arguments. For example, consider the following library class and global variable:
 
 ```groovy
-package org.test
+// src/com/example/Monster.groovy
+package com.example
 
-class Monster1 {
+class Monster {
     String moniker
 
-    Monster1(String m) {
-      moniker = m
+    Monster(String moniker) {
+      this.moniker = moniker
     }
 }
 ```
 
 ```groovy
-import org.test.Monster1
+// vars/monster.groovy
+import com.example.Monster
 
-void call(Monster1 m1) {
-    echo "$m1.moniker is always very scary"
+void call(Monster monster) {
+    println "${monster.moniker} is always very scary"
 }
 ```
 
-Your pipeline uses both as follows.
+Your pipeline uses both as follows:
 
 ```groovy
-vampire = new Monster1("Dracula")
-monster1(vampire)
-
-//Expect "Dracula is always very scary"
+Monster vampire = new Monster('Dracula')
+monster(vampire)
+// Should print "Dracula is always very scary"
 ```
 
 If this does not yield the expected output but instead throws a `MissingMethodException`
@@ -893,9 +899,8 @@ Let's say we have a library responsible for a very complex operation, in this ca
 two numbers together. 😄 Here's what that library (let's call it `HardMath`) might look
 like:
 
-In `src/com/example/HardMath.groovy`
-
 ```groovy
+// src/com/example/HardMath.groovy
 package com.example
 
 class HardMath implements Serializable {
@@ -910,9 +915,8 @@ class HardMath implements Serializable {
 }
 ```
 
-In `vars/hardmath.groovy`:
-
 ```groovy
+// vars/hardmath.groovy
 import com.example.HardMath
 
 int complexOperation(int a, int b) {
@@ -920,23 +924,22 @@ int complexOperation(int a, int b) {
 }
 ```
 
-In `test/com/example/HardMathTest.groovy`:
-
 ```groovy
+// test/com/example/HardMathTest.groovy
 package com.example
 
-import static org.junit.Assert.assertEquals
+import static org.junit.jupiter.api.Assertions.assertEquals
 
 import com.lesfurets.jenkins.unit.BasePipelineTest
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 
 class HardMathTest extends BasePipelineTest {
   Object script = null
 
   @Override
-  @Before
+  @BeforeEach
   void setUp() {
     super.setUp()
     this.script = loadScript('test/resources/EmptyPipeline.groovy')
@@ -950,15 +953,15 @@ class HardMathTest extends BasePipelineTest {
 }
 ```
 
-In `test/resources/EmptyPipeline.groovy`:
-
 ```groovy
+// test/resources/EmptyPipeline.groovy
 return this
 ```
 
 And finally, in some other project's `Jenkinsfile`:
 
 ```groovy
+// Jenkinsfile
 @Library('hardmath')
 
 node {
