@@ -38,34 +38,34 @@ Jenkins.
 **Note:** Starting from version `1.2`, artifacts are published to
 `https://repo.jenkins-ci.org/releases`.
 
-Maven:
+#### Maven
 
 ```xml
-    <repositories>
-        <repository>
-        <id>jenkins-ci-releases</id>
-        <url>https://repo.jenkins-ci.org/releases/</url>
-        </repository>
-        ...
-    </repositories>
+<repositories>
+    <repository>
+    <id>jenkins-ci-releases</id>
+    <url>https://repo.jenkins-ci.org/releases/</url>
+    </repository>
+    ...
+</repositories>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.lesfurets</groupId>
-            <artifactId>jenkins-pipeline-unit</artifactId>
-            <version>1.9</version>
-            <scope>test</scope>
-        </dependency>
-        ...
-    </dependencies>
+<dependencies>
+    <dependency>
+        <groupId>com.lesfurets</groupId>
+        <artifactId>jenkins-pipeline-unit</artifactId>
+        <version>1.9</version>
+        <scope>test</scope>
+    </dependency>
+    ...
+</dependencies>
 ```
 
-Gradle:
+#### Gradle
 
 ```groovy
 repositories {
-  maven { url 'https://repo.jenkins-ci.org/releases/' }
-  ...
+    maven { url 'https://repo.jenkins-ci.org/releases/' }
+    ...
 }
 
 dependencies {
