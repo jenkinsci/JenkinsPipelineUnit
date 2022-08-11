@@ -18,6 +18,7 @@ built-in Jenkins commands, job configurations, see the stacktrace of the whole e
 and even track regressions.
 
 # Table of Contents
+
 1. [Usage](#usage)
 1. [Configuration](#configuration)
 1. [Declarative Pipeline](#declarative-pipeline)
@@ -30,9 +31,12 @@ and even track regressions.
 ## Usage
 
 ### Add to your project as test dependency
+
 **Note:** Starting from version `1.2`, artifacts are published to
 `https://repo.jenkins-ci.org/releases`.
+
 Maven:
+
 ```xml
     <repositories>
         <repository>
@@ -54,6 +58,7 @@ Maven:
 ```
 
 Gradle:
+
 ```groovy
 repositories {
   maven { url 'https://repo.jenkins-ci.org/releases/' }
@@ -288,6 +293,7 @@ void debianBuildUnstable() {
 Note that in all cases, the `script` executed by `sh` must *exactly* match the string
 passed to `helper.addShMock`, including the script arguments, whitespace, etc. For more
 flexible matching, you can use a pattern (regular expression) and even capture groups:
+
 ```groovy
 helper.addShMock(~/.\/build.sh\s--(.*)/) { String script, String arg ->
     assert (arg == 'debug') || (arg == 'release')
@@ -297,6 +303,7 @@ helper.addShMock(~/.\/build.sh\s--(.*)/) { String script, String arg ->
 
 Also, mocks are stacked, so if two mocks match a call, the last one wins. Combined with a
 match-everything mock, you can tighten your tests a bit:
+
 ```groovy
 @Before
 void setUp() throws Exception {
@@ -331,9 +338,10 @@ void should_execute_without_errors() throws Exception {
 
 This will check as well `mvn verify` has been called during the job execution.
 
-
 ### Check Pipeline status
+
 Let's say you have a simple script and you'd like to check it behaviour if a step is failing
+
 ```groovy
 // Jenkinsfile
 // ...
@@ -346,6 +354,7 @@ node() {
 You can mock the `sh` step to just update the pipeline status to `FAILURE`. To verify that
 your pipeline is failing, you need to check the status with
 `BasePipelineTest.assertJobStatusFailure()`.
+
 ```groovy
 class TestCase extends BasePipelineTest {
   @Test
@@ -362,12 +371,13 @@ class TestCase extends BasePipelineTest {
 }
 ```
 
-
 ### Check Pipeline exceptions
+
 Sometimes it is useful to verify exactly that exception is thrown during the pipeline run.
 For example by one of your `SharedLib` module
 
 To do so you can use `org.junit.rules.ExpectedException`
+
 ```groovy
 import org.junit.Rule
 import org.junit.rules.ExpectedException
@@ -377,6 +387,7 @@ public ExpectedException thrown = ExpectedException.none();
 ```
 
 Here is a simple example to verify exception type and the message:
+
 ```groovy
 import org.junit.Rule
 import org.junit.rules.ExpectedException
@@ -413,6 +424,7 @@ running your tests: `-Dpipeline.stack.write=true`. You then can go ahead and com
 change in your SCM to check in the change.
 
 ### Preserve Original Callstack Argument References
+
 The default behavior of the callstack capture is to clone each call's arguments to
 preserve their values at time of the call should those arguments mutate downstream. That
 is a good guard when your scripts are passing ordinary mutable variables as arguments.
@@ -421,7 +433,6 @@ However, argument types that are not `Cloneable` are captured as `String` values
 the time this is a perfect fallback. But for some complex types, or for types that don't
 implement `toString()`, it can be tricky or impossible to validate the call values in a
 test.
-
 
 Take the following simple example.
 
@@ -524,7 +535,9 @@ This will work fine for such a project structure:
          └── groovy
              └── TestExampleJob.groovy
 ```
+
 ## Declarative Pipeline
+
 To test a declarative pipeline, you'll need to subclass the `DeclarativePipelineTest`
 class instead of `BasePipelineTest`
 
@@ -565,6 +578,7 @@ class TestExampleDeclarativeJob extends DeclarativePipelineTest {
 ```
 
 ### DeclarativePipelineTest
+
 The DeclarativePipelineTest class extends `BasePipelineTest`, so you can verify your
 declarative job the same way as scripted pipelines.
 
@@ -656,11 +670,14 @@ libraryJob.run()
         libraryJob.libraryResource(net/courtanet/jenkins/request.json)
         libraryJob.sh(curl -H 'Content-Type: application/json' -X POST -d '{"name" : "Ben"}' http://acme.com)
 ```
+
 ### Library Source Retrievers
+
 There are a few types of `SourceRetriever` implementations in addition to the previously
 described `GitSource` one.
 
 #### ProjectSource Retriever
+
 The `ProjectSource` retriever is useful if you write tests for the library itself. So it
 lets you to load the library files directly from the project root folder (where the `src`
 and `vars` folders are located).
@@ -679,6 +696,7 @@ Then you can use `projectSource` to point to the location of the library files. 
 `projectSource()` with no arguments will look for files in the project root. With
 `.defaultVersion('<notNeeded>')`,  you can load it in pipelines using `commons@master` or
 `commons@features` which would use the same repository.
+
 ```groovy
     // TestCase file
     // you need to import static method
@@ -703,6 +721,7 @@ Then you can use `projectSource` to point to the location of the library files. 
 ```
 
 #### LocalSource Retriever
+
 The `LocalSource` retriever is useful if you want to verify how well your library
 integrates with the pipelines. For example you may use pre-copied library files with
 different versions.
@@ -737,10 +756,12 @@ $ tree -L 1 /var/tmp/commons@master
 ```
 
 ### Loading library dynamically
+
 There is partial support for loading dynamic libraries. It doesn't implement all the
 features, but it could be useful sometimes.
 
 Pipeline example:
+
 ```
 def lib = library 'commons'
 
@@ -753,6 +774,7 @@ def utils = net.courtanet.jenkins.Utils.new()
 ```
 
 Test class example:
+
 ```groovy
     String clonePath = 'path/to/clone'
 
@@ -781,6 +803,7 @@ Test class example:
 ```
 
 ### Library global variables accepting library class instances as arguments: troubleshooting
+
 You might have a library defining global variables that implement custom steps
 accepting library class instances as arguments. For example consider the
 following library class and global variable.
@@ -806,6 +829,7 @@ void call(Monster1 m1) {
 ```
 
 Your pipeline uses both as follows.
+
 ```groovy
 vampire = new Monster1("Dracula")
 monster1(vampire)
@@ -977,6 +1001,7 @@ development cycle. It addresses some of the requirements traced in
 contribute please don't hesitate to discuss in issues and open a pull-request.
 
 ## Demos and Examples
+
 | URL | Frameworks and Tools | Test Subject | Test Layers |
 |-----|----------------------|--------------|-------------|
 | https://github.com/macg33zr/pipelineUnit | Spock, Gradle(Groovy)  | Jenkinsfile, scripted pipeline, SharedLibrary | UnitTest |
