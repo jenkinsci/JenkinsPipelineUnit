@@ -1,4 +1,4 @@
-# Jenkins Pipeline Unit testing framework
+# `JenkinsPipelineUnit` Testing Framework
 
 Jenkins Pipeline Unit is a testing framework for unit testing Jenkins pipelines, written
 in [Groovy Pipeline DSL](https://jenkins.io/doc/book/pipeline/).
@@ -21,8 +21,8 @@ and even track regressions.
 
 1. [Usage](#usage)
 1. [Configuration](#configuration)
-1. [Declarative Pipeline](#declarative-pipeline)
-1. [Testing Shared Libraries](#testing-shared-libraries)
+1. [Declarative Pipeline](#declarative-pipelines)
+1. [Testing Shared Libraries](#testing-pipelines-that-use-shared-libraries)
 1. [Writing Testable Libraries](#writing-testable-libraries)
 1. [Note On CPS](#note-on-cps)
 1. [Contributing](#contributing)
@@ -30,7 +30,7 @@ and even track regressions.
 
 ## Usage
 
-### Add to your project as test dependency
+### Add to Your Project as Test Dependency
 
 JenkinsPipelineUnit requires Java 11, since this is also the minimum version required by
 Jenkins.
@@ -74,7 +74,7 @@ dependencies {
 }
 ```
 
-### Start writing tests
+### Start Writing Tests
 
 You can write your tests in Groovy or Java, using the test framework you prefer. The
 easiest entry point is extending the abstract class `BasePipelineTest`, which initializes
@@ -149,7 +149,7 @@ This test will print the call stack of the execution :
                   exampleJob.sh(mvn verify -DgitRevision=bcc19744)
 ```
 
-### Mock Jenkins variables
+### Mocking Jenkins Variables
 
 You can define both environment variables and job execution parameters.
 
@@ -168,7 +168,7 @@ You can define both environment variables and job execution parameters.
 The test helper already provides basic variables such as a very simple `currentBuild`
 definition. You can redefine them as you wish.
 
-### Mock Jenkins commands
+### Mocking Jenkins Commands
 
 You can register interceptors to mock pipeline methods, including Jenkins commands, which
 may or may not return a result.
@@ -201,7 +201,7 @@ Please refer to the `BasePipelineTest` class for the list of currently supported
 Some tricky methods such as `load` and `parallel` are implemented directly in the helper.
 If you want to override those, make sure that you extend the `PipelineTestHelper` class.
 
-### Mocking readFile and fileExists
+### Mocking `readFile` and `fileExists`
 
 The `readFile` and `fileExists` steps can be mocked to return a specific result for a
 given file name. This can be useful for testing pipelines for which file operations can
@@ -320,7 +320,7 @@ void setUp() throws Exception {
 }
 ```
 
-### Analyze the mock execution
+### Analyzing the Mock Execution
 
 The helper registers every method call to provide a stacktrace of the mock execution.
 
@@ -341,7 +341,7 @@ void should_execute_without_errors() throws Exception {
 
 This will check as well `mvn verify` has been called during the job execution.
 
-### Check Pipeline status
+### Checking Pipeline Status
 
 Let's say you have a simple script and you'd like to check it behaviour if a step is failing
 
@@ -374,7 +374,7 @@ class TestCase extends BasePipelineTest {
 }
 ```
 
-### Check Pipeline exceptions
+### Checking Pipeline Exceptions
 
 Sometimes it is useful to verify exactly that exception is thrown during the pipeline run.
 For example by one of your `SharedLib` module
@@ -407,7 +407,7 @@ class TestCase extends BasePipelineTest {
 }
 ```
 
-### Compare the callstacks with a previous implementation
+### Compare the Callstack with a Previous Implementation
 
 One other use of the callstacks is to check your pipeline executions for possible
 regressions. You have a dedicated method you can call if you extend `BaseRegressionTest`:
@@ -468,7 +468,7 @@ the variable in the callstack by setting this switch in your test setup:
        helper.cloneArgsOnMethodCallRegistration = false
 ```
 
-### Run script inline
+### Running Inline Scripts
 
 In case you want to have some script executed directly within a test case rather than
 creating a resource file for it, `loadInlineScript` and `runInlineScript` can be used.
@@ -539,7 +539,7 @@ This will work fine for such a project structure:
              └── TestExampleJob.groovy
 ```
 
-## Declarative Pipeline
+## Declarative Pipelines
 
 To test a declarative pipeline, you'll need to subclass the `DeclarativePipelineTest`
 class instead of `BasePipelineTest`
@@ -585,7 +585,7 @@ class TestExampleDeclarativeJob extends DeclarativePipelineTest {
 The DeclarativePipelineTest class extends `BasePipelineTest`, so you can verify your
 declarative job the same way as scripted pipelines.
 
-## Testing Shared Libraries
+## Testing Pipelines That Use Shared Libraries
 
 With [Shared Libraries](https://jenkins.io/doc/book/pipeline/shared-libraries/), Jenkins
 lets you share common code from pipelines across different repositories. Shared libraries
@@ -758,7 +758,7 @@ $ tree -L 1 /var/tmp/commons@master
 └── vars
 ```
 
-### Loading library dynamically
+### Loading Libraries Dynamically
 
 There is partial support for loading dynamic libraries. It doesn't implement all the
 features, but it could be useful sometimes.
