@@ -1,7 +1,7 @@
 import com.lesfurets.gradle.*
 
 plugins {
-    id "com.jfrog.artifactory" version "4.29.1"
+    id "com.jfrog.artifactory" version "4.29.2"
     id 'groovy'
     id 'maven-publish'
     id 'java-library'
