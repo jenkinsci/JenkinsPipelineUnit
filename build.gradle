@@ -24,7 +24,7 @@ dependencies {
     implementation('org.codehaus.groovy:groovy-all:2.4.14')
     implementation('com.cloudbees:groovy-cps:1.31')
     implementation('commons-io:commons-io:2.11.0')
-    implementation('org.apache.ivy:ivy:2.5.0')
+    implementation('org.apache.ivy:ivy:2.5.1')
     api('org.assertj:assertj-core:3.23.1')
     implementation('org.apache.commons:commons-lang3:3.12.0')
     api('org.springframework:spring-core:5.3.23')
