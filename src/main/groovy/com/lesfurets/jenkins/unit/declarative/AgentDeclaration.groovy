@@ -55,6 +55,10 @@ class AgentDeclaration extends GenericPipelineDeclaration {
         this.docker = createComponent(DockerAgentDeclaration, closure)
     }
 
+    def kubernetes(boolean _) {
+        kubernetes([:])
+    }
+
     def kubernetes(Object kubernetesAgent) {
         this.@kubernetes = kubernetesAgent as KubernetesAgentDeclaration
     }
