@@ -149,6 +149,24 @@ abstract class BasePipelineTest {
                 updateBuildStatus('FAILURE')
             }
         }
+        helper.registerAllowedMethod('catchError', [Map, Closure]) { Map args, Closure c ->
+            c.delegate = delegate
+            try {
+                helper.callClosure(c)
+            } catch(ignored) {
+                if (args.message) {
+                    println args.message
+                }
+                if (args.buildResult == null || args.buildResult == 'SUCCESS') {
+                    return
+                }
+                if (binding.getVariable('currentBuild').currentResult == 'FAILURE') {
+                    // The build result can only get worse, so we must ignore the desired buildResult argument
+                    return
+                }
+                updateBuildStatus(args.buildResult)
+            }
+        }
         helper.registerAllowedMethod("checkout", [Map])
         helper.registerAllowedMethod("choice", [Map])
         helper.registerAllowedMethod('cifsPublisher', [Map], {true})
