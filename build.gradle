@@ -17,8 +17,8 @@ repositories {
 group = "com.lesfurets"
 archivesBaseName = "jenkins-pipeline-unit"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 dependencies {
     implementation('org.codehaus.groovy:groovy-all:2.4.14')
@@ -27,7 +27,6 @@ dependencies {
     implementation('org.apache.ivy:ivy:2.5.1')
     api('org.assertj:assertj-core:3.23.1')
     implementation('org.apache.commons:commons-lang3:3.12.0')
-    api('org.springframework:spring-core:5.3.23')
 
     testImplementation('junit:junit:4.13.2')
 }
