@@ -17,8 +17,8 @@ repositories {
 group = "com.lesfurets"
 archivesBaseName = "jenkins-pipeline-unit"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 dependencies {
     implementation('org.codehaus.groovy:groovy-all:2.4.14')
