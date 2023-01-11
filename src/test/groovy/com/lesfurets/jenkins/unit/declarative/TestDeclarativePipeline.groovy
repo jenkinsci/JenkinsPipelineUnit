@@ -639,6 +639,13 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void should_kubernetes_default_agent() throws Exception {
+        runScript('Kubernetes_Default_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing on agent [kubernetes')
+        assertJobStatusSuccess()
+    }
+
     @Test void should_credentials() throws Exception {
         addCredential('my-prefined-secret-text', 'something_secret')
         runScript('Credentials_Jenkinsfile')
