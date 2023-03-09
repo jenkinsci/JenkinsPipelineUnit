@@ -1,6 +1,7 @@
 package com.lesfurets.jenkins.unit.declarative
 
 import com.lesfurets.jenkins.unit.declarative.agent.DockerAgentDeclaration
+import com.lesfurets.jenkins.unit.declarative.agent.DockerFileAgentDeclaration
 import com.lesfurets.jenkins.unit.declarative.agent.KubernetesAgentDeclaration
 import groovy.transform.ToString
 
@@ -9,27 +10,14 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 @ToString(includePackage = false, includeNames = true, ignoreNulls = true)
 class AgentDeclaration extends GenericPipelineDeclaration {
 
-    String additionalBuildArgs = null
-    String args = null
     String label
     DockerAgentDeclaration docker
     KubernetesAgentDeclaration kubernetes
-    Boolean dockerfile = null
-    String dockerfileDir
-    String filename = null
-    Boolean reuseNode = null
+    DockerFileAgentDeclaration dockerfileAgent
     String customWorkspace
     def binding = null
     String registryCredentialsId = null
     String registryUrl = null
-
-    def additionalBuildArgs(String additionalBuildArgs) {
-        this.additionalBuildArgs = additionalBuildArgs
-    }
-
-    def args(String args) {
-        this.args = args
-    }
 
     def label(String label) {
         this.label = label
@@ -41,10 +29,6 @@ class AgentDeclaration extends GenericPipelineDeclaration {
 
     def customWorkspace(String workspace) {
         this.customWorkspace = workspace
-    }
-
-    def reuseNode(boolean reuse) {
-        this.reuseNode = reuse
     }
 
     def docker(String image) {
@@ -67,21 +51,18 @@ class AgentDeclaration extends GenericPipelineDeclaration {
         this.@kubernetes = createComponent(KubernetesAgentDeclaration, closure)
     }
 
-    def dockerfile(boolean dockerfile) {
-        this.dockerfile = dockerfile
+    def dockerfile(boolean _) {
+        dockerfile([:])
     }
 
-    def dockerfile(@DelegatesTo(AgentDeclaration) Closure closure) {
-        closure.call()
+    def dockerfile(Object dockerfile) {
+        this.@dockerfileAgent = dockerfile as DockerFileAgentDeclaration
     }
 
-    def dir(String dir) {
-        this.dockerfileDir = dir
+    def dockerfile(@DelegatesTo(strategy = DELEGATE_FIRST, value = DockerFileAgentDeclaration) Closure closure) {
+        this.@dockerfileAgent = createComponent(DockerFileAgentDeclaration, closure)
     }
 
-    def filename(String filename) {
-        this.filename = filename
-    }
 
     def getCurrentBuild() {
         return binding?.currentBuild
@@ -112,11 +93,8 @@ class AgentDeclaration extends GenericPipelineDeclaration {
         else if (docker) {
             agentDesc = '[docker:' + docker.toString() + ']'
         }
-        else if (dockerfile) {
-            agentDesc = '[dockerfile:' + dockerfile.toString() + ']'
-        }
-        else if (dockerfileDir && dockerfileDir.exists()) {
-            agentDesc = '[dockerfileDir:' + dockerfileDir.toString() + ']'
+        else if (dockerfileAgent) {
+            agentDesc = '[dockerfile:' + dockerfileAgent.toString() + ']'
         }
         else if (kubernetes) {
             agentDesc = '[kubernetes:' + kubernetes.toString() + ']'
