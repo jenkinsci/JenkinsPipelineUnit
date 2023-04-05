@@ -159,15 +159,23 @@ class TestExampleJob extends BasePipelineTest {
     void setUp() {
         super.setUp()
         // Assigns false to a job parameter ENABLE_TEST_STAGE
-        binding.setVariable('ENABLE_TEST_STAGE', 'false')
+        addParam('ENABLE_TEST_STAGE', 'false')
         // Defines the previous execution status
         binding.getVariable('currentBuild').previousBuild = [result: 'UNSTABLE']
+    }
+
+    @Test
+    void verifyParam() {
+        assertEquals('false', binding.getVariable('params')['ENABLE_TEST_STAGE'])
     }
 }
 ```
 
 The test helper already provides basic variables such as a very simple `currentBuild`
 definition. You can redefine them as you wish.
+
+Note that parameters added via `addParam` are immutable, which reflects the same behavior
+in Jenkins. Attempting to modify the `params` map in the binding will result in an error.
 
 ### Mocking Jenkins Commands
 
