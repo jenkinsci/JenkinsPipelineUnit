@@ -16,8 +16,6 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     DockerfileAgentDeclaration dockerfileAgent
     String customWorkspace
     def binding = null
-    String registryCredentialsId = null
-    String registryUrl = null
 
     def label(String label) {
         this.label = label
@@ -74,14 +72,6 @@ class AgentDeclaration extends GenericPipelineDeclaration {
 
     def getParams() {
         return binding?.params
-    }
-
-    def registryCredentialsId(String registryCredentialsId) {
-        this.registryCredentialsId = registryCredentialsId
-    }
-
-    def registryUrl(String registryUrl) {
-        this.registryUrl = registryUrl
     }
 
     def execute(Object delegate) {
