@@ -1,7 +1,7 @@
 package com.lesfurets.jenkins.unit.declarative
 
 import com.lesfurets.jenkins.unit.declarative.agent.DockerAgentDeclaration
-import com.lesfurets.jenkins.unit.declarative.agent.DockerFileAgentDeclaration
+import com.lesfurets.jenkins.unit.declarative.agent.DockerfileAgentDeclaration
 import com.lesfurets.jenkins.unit.declarative.agent.KubernetesAgentDeclaration
 import groovy.transform.ToString
 
@@ -13,7 +13,7 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     String label
     DockerAgentDeclaration docker
     KubernetesAgentDeclaration kubernetes
-    DockerFileAgentDeclaration dockerfileAgent
+    DockerfileAgentDeclaration dockerfileAgent
     String customWorkspace
     def binding = null
     String registryCredentialsId = null
@@ -56,11 +56,11 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     }
 
     def dockerfile(Object dockerfile) {
-        this.@dockerfileAgent = dockerfile as DockerFileAgentDeclaration
+        this.@dockerfileAgent = dockerfile as DockerfileAgentDeclaration
     }
 
-    def dockerfile(@DelegatesTo(strategy = DELEGATE_FIRST, value = DockerFileAgentDeclaration) Closure closure) {
-        this.@dockerfileAgent = createComponent(DockerFileAgentDeclaration, closure)
+    def dockerfile(@DelegatesTo(strategy = DELEGATE_FIRST, value = DockerfileAgentDeclaration) Closure closure) {
+        this.@dockerfileAgent = createComponent(DockerfileAgentDeclaration, closure)
     }
 
 

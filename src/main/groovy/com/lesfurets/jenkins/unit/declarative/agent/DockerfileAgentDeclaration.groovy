@@ -5,7 +5,7 @@ import com.lesfurets.jenkins.unit.declarative.GenericPipelineDeclaration
 import groovy.transform.ToString
 
 @ToString(includePackage = false, includeNames = true, ignoreNulls = true)
-class DockerFileAgentDeclaration extends GenericPipelineDeclaration {
+class DockerfileAgentDeclaration extends GenericPipelineDeclaration {
     String additionalBuildArgs
     String args
     String customWorkspace
