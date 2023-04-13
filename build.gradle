@@ -1,7 +1,7 @@
 import com.lesfurets.gradle.*
 
 plugins {
-    id "com.jfrog.artifactory" version "4.31.9"
+    id 'com.jfrog.artifactory' version '4.31.9'
     id 'groovy'
     id 'maven-publish'
     id 'java-library'
@@ -11,7 +11,6 @@ plugins {
 
 repositories {
   mavenCentral()
-  jcenter()
 }
 
 group = "com.lesfurets"
@@ -33,13 +32,13 @@ dependencies {
 
 defaultTasks 'test'
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
+tasks.register('javadocJar', Jar) {
+    archiveClassifier = 'javadoc'
     from groovydoc
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
+tasks.register('sourcesJar', Jar) {
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
@@ -57,8 +56,8 @@ test {
 
 jacocoTestReport {
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.required = true
+        html.required = true
     }
 }
 

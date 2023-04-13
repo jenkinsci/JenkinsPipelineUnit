@@ -54,7 +54,7 @@ class TestRegisterOriginalMethodCallArgs extends BasePipelineTest {
 
         assertEquals(arg.getClass().simpleName, "String")
 
-        assertTrue(arg.contains("file=foo.txt"))
-        assertTrue(arg.contains("text=All bar, all the time"))
+        assertTrue(arg.contains("file:foo.txt") || arg.contains("file=foo.txt"))
+        assertTrue(arg.contains("text:All bar, all the time") || arg.contains("text=All bar, all the time"))
     }
 }
