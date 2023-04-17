@@ -26,10 +26,23 @@ class TestDockerAgentInStep extends DeclarativePipelineTest {
     }
 
     @Test
-    void test_dockerfile_agent_callstack_does_not_contain_binding() {
+    void test_dockerfile_agent_only_filename_specified() {
+        runScript("Dockerfile_Agent_Only_Filename_JenkinsFile")
+        assertCallStackContains('Executing on agent [dockerfile')
+        assertJobStatusSuccess()
+    }
+
+    @Test void test_dockerfile_default_agent() throws Exception {
+        runScript('Dockerfile_Agent_Default_Jenkinsfile')
+        assertCallStackContains('Executing on agent [dockerfile')
+        assertJobStatusSuccess()
+    }
+
+    @Test
+    void test_docker_agent_callstack_does_not_contain_binding() {
         runScript("Docker_agentInStep_JenkinsFile")
         assertJobStatusSuccess()
         assertCallStack().doesNotContain('binding:groovy.lang.Binding@')
-        assertCallStack().contains('Docker_agentInStep_JenkinsFile.echo(Executing on agent [docker:[image:maven, reuseNode:false, stages:[:], args:, alwaysPull:true, containerPerStageRoot:false, label:latest]])')
+        assertCallStackContains('Docker_agentInStep_JenkinsFile.echo(Executing on agent [docker:[image:maven, reuseNode:false, stages:[:], args:, alwaysPull:true, containerPerStageRoot:false, label:latest]])')
     }
 }

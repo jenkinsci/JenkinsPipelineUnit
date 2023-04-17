@@ -1,0 +1,11 @@
+pipeline {
+    stages {
+        stage('Build') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile'
+                }
+            }
+        }
+    }
+}
