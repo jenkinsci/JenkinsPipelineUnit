@@ -28,13 +28,13 @@ class TestDockerAgentInStep extends DeclarativePipelineTest {
     @Test
     void test_dockerfile_agent_only_filename_specified() {
         runScript("Dockerfile_Agent_Only_Filename_JenkinsFile")
-        assertCallStack().contains('Executing on agent [dockerfile')
+        assertCallStackContains('Executing on agent [dockerfile')
         assertJobStatusSuccess()
     }
 
     @Test void test_dockerfile_default_agent() throws Exception {
         runScript('Dockerfile_Agent_Default_Jenkinsfile')
-        assertCallStack().contains('Executing on agent [dockerfile')
+        assertCallStackContains('Executing on agent [dockerfile')
         assertJobStatusSuccess()
     }
 
