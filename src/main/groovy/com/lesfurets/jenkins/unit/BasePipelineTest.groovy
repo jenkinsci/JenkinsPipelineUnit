@@ -137,6 +137,7 @@ abstract class BasePipelineTest {
                 getDescription:{"Dummy build description"},
                 getFullProjectName:{"some_dir/some_job"},
                 getProjectName:{"some_job"},
+                getResult:{"SUCCESS"},
             ]
         })
         helper.registerAllowedMethod('booleanParam', [Map], paramInterceptor)
