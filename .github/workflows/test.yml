@@ -12,10 +12,13 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Setup Java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
+          distribution: temurin
           java-version: 11
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
       - name: Run Tests
         run: ./gradlew --no-daemon cleanTest build
