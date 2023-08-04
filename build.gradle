@@ -23,7 +23,7 @@ targetCompatibility = 11
 dependencies {
     implementation('org.codehaus.groovy:groovy-all:2.4.21')
     implementation('com.cloudbees:groovy-cps:3728.vd5c88eef9154')
-    testImplementation('io.jenkins.plugins:pipeline-groovy-lib:656.va_a_ceeb_6ffb_f7')
+    testImplementation('io.jenkins.plugins:pipeline-groovy-lib:671.v07c339c842e8')
     implementation('commons-io:commons-io:2.13.0')
     implementation('org.apache.ivy:ivy:2.5.1')
     api('org.assertj:assertj-core:3.24.2')
