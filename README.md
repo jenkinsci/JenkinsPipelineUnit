@@ -171,10 +171,14 @@ class TestExampleJob extends BasePipelineTest {
 }
 ```
 
-The test helper already provides basic variables such as a very simple `currentBuild`
-definition. You can redefine them as you wish.
+After calling `super.setUp()`, the test `helper` instance is available, as well as many 
+helper methods. The test helper already provides basic variables such as a very simple 
+`currentBuild` definition. You can redefine them as you wish.
 
-Note that parameters added via `addParam` are immutable, which reflects the same behavior
+Note that `super.setUp()` must be called prior to using most features. This is commonly done
+using your own `setUp` method, decorated with `@Override` and `@BeforeEach`.
+
+Parameters added via `addParam` are immutable, which reflects the same behavior
 in Jenkins. Attempting to modify the `params` map in the binding will result in an error.
 
 ### Mocking Jenkins Commands
