@@ -329,6 +329,7 @@ match-everything mock, you can tighten your tests a bit:
 ```groovy
 @BeforeEach
 void setUp() {
+    super.setUp()
     helper = new PipelineTestHelper()
     // Basic `sh` mock setup:
     // - generate an error on unexpected calls
@@ -720,6 +721,7 @@ class TestCase extends BasePipelineTest {
     @Override
     @BeforeEach
     void setUp() {
+        super.setUp()
         Object library = library()
             .name('commons')
             .defaultVersion('<notNeeded>')
@@ -746,6 +748,7 @@ class TestCase extends BasePipelineTest {
     @Override
     @BeforeEach
     void setUp() {
+        super.setUp()
         Object library = library()
             .name('commons')
             .defaultVersion('master')
