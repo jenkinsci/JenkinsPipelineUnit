@@ -171,8 +171,8 @@ class TestExampleJob extends BasePipelineTest {
 }
 ```
 
-After calling `super.setUp()`, the test `helper` instance is available, as well as many 
-helper methods. The test helper already provides basic variables such as a very simple 
+After calling `super.setUp()`, the test `helper` instance is available, as well as many
+helper methods. The test helper already provides basic variables such as a very simple
 `currentBuild` definition. You can redefine them as you wish.
 
 Note that `super.setUp()` must be called prior to using most features. This is commonly done
@@ -335,7 +335,7 @@ void setUp() {
     // - generate an error on unexpected calls
     // - ignore any echo (debug) outputs, they are not relevant
     // - all further shell mocks are configured in the test
-    helper.addShMock(null) { throw new Exception('Unexpected sh call') }
+    helper.addShMock() { throw new Exception('Unexpected sh call') }
     helper.addShMock(~/echo\s.*/, '', 0)
 }
 ```
