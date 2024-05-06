@@ -331,6 +331,56 @@ class PipelineTestHelperTest {
     }
 
     @Test()
+    void runShWithNoArgs() {
+        // given:
+        def helper = new PipelineTestHelper()
+        helper.addShMock() { script ->
+            return [stdout: '', exitValue: 2]
+        }
+
+        // when:
+        def status = helper.runSh(returnStatus: true, script: 'echo foo')
+
+        // then:
+        assertThat(status).isEqualTo(2)
+    }
+
+    @Test()
+    void runBatWithNoArgs() {
+        // given:
+        def helper = new PipelineTestHelper()
+        helper.addBatMock() { script ->
+            return [stdout: '', exitValue: 2]
+        }
+
+        // when:
+        def status = helper.runBat(returnStatus: true, script: 'echo foo')
+
+        // then:
+        assertThat(status).isEqualTo(2)
+    }
+
+    @Test()
+    void runShWithNoArgsMultiline() {
+        // given:
+        def helper = new PipelineTestHelper()
+        helper.addShMock() { script ->
+            return [stdout: '', exitValue: 2]
+        }
+
+        // when:
+        def status = helper.runSh(returnStatus: true, script:
+            '''echo foo &&\
+            echo bar
+            '''
+        )
+
+        // then:
+        assertThat(status).isEqualTo(2)
+    }
+
+
+    @Test()
     void runShWithoutMockOutput() {
         // given:
 
