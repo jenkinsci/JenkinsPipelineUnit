@@ -796,5 +796,16 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     void test_stage_and_steps() {
         runScript("StageAndSteps_Jenkinsfile")
     }
+
+    @Test void should_matrix() throws Exception {
+    runScript('Matrix_Jenkinsfile')
+    printCallStack()
+    assertCallStack().contains('echo(axe_1_value_1 axe_2_value_1)')
+    assertCallStack().contains('echo(axe_1_value_1 axe_2_value_2)')
+    assertCallStack().contains('echo(axe_1_value_2 axe_2_value_1)')
+    assertCallStack().contains('echo(axe_1_value_2 axe_2_value_2)')
+    assertJobStatusSuccess()
+}
+
 }
 

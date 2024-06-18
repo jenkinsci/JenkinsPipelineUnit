@@ -1,0 +1,26 @@
+pipeline {
+    agent none
+    stages {
+        stage("stage") {
+            matrix {
+                axes {
+                    axis {
+                        name 'AXE_1'
+                        values "axe_1_value_1", "axe_1_value_2"
+                    }
+                    axis {
+                        name 'AXE_2'
+                        values "axe_2_value_1", "axe_2_value_2"
+                    }
+                }
+                stages {
+                    stage("matrix stage") {
+                        steps {
+                            echo "${AXE_1} ${AXE_2}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

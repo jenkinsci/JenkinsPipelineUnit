@@ -1,5 +1,6 @@
 package com.lesfurets.jenkins.unit.declarative
 
+import com.lesfurets.jenkins.unit.declarative.matrix.MatrixDeclaration
 
 import static groovy.lang.Closure.*
 
@@ -10,6 +11,7 @@ class StageDeclaration extends GenericPipelineDeclaration {
     WhenDeclaration when
     ParallelDeclaration parallel
     boolean failFast = false
+    MatrixDeclaration matrix
     List<Closure> options = []
 
     StageDeclaration(String name) {
@@ -32,6 +34,10 @@ class StageDeclaration extends GenericPipelineDeclaration {
         this.parallel = createComponent(ParallelDeclaration, closure).with { it.failFast = failFast; it }
     }
 
+    def matrix(@DelegatesTo(strategy = DELEGATE_FIRST, value = MatrixDeclaration) Closure closure) {
+        this.matrix = createComponent(MatrixDeclaration, closure)
+    }
+
     def when(@DelegatesTo(strategy = DELEGATE_FIRST, value = WhenDeclaration) Closure closure) {
         this.when = createComponent(WhenDeclaration, closure)
     }
@@ -44,6 +50,9 @@ class StageDeclaration extends GenericPipelineDeclaration {
         String name = this.name
         def actions = 0
         if(parallel) {
+            actions++
+        }
+        if(matrix) {
             actions++
         }
         if(stages.size()>0) {
@@ -64,6 +73,10 @@ class StageDeclaration extends GenericPipelineDeclaration {
             parallel.execute(delegate)
         }
 
+        if(matrix) {
+            matrix.execute(delegate)
+        }
+        
         if(delegate.binding.variables.currentBuild.result == "FAILURE"){
             executeWith(delegate, { echo "Stage \"$name\" skipped due to earlier failure(s)" })
             return
