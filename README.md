@@ -160,6 +160,8 @@ class TestExampleJob extends BasePipelineTest {
         super.setUp()
         // Assigns false to a job parameter ENABLE_TEST_STAGE
         addParam('ENABLE_TEST_STAGE', 'false')
+        // Assigns 1.0.0-rc.1 to the environment variable TAG_NAME
+        addEnvVar('TAG_NAME', '1.0.0-rc.1')
         // Defines the previous execution status
         binding.getVariable('currentBuild').previousBuild = [result: 'UNSTABLE']
     }
