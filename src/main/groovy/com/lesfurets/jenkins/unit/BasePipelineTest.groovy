@@ -442,6 +442,7 @@ abstract class BasePipelineTest {
     }
 
     private String cachedStackDump = null
+    private String cachedStackDumpHashCode = null
 
     /**
      * Clear the call stack in preparation to reuse this test helper.
@@ -459,11 +460,16 @@ abstract class BasePipelineTest {
     String callStackDump() {
         // Avoid use of Memoized to support clearing the stack
         // and reusing the instance of this helper class.
-        if (cachedStackDump == null) {
-            cachedStackDump = helper.callStack.stream()
+        if (cachedStackDump != null && cachedStackDumpHashCode != null) {
+            if (cachedStackDumpHashCode == helper.callStack.hashCode())
+                return cachedStackDump
+        }
+
+        cachedStackDumpHashCode = helper.callStack.hashCode()
+        cachedStackDump = helper.callStack.stream()
                      .map { it -> it.toString() }
                      .collect(joining('\n'))
-        }
+
         return cachedStackDump
     }
 
