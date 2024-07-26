@@ -371,14 +371,28 @@ class PipelineTestHelper {
      * Method interceptor for 'libraryResource' in Shared libraries
      * The resource from shared library should have been added to the url classloader in advance
      */
-    def libraryResourceInterceptor = { m ->
-        def stream = gse.groovyClassLoader.getResourceAsStream(m as String)
+    def libraryResourceInterceptor = { Object args ->
+        String resource = null, encoding = null
+        if (args instanceof String || args instanceof GString) {
+            resource = args
+        } else if (args instanceof Map) {
+            resource = args['resource']
+            encoding = args['encoding']
+        }
+        assert resource
+        InputStream stream = gse.groovyClassLoader.getResourceAsStream(resource)
         if (stream) {
-            def string = IOUtils.toString(stream, Charset.forName("UTF-8"))
-            IOUtils.closeQuietly(stream)
-            return string
+            try {
+                if (encoding == 'Base64') {
+                    return Base64.getEncoder().encodeToString(IOUtils.toByteArray(stream))
+                } else {
+                    return IOUtils.toString(stream, encoding ?: Charset.forName("UTF-8"))
+                }
+            } finally {
+                IOUtils.closeQuietly(stream)
+            }
         } else {
-            throw new GroovyRuntimeException("Library Resource not found with path $m")
+            throw new GroovyRuntimeException("Library Resource not found with path $resource")
         }
     }
 
@@ -390,6 +404,7 @@ class PipelineTestHelper {
                     (method("load", String.class))           : loadInterceptor,
                     (method("parallel", Map.class))          : parallelInterceptor,
                     (method("libraryResource", String.class)): libraryResourceInterceptor,
+                    (method("libraryResource", Map.class))   : libraryResourceInterceptor,
     ]
 
     PipelineTestHelper() {
