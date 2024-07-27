@@ -662,6 +662,21 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void should_parallel_with_when() throws Exception {
+        // given:
+        addEnvVar('SKIP_CI', 'true')
+
+        // when:
+        runScript('Parallel_When_Jenkinsfile')
+
+        // then:
+        printCallStack()
+        assertCallStack().contains('echo(Skipping stage Analysis)')
+        assertCallStack().doesNotContain('sh(run-lint.sh)')
+        assertCallStack().doesNotContain('sh(run-tests.sh)')
+        assertJobStatusSuccess()
+    }
+
     @Test void should_parallel_nested_stages() throws Exception {
         runScript('Parallel_NestedStages_Jenkinsfile')
         printCallStack()

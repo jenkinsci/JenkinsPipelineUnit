@@ -1,0 +1,20 @@
+pipeline {
+    agent none
+    stages {
+        stage('Analysis') {
+            when { environment name: 'SKIP_CI', value: 'false' }
+            parallel {
+                stage('Lint') {
+                    steps {
+                        sh 'run-lint.sh'
+                    }
+                }
+                stage('Test') {
+                    steps {
+                        sh 'run-tests.sh'
+                    }
+                }
+            }
+        }
+    }
+}
