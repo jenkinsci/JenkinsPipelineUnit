@@ -60,10 +60,6 @@ class StageDeclaration extends GenericPipelineDeclaration {
             executeOn(delegate, it)
         }
 
-        if(parallel) {
-            parallel.execute(delegate)
-        }
-
         if(delegate.binding.variables.currentBuild.result == "FAILURE"){
             executeWith(delegate, { echo "Stage \"$name\" skipped due to earlier failure(s)" })
             return
@@ -74,9 +70,13 @@ class StageDeclaration extends GenericPipelineDeclaration {
 
             // TODO handle credentials
 
+            if (parallel) {
+                parallel.execute(delegate)
+            }
+
             Closure stageBody = { agent?.execute(delegate) }
             Closure cl = { stage("$name", stageBody) }
-            if(steps) {
+            if (steps) {
                 stageBody =  stageBody >> steps.rehydrate(delegate, this, delegate)
             }
             executeWith(delegate, cl)
