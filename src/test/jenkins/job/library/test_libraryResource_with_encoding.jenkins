@@ -1,0 +1,4 @@
+@Library('commons@feature') _
+
+// Test retrieving a library resource with default encoding
+echo libraryResource(resource: 'net/courtanet/jenkins/plaintext.iso-8859-1.txt', encoding: 'ISO-8859-15')
