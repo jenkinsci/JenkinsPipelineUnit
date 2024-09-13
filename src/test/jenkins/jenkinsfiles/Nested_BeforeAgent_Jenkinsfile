@@ -1,0 +1,22 @@
+pipeline {
+    agent any
+    stages {
+        stage('Example Build') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('Example nested when beforeAgent expression') {
+            agent {
+                label "beforeAgent-testLabel"
+            }
+            when {
+                beforeAgent true
+                branch 'main'
+            }
+            steps {
+                echo 'Executing nested when beforeAgent expression'
+            }
+        }
+    }
+}
