@@ -424,6 +424,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         runScript('Nested_BeforeAgent_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Executing nested when beforeAgent expression')
+        assertCallStack().contains('Executing on agent [label:beforeAgent-testLabel]')
         assertJobStatusSuccess()
     }
 
@@ -432,6 +433,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         runScript('Nested_BeforeAgent_Jenkinsfile')
         printCallStack()
         assertCallStack().contains('Skipping stage Example nested when beforeAgent expression')
+        assertCallStack().doesNotContain('Executing on agent [label:beforeAgent-testLabel]')
         assertJobStatusSuccess()
     }
 
