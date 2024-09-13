@@ -419,6 +419,24 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void when_nested_when_beforeAgent_with_matching_branch_expression() throws Exception {
+        addEnvVar('BRANCH_NAME', 'main')
+        runScript('Nested_BeforeAgent_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing nested when beforeAgent expression')
+        assertCallStack().contains('Executing on agent [label:beforeAgent-testLabel]')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_nested_when_beforeAgent_with_nonmatching_branch_expression() throws Exception {
+        addEnvVar('BRANCH_NAME', 'dev')
+        runScript('Nested_BeforeAgent_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example nested when beforeAgent expression')
+        assertCallStack().doesNotContain('Executing on agent [label:beforeAgent-testLabel]')
+        assertJobStatusSuccess()
+    }
+
     @Test void when_branch_using_explicit_equals_comparator() throws Exception {
         addEnvVar('BRANCH_NAME', 'develop')
         runScript('Branch_Jenkinsfile')

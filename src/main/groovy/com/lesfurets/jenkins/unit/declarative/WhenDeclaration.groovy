@@ -21,6 +21,7 @@ class WhenDeclaration extends GenericPipelineDeclaration {
     Closure<Boolean> expression
     String envName
     String envValue
+    Boolean beforeAgent
 
     def allOf(@DelegatesTo(strategy = DELEGATE_FIRST, value = AllOfDeclaration) Closure closure) {
         this.allOf = createComponent(AllOfDeclaration, closure)
@@ -64,6 +65,10 @@ class WhenDeclaration extends GenericPipelineDeclaration {
         else {
             tag(args.pattern)
         }
+    }
+
+    def beforeAgent (Boolean arg) {
+        this.beforeAgent = arg
     }
 
     def buildingTag () {
