@@ -25,7 +25,7 @@ dependencies {
     implementation('com.cloudbees:groovy-cps:4003.vf9c56141493e')
     testImplementation('io.jenkins.plugins:pipeline-groovy-lib:740.va_2701257fe8d')
     implementation('commons-io:commons-io:2.18.0')
-    implementation('org.apache.ivy:ivy:2.5.2')
+    implementation('org.apache.ivy:ivy:2.5.3')
     api('org.assertj:assertj-core:3.27.2')
     implementation('org.apache.commons:commons-lang3:3.17.0')
 
