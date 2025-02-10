@@ -22,7 +22,7 @@ targetCompatibility = 17
 
 dependencies {
     implementation('org.codehaus.groovy:groovy-all:2.4.21')
-    implementation('com.cloudbees:groovy-cps:4003.vf9c56141493e')
+    implementation('com.cloudbees:groovy-cps:4018.vf02e01888da_f')
     testImplementation('io.jenkins.plugins:pipeline-groovy-lib:752.vdddedf804e72')
     implementation('commons-io:commons-io:2.18.0')
     implementation('org.apache.ivy:ivy:2.5.3')
