@@ -8,13 +8,13 @@ on:
       - master
 jobs:
   test:
-    name: macos-11
+    name: macos-17
     runs-on: macos-latest
     steps:
       - name: Setup Java
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
       - name: Checkout
         uses: actions/checkout@v2
       - name: Run Tests
