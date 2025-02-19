@@ -33,9 +33,9 @@ and even track regressions.
 ### Add to Your Project as Test Dependency
 
 JenkinsPipelineUnit requires Java 17, since this is also the minimum version required by
-some Jenkins. Also note that JenkinsPipelineUnit is not currently compatible with Groovy
-4, please see [this issue](https://github.com/jenkinsci/JenkinsPipelineUnit/issues/521)
-for more details.
+some library dependencies. Also note that JenkinsPipelineUnit is not currently compatible
+with Groovy 4, please see [this
+issue](https://github.com/jenkinsci/JenkinsPipelineUnit/issues/521) for more details.
 
 **Note:** Starting from version `1.2`, artifacts are published to
 `https://repo.jenkins-ci.org/releases`.
