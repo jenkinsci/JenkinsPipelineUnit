@@ -217,40 +217,6 @@ Please refer to the `BasePipelineTest` class for the list of currently supported
 Some tricky methods such as `load` and `parallel` are implemented directly in the helper.
 If you want to override those, make sure that you extend the `PipelineTestHelper` class.
 
-### Mocking Jenkins Credentials
-
-You can create mock credentials for use in the pipeline.
-The provided mock methods can be used to simulate sensitive data, such as access keys or user login details.
-
-```groovy
-// Jenkinsfile
-node {
-    stage('Process with credentials') {
-        withCredentials([usernamePassword(credentialsId: 'credentials-1', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            echo 'User/Password: ${USERNAME}/${PASSWORD}'
-        }
-        withCredentials([string(credentialsId: 'credentials-2', variable: 'TOKEN')]) {
-            echo 'Token: ${TOKEN}'
-        }
-    }
-}
-```
-
-```groovy
-import com.lesfurets.jenkins.unit.BasePipelineTest
-
-class TestExampleJob extends BasePipelineTest {
-    @Test
-    void exampleWithCredentialsTest() {
-        // Simulates a username and password
-        addUsernamePasswordCredential('credentials-1', 'admin', 'very-strong-password')
-
-        // Simulates a secret text
-        addStringCredential('credentials-2', 'secret-token')
-    }
-}
-```
-
 ### Mocking `readFile` and `fileExists`
 
 The `readFile` and `fileExists` steps can be mocked to return a specific result for a

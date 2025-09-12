@@ -25,29 +25,20 @@ abstract class BasePipelineTest {
         addParam(desc.name, desc.defaultValue, false)
     }
 
-    def stringInterceptor = { Map desc ->
+    def stringInterceptor = { Map desc->
         if (desc) {
             // we are in context of parameters { string(...)}
             if (desc.name) {
                 addParam(desc.name, desc.defaultValue, false)
             }
             // we are in context of withCredentials([string()..]) { }
-            if(desc.credentialsId && desc.variable) {
-                return [
-                        credentialsType: 'string',
-                        credentialsId: desc.credentialsId,
-                        variable: desc.variable
-                ]
+            if(desc.variable) {
+                return desc.variable
             }
         }
     }
 
-    def usernamePasswordInterceptor = { m -> [
-            credentialsType: 'usernamePassword',
-            credentialsId: m.credentialsId,
-            usernameVariable: m.usernameVariable,
-            passwordVariable: m.passwordVariable
-    ]}
+    def usernamePasswordInterceptor = { m -> [m.usernameVariable, m.passwordVariable] }
 
     def withCredentialsInterceptor = { list, closure ->
         def previousValues = [:]
@@ -76,9 +67,6 @@ abstract class BasePipelineTest {
                     previousValues[password] = null
                 }
                 binding.setVariable(password, password)
-            } else if (creds instanceof Map && creds.get("credentialsType")) {
-                // Delegate handling of known credential types
-                handleCredentialBinding(creds, previousValues)
             } else {
                 creds.each { var ->
                     try {
@@ -571,61 +559,5 @@ abstract class BasePipelineTest {
 
         Map credentials = binding.getVariable('credentials') as Map
         credentials[key] = val
-    }
-
-    void addUsernamePasswordCredential(String credentialId, String username, String password) {
-        addCredential(credentialId, "${username}:${password}")
-    }
-
-    void addStringCredential(String credentialId, String val) {
-        addCredential(credentialId, val)
-    }
-
-    /**
-     * Handles the processing and binding for different types of credentials dynamically.
-     */
-    void handleCredentialBinding(Map creds, Map previousValues) {
-        def credentialsId = creds.get('credentialsId')
-        def credentials = binding.getVariable('credentials')
-        if (credentials == null || !credentials.containsKey(credentialsId)) {
-            throw new AssertionError("The configuration for the credentials ID '${credentialsId}' may be missing.", null)
-        }
-
-        switch (creds.get('credentialsType')) {
-            case 'usernamePassword':
-                def usernamePassword = credentials.get(credentialsId).split(':')
-                def usernameVariable = creds.get('usernameVariable')
-                def passwordVariable = creds.get('passwordVariable')
-
-                try {
-                    previousValues[usernameVariable] = binding.getVariable(usernameVariable)
-                } catch (MissingPropertyException ignored) {
-                    previousValues[usernameVariable] = null
-                }
-                binding.setVariable(usernameVariable, usernamePassword[0])
-
-                try {
-                    previousValues[passwordVariable] = binding.getVariable(passwordVariable)
-                } catch (MissingPropertyException ignored) {
-                    previousValues[passwordVariable] = null
-                }
-                binding.setVariable(passwordVariable, usernamePassword[1])
-                break
-
-            case 'string':
-                def variable = creds.get('variable')
-                def value = credentials.get(credentialsId)
-
-                try {
-                    previousValues[variable] = binding.getVariable(variable)
-                } catch (MissingPropertyException ignored) {
-                    previousValues[variable] = null
-                }
-                binding.setVariable(variable, value)
-                break
-
-            default:
-                throw new UnsupportedOperationException("Unsupported credentials type: ${creds.get('credentialsType')}")
-        }
     }
 }
