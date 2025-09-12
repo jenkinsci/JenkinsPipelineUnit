@@ -15,9 +15,6 @@ class TestWithCredentialsAndParametersJob extends BaseRegressionTest {
 
   @Test
   void should_run_script_with_parameters() {
-      // given:
-      addStringCredential('my-gitlab-api-token', 'gitlab-api-token')
-
     // when:
     runScript("job/withCredentialsAndParameters.jenkins")
 
