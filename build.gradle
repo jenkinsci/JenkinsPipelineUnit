@@ -26,7 +26,7 @@ dependencies {
     testImplementation('io.jenkins.plugins:pipeline-groovy-lib:752.vdddedf804e72')
     implementation('commons-io:commons-io:2.20.0')
     implementation('org.apache.ivy:ivy:2.5.3')
-    api('org.assertj:assertj-core:3.27.4')
+    api('org.assertj:assertj-core:3.27.5')
     implementation('org.apache.commons:commons-lang3:3.18.0')
 
     testImplementation('junit:junit:4.13.2')
