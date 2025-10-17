@@ -802,7 +802,7 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
     @Test void should_scope_this_in_closure() throws Exception {
         runScript('ThisScope_Jenkinsfile')
         printCallStack()
-        assertCallStack().contains('writeFile({file=messages/messages.msg, text=text})')
+        assertCallStack().contains('writeFile([file:messages/messages.msg, text:text])')
     }
 
     @Test void test_agent_in_stage_with_no_steps() {

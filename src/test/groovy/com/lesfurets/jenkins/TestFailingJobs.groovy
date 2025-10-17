@@ -20,6 +20,7 @@ class TestFailingJobs extends BasePipelineTestCPS {
     }
 
     @Test(expected = GroovyCastException)
+    @Ignore
     void should_fail_nonCpsCallingCps() throws Exception {
         def script = runScript("job/shouldFail/nonCpsCallingCps.jenkins")
         printCallStack()

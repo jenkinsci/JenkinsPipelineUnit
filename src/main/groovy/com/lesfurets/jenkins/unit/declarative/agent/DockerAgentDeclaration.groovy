@@ -55,7 +55,6 @@ class DockerAgentDeclaration extends GenericPipelineDeclaration {
         this.image = image
     }
 
-    @Memoized
     String toString() {
         return printNonNullProperties(this)
     }
