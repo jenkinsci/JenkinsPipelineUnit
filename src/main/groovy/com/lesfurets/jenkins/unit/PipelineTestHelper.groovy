@@ -437,6 +437,8 @@ class PipelineTestHelper {
 
         configuration.setDefaultScriptExtension(scriptExtension)
         configuration.setScriptBaseClass(scriptBaseClass.getName())
+        //This makes the NonCPS calling CPS fail correctly
+        configuration.getOptimizationOptions().put(org.codehaus.groovy.control.CompilerConfiguration.INVOKEDYNAMIC, false)
 
         gse = new GroovyScriptEngine(scriptRoots, cLoader)
         gse.setConfig(configuration)
