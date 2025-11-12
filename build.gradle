@@ -21,7 +21,8 @@ sourceCompatibility = 17
 targetCompatibility = 17
 
 dependencies {
-    implementation('org.codehaus.groovy:groovy-all:2.4.21')
+    implementation('org.apache.groovy:groovy:4.0.28')
+    implementation('org.apache.groovy:groovy-json:4.0.28')
     implementation('com.cloudbees:groovy-cps:4209.v83c4e257f1e9')
     testImplementation('io.jenkins.plugins:pipeline-groovy-lib:752.vdddedf804e72')
     implementation('commons-io:commons-io:2.21.0')

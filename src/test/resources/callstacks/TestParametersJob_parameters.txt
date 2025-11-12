@@ -1,6 +1,6 @@
    parameters.run()
-      parameters.booleanParam({name=myBooleanParam, description=My boolean typed parameter})
-      parameters.string({name=myStringParam, defaultValue=my default value, description=My string typed parameter})
+      parameters.booleanParam([name:myBooleanParam, description:My boolean typed parameter])
+      parameters.string([name:myStringParam, defaultValue:my default value, description:My string typed parameter])
       parameters.parameters([null, null])
       parameters.properties([null])
       parameters.echo('myStringParam' value is default: my default value)

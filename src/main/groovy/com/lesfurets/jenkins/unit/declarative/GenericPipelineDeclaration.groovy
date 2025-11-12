@@ -15,6 +15,7 @@ abstract class GenericPipelineDeclaration {
         // declare componentInstance as final to prevent any multithreaded issues, since it is used inside closure
         final def componentInstance = componentType.newInstance()
         def rehydrate = closure.rehydrate(componentInstance, closure, componentInstance)
+        rehydrate.resolveStrategy = DELEGATE_FIRST
         if (binding && componentInstance.hasProperty('binding') && componentInstance.binding != binding) {
             componentInstance.binding = binding
         }

@@ -43,6 +43,6 @@ class TestDockerAgentInStep extends DeclarativePipelineTest {
         runScript("Docker_agentInStep_JenkinsFile")
         assertJobStatusSuccess()
         assertCallStack().doesNotContain('binding:groovy.lang.Binding@')
-        assertCallStackContains('Docker_agentInStep_JenkinsFile.echo(Executing on agent [docker:[image:maven, reuseNode:false, stages:[:], args:, alwaysPull:true, containerPerStageRoot:false, label:latest]])')
+        assertCallStackContains('Docker_agentInStep_JenkinsFile.echo(Executing on agent [docker:[label:latest, args:, reuseNode:false, containerPerStageRoot:false, alwaysPull:true, image:maven, stages:[:]]])')
     }
 }

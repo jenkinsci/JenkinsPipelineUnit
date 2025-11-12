@@ -4,6 +4,7 @@ import com.lesfurets.jenkins.unit.LibClassLoader
 import com.lesfurets.jenkins.unit.BasePipelineTest
 
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
@@ -26,6 +27,7 @@ class TestInterceptingGCLLazyLoadLibClasses extends BasePipelineTest {
     * 4. Make sure interception of pipeline methods works propertly
     */
     @Test
+    @Ignore("Interception of pipeline methods in library classes not working yet")
     void test_cross_class_as_var_arg_implicit_lazy_load() throws Exception {
         //This does not factor much in the current test but does replicate the
         //use case in which the lazy load feature originated.

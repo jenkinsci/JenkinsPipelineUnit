@@ -23,7 +23,7 @@ class PipelineTestHelperTest {
 
         // then:
         assertThat(allowedMethodEntry.getKey().getArgs().size()).isEqualTo(0)
-        assertThat(allowedMethodEntry.getValue()).isEqualTo(closure)
+        assertThat((Object)allowedMethodEntry.getValue()).isEqualTo(closure)
     }
 
     @Test
@@ -37,7 +37,7 @@ class PipelineTestHelperTest {
 
         // then:
         assertThat(allowedMethodEntry.getKey().getArgs().size()).isEqualTo(0)
-        assertThat(allowedMethodEntry.getValue()).isEqualTo(closure)
+        assertThat((Object)allowedMethodEntry.getValue()).isEqualTo(closure)
     }
 
     @Test
