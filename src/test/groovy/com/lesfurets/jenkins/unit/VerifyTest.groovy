@@ -1,7 +1,9 @@
 package com.lesfurets.jenkins.unit
 
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+import static org.junit.jupiter.api.Assertions.assertThrows
 
 class VerifyTest extends BasePipelineTest {
 
@@ -12,7 +14,7 @@ class VerifyTest extends BasePipelineTest {
 
     Script script
 
-    @Before
+    @BeforeEach
     void beforeTest() {
         setUp()
         script = loadScript('src/test/jenkins/job/verify.jenkins')
@@ -42,13 +44,15 @@ class VerifyTest extends BasePipelineTest {
         }
     }
 
-    @Test(expected = VerificationException.class)
+    @Test
     void verify_some_string_method_another_params() {
         script.someStringMethod(PARAMETER1, "another")
-        helper.verify(SOME_STRING_METHOD_NAME, 1) { MethodCall methodCall ->
-            Object[] arguments = methodCall.args
-            return arguments.size() == 2 && arguments[0].toString() == PARAMETER1 && arguments[1].toString() == PARAMETER2
-        }
+        assertThrows(VerificationException.class, { ->
+            helper.verify(SOME_STRING_METHOD_NAME, 1) { MethodCall methodCall  ->
+                Object[] arguments = methodCall.args
+                return arguments.size() == 2 && arguments[0].toString() == PARAMETER1 && arguments[1].toString() == PARAMETER2
+            }
+        })
     }
 
     @Test
@@ -57,16 +61,22 @@ class VerifyTest extends BasePipelineTest {
         helper.verify(VOID_METHOD_NAME)
     }
 
-    @Test(expected = VerificationException.class)
+    @Test
     void verify_void_method_expect_param() {
         script.voidMethod()
-        helper.verify(VOID_METHOD_NAME, 1) { methodCall -> methodCall.args.size() > 0 }
+        assertThrows(VerificationException.class, { ->
+            helper.verify(VOID_METHOD_NAME, 1) { methodCall  ->
+                methodCall.args.size() > 0
+            }
+        })
     }
 
-    @Test(expected = VerificationException.class)
+    @Test
     void verify_void_method_less_times() {
         script.voidMethod()
         script.voidMethod()
-        helper.verify(VOID_METHOD_NAME)
+        assertThrows(VerificationException.class, { ->
+            helper.verify(VOID_METHOD_NAME)
+        })
     }
 }

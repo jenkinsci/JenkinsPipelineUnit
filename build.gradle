@@ -29,7 +29,9 @@ dependencies {
     api('org.assertj:assertj-core:3.27.6')
     implementation('org.apache.commons:commons-lang3:3.19.0')
 
-    testImplementation('junit:junit:4.13.2')
+    testImplementation('org.junit.jupiter:junit-jupiter:6.0.1')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:6.0.1')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher:6.0.1')
 }
 
 defaultTasks 'test'
@@ -45,6 +47,7 @@ tasks.register('sourcesJar', Jar) {
 }
 
 test {
+    useJUnitPlatform()
 
     // Enable writing stacks with -Ppipeline.stack.write
     if (project.hasProperty("pipeline.stack.write")) {

@@ -1,15 +1,12 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import com.lesfurets.jenkins.unit.declarative.DeclarativePipelineTest
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
-import static org.junit.Assert.assertTrue
-
-class TestDeclaraticeWithCredentials extends DeclarativePipelineTest {
+class TestDeclarativeWithCredentials extends DeclarativePipelineTest {
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins/jenkinsfiles'
         scriptExtension = ''
@@ -37,7 +34,5 @@ class TestDeclaraticeWithCredentials extends DeclarativePipelineTest {
         assertCallStack().contains("echo(Nested SSH = ssh_pass)")
         assertCallStack().contains("echo(Restored SSH = ssh_pass)")
         assertCallStack().contains("echo(Cleared SSH = null)")
-
-
     }
 }

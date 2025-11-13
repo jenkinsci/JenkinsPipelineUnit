@@ -1,20 +1,19 @@
 package com.lesfurets.jenkins
 
-import static com.lesfurets.jenkins.unit.MethodSignature.method
-import static org.assertj.core.api.Assertions.assertThat
+import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
+import org.assertj.core.util.Files
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 import java.nio.charset.Charset
 
-import org.assertj.core.util.Files
-import org.junit.Before
-import org.junit.Test
-
-import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
+import static com.lesfurets.jenkins.unit.MethodSignature.method
+import static org.assertj.core.api.Assertions.assertThat
 
 class TestUtilsLibCPS extends BasePipelineTestCPS {
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()

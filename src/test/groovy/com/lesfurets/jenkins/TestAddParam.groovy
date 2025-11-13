@@ -1,7 +1,9 @@
 package com.lesfurets.jenkins
 
 import com.lesfurets.jenkins.unit.BasePipelineTest
-import org.junit.Test
+import org.junit.jupiter.api.Test
+
+import static org.junit.jupiter.api.Assertions.assertThrows
 
 class TestAddParam extends BasePipelineTest {
 
@@ -11,20 +13,24 @@ class TestAddParam extends BasePipelineTest {
         addParam('FOO', 'BAR')
     }
 
-    @Test(expected = UnsupportedOperationException)
+    @Test
     void addParamImmutable() throws Exception {
         super.setUp()
         addParam('FOO', 'BAR')
 
-        // We should not be able to modify existing parameters. This would not work on Jenkins.
-        binding.getVariable('params')['FOO'] = 'NOT-BAR'
+        assertThrows(UnsupportedOperationException, { ->
+            // We should not be able to modify existing parameters. This would not work on Jenkins.
+            binding.getVariable('params')['FOO'] = 'NOT-BAR'
+        })
     }
 
-    @Test(expected = UnsupportedOperationException)
+    @Test
     void addNewParamImmutable() throws Exception {
         super.setUp()
 
-        // It also is not permitted to add new parameters directly. Instead, addParam must be used.
-        binding.getVariable('params')['BAZ'] = 'QUX'
+        assertThrows(UnsupportedOperationException, { ->
+            // It also is not permitted to add new parameters directly. Instead, addParam must be used.
+            binding.getVariable('params')['BAZ'] = 'QUX'
+        })
     }
 }

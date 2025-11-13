@@ -1,18 +1,18 @@
 package com.lesfurets.jenkins
 
 import com.lesfurets.jenkins.unit.BasePipelineTest
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class TestCatchError  extends BasePipelineTest {
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         super.setUp()
     }
 
-    @Test()
+    @Test
     void should_fail_with_fail_before_and_SuccesCatch() throws Exception {
         def script = runInlineScript("""
             node() {
@@ -27,7 +27,7 @@ class TestCatchError  extends BasePipelineTest {
         assertJobStatusFailure()
     }
 
-    @Test()
+    @Test
     void should_unstable_with_unstable_before_and_SuccesCatch() throws Exception {
         def script = runInlineScript("""
             node() {
@@ -42,7 +42,7 @@ class TestCatchError  extends BasePipelineTest {
         assertJobStatusUnstable()
     }
 
-    @Test()
+    @Test
     void should_succes_with_SuccesCatch() throws Exception {
         def script = runInlineScript("""
             node() {
@@ -56,7 +56,7 @@ class TestCatchError  extends BasePipelineTest {
         assertJobStatusSuccess()
     }
 
-    @Test()
+    @Test
     void should_unstable_with_UnstableCatch() throws Exception {
         def script = runInlineScript("""
             node() {
@@ -70,7 +70,7 @@ class TestCatchError  extends BasePipelineTest {
         assertJobStatusUnstable()
     }
 
-    @Test()
+    @Test
     void should_fail_with_no_parameter() throws Exception {
         def script = runInlineScript("""
             node() {

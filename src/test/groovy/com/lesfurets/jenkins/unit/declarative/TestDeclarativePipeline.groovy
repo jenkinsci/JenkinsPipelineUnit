@@ -1,11 +1,13 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+import static org.junit.jupiter.api.Assertions.assertThrows
 
 class TestDeclarativePipeline extends DeclarativePipelineTest {
 
-    @Before
+    @BeforeEach
     @Override
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins/jenkinsfiles'
@@ -725,16 +727,18 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusFailure()
     }
 
-    @Test(expected = MissingPropertyException)
+    @Test
     void should_non_valid_fail() throws Exception {
-        try {
-            runScript('Non_Valid_Jenkinsfile')
-        } catch (e) {
-            e.printStackTrace()
-            throw e
-        } finally {
-            printCallStack()
-        }
+        assertThrows(MissingPropertyException, { ->
+            try {
+                runScript('Non_Valid_Jenkinsfile')
+            } catch (e) {
+                e.printStackTrace()
+                throw e
+            } finally {
+                printCallStack()
+            }
+        })
     }
 
     @Test void should_not_leave_environment_dirty() throws Exception {
@@ -825,9 +829,11 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
 
     }
 
-    @Test(expected = IllegalArgumentException)
+    @Test
     void test_stage_and_steps() {
-        runScript("StageAndSteps_Jenkinsfile")
+        assertThrows(IllegalArgumentException, { ->
+            runScript("StageAndSteps_Jenkinsfile")
+        })
     }
 }
 

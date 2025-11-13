@@ -1,13 +1,13 @@
 package com.lesfurets.jenkins
 
 import com.lesfurets.jenkins.unit.cps.BaseRegressionTestCPS
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class TestRegressionGlobalVar extends BaseRegressionTestCPS {
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()

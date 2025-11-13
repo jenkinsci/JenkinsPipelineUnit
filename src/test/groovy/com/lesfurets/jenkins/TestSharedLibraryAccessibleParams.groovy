@@ -1,12 +1,13 @@
 package com.lesfurets.jenkins
 
 import com.lesfurets.jenkins.unit.declarative.DeclarativePipelineTest
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
 import static com.lesfurets.jenkins.unit.global.lib.ProjectSource.projectSource
 import static org.assertj.core.api.Assertions.assertThat
+import static org.junit.jupiter.api.Assertions.assertThrows
 
 class TestSharedLibraryAccessibleParams extends DeclarativePipelineTest {
 
@@ -17,7 +18,7 @@ class TestSharedLibraryAccessibleParams extends DeclarativePipelineTest {
     private final String BINDING_VAL = "notBroken"
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
@@ -41,9 +42,11 @@ class TestSharedLibraryAccessibleParams extends DeclarativePipelineTest {
         run_test_with_bindings {assertThat(binding.getVariable(BINDING_VAR)).isNotEqualTo(BINDING_VAL)}
     }
 
-    @Test(expected = MissingPropertyException.class)
+    @Test
     void not_accessible_params_test() {
-        runScript(JOB_PATH)
+        assertThrows(MissingPropertyException.class, { ->
+            runScript(JOB_PATH)
+        })
     }
 
     private void run_test_with_bindings(Closure assertion) {

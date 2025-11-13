@@ -1,14 +1,13 @@
 package com.lesfurets.jenkins
 
-import org.junit.Before
-import org.junit.Test
-
 import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class TestParallelJobCPS extends BasePipelineTestCPS {
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()

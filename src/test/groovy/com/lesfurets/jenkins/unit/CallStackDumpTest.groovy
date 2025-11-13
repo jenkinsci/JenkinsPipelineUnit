@@ -1,6 +1,6 @@
 package com.lesfurets.jenkins.unit
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class CallStackDumpTest extends BasePipelineTest {
 

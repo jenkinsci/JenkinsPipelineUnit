@@ -1,17 +1,16 @@
 package com.lesfurets.jenkins
 
-import org.junit.Before
-import org.junit.Test
-
 import com.lesfurets.jenkins.unit.BasePipelineTest
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 import static com.lesfurets.jenkins.unit.MethodCall.callArgsToString
-import static org.junit.Assert.assertTrue
+import static org.junit.jupiter.api.Assertions.assertTrue
 
 class TestExampleJob extends BasePipelineTest {
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()

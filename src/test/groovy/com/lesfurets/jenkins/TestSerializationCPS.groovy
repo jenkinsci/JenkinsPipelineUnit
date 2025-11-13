@@ -1,16 +1,17 @@
 package com.lesfurets.jenkins
 
-import org.junit.Before
-import org.junit.Test
-
 import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+import static org.junit.jupiter.api.Assertions.assertThrows
 
 class TestSerializationCPS extends BasePipelineTestCPS {
 
 
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
@@ -26,16 +27,18 @@ class TestSerializationCPS extends BasePipelineTestCPS {
         ])
     }
 
-    @Test(expected = Exception.class)
+    @Test
     void testException() throws Exception {
-        def script = loadScript('job/serialize.jenkins')
-        try {
-            script.execute()
-        } catch (e) {
-            throw e
-        } finally {
-            printCallStack()
-        }
+        assertThrows(Exception.class, { ->
+            def  script = loadScript('job/serialize.jenkins')
+            try {
+                script.execute()
+            } catch ( e) {
+                throw e
+            } finally {
+                printCallStack()
+            }
+        })
     }
 
     @Test
