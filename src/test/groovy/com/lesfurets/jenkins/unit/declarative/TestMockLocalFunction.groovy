@@ -1,18 +1,18 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import static org.assertj.core.api.Assertions.assertThat
-
-import org.junit.runners.JUnit4
 import com.lesfurets.jenkins.unit.InterceptingGCL
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+import static org.assertj.core.api.Assertions.assertThat
+import static org.junit.jupiter.api.Assertions.assertThrows
 
 class TestMockLocalFunction extends DeclarativePipelineTest {
 
     private static String SCRIPT_NO_PARAMS = "Mock_existing_function_Jenkinsfile"
     private static String SCRIPT_PARAMS = SCRIPT_NO_PARAMS + "_params"
 
-    @Before
+    @BeforeEach
     @Override
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins/jenkinsfiles'
@@ -20,9 +20,11 @@ class TestMockLocalFunction extends DeclarativePipelineTest {
         super.setUp()
     }
 
-    @Test(expected=MissingMethodException.class)
+    @Test
     void no_params_should_execute_with_errors() {
-        runScript(SCRIPT_NO_PARAMS)
+        assertThrows(MissingMethodException.class, { ->
+            runScript(SCRIPT_NO_PARAMS)
+        })
     }
 
     @Test
@@ -31,9 +33,11 @@ class TestMockLocalFunction extends DeclarativePipelineTest {
         runScript(SCRIPT_NO_PARAMS)
     }
 
-    @Test(expected=MissingMethodException.class)
+    @Test
     void params_should_execute_with_errors() {
-        runScript(SCRIPT_PARAMS)
+        assertThrows(MissingMethodException.class, { ->
+            runScript(SCRIPT_PARAMS)
+        })
     }
 
     @Test
@@ -50,7 +54,7 @@ class TestMockLocalFunction extends DeclarativePipelineTest {
 
     @Test
     void default_closure_different_args() {
-        Class[] args = [Arrays.class, JUnit4.class, InterceptingGCL.class, String.class, Integer.class]
+        Class[] args = [Arrays.class, Test.class, InterceptingGCL.class, String.class, Integer.class]
         default_closure_parameter_check(args)
     }
 
@@ -60,10 +64,14 @@ class TestMockLocalFunction extends DeclarativePipelineTest {
         default_closure_parameter_check(args)
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     void default_closure_exceeded_args() {
-        Class[] args = (1..500).collect{ String.class }
-        default_closure_parameter_check(args)
+        assertThrows(IllegalArgumentException.class, { ->
+            Class[] args = (1..500).collect {
+                String.class
+            }
+            default_closure_parameter_check(args)
+        })
     }
 
     private static void default_closure_parameter_check(Class[] args) {

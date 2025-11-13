@@ -1,12 +1,13 @@
 package com.lesfurets.jenkins.unit
 
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
 import static org.assertj.core.api.Assertions.assertThat
 
-import org.junit.Before
-import org.junit.Test
-
 class BasePipelineTestTest extends BasePipelineTest {
-    @Before
+    
+    @BeforeEach
     @Override
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins/jenkinsfiles'

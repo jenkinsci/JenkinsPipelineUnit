@@ -1,13 +1,15 @@
 package com.lesfurets.jenkins.unit
 
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
 import static org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.Test
+import static org.junit.jupiter.api.Assertions.assertThrows
 
 class PipelineTestHelperTest {
     private PipelineTestHelper helper
 
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         helper = new PipelineTestHelper()
     }
@@ -128,15 +130,17 @@ class PipelineTestHelperTest {
         assertThat(output).isEqualTo('/foo/bar')
     }
 
-    @Test(expected = Exception)
+    @Test
     void runShWithStdoutFailure() {
         // given:
         helper.addShMock('pwd', '/foo/bar', 1)
 
-        // when:
-        helper.runSh(returnStdout: true, script: 'pwd')
+        assertThrows(Exception, { ->
+            // when:
+            helper.runSh(returnStdout: true, script: 'pwd')
 
-        // then: Exception raised
+            // then: Exception raised
+        })
     }
 
     @Test
@@ -177,17 +181,19 @@ class PipelineTestHelperTest {
         assertThat(output).isNull()
     }
 
-    @Test(expected = Exception)
+    @Test
     void runShWithCallbackScriptFailure() {
         // given:
-        helper.addShMock('evil') { script ->
+        helper.addShMock('evil') { script  ->
             return [stdout: '/foo/bar', exitValue: 666]
         }
 
-        // when:
-        helper.runSh('evil')
+        assertThrows(Exception, { ->
+            // when:
+            helper.runSh('evil')
 
-        // then: Exception raised
+            // then: Exception raised
+        })
     }
 
     @Test
@@ -232,46 +238,53 @@ class PipelineTestHelperTest {
         assertThat(output).isEqualTo(666)
     }
 
-    @Test(expected = IllegalArgumentException)
+    @Test
     void runShWithCallbackOutputNotMap() {
         // given:
-        helper.addShMock('pwd') { script ->
+        helper.addShMock('pwd') { script  ->
             return 'invalid'
         }
 
-        // when:
-        helper.runSh(returnStatus: true, script: 'pwd')
+        assertThrows(IllegalArgumentException, { ->
+            // when:
+            helper.runSh(returnStatus: true, script: 'pwd')
 
-        // then: Exception raised
+            // then: Exception raised
+        })
     }
 
-    @Test(expected = IllegalArgumentException)
+    @Test
     void runShWithCallbackNoStdoutKey() {
         // given:
-        helper.addShMock('pwd') { script ->
+        helper.addShMock('pwd') { script  ->
             return [exitValue: 666]
         }
 
-        // when:
-        helper.runSh(returnStatus: true, script: 'pwd')
+        assertThrows(IllegalArgumentException, { ->
+            // when:
+            helper.runSh(returnStatus: true, script: 'pwd')
 
-        // then: Exception raised
+            // then: Exception raised
+        })
     }
 
-    @Test(expected = IllegalArgumentException)
+    @Test
     void runShWithCallbackNoExitValueKey() {
         // given:
-        helper.addShMock('pwd') { script ->
+        helper.addShMock('pwd') { script  ->
             return [stdout: '/foo/bar']
         }
 
-        // when:
-        helper.runSh(returnStatus: true, script: 'pwd')
+        assertThrows(IllegalArgumentException, { ->
 
-        // then: Exception raised
+            // when:
+            helper.runSh(returnStatus: true, script: 'pwd')
+
+            // then: Exception raised
+        })
     }
 
-    @Test()
+    @Test
     void runShWithPattern() {
         // given:
         def helper = new PipelineTestHelper()
@@ -288,7 +301,7 @@ class PipelineTestHelperTest {
         assertThat(status).isEqualTo(2)
     }
 
-    @Test()
+    @Test
     void runShWithPatternStatus() {
         // given:
         def helper = new PipelineTestHelper()
@@ -301,7 +314,7 @@ class PipelineTestHelperTest {
         assertThat(status).isEqualTo(777)
     }
 
-    @Test()
+    @Test
     void runShWithPatternStdout() {
         // given:
         def helper = new PipelineTestHelper()
@@ -314,7 +327,7 @@ class PipelineTestHelperTest {
         assertThat(status).isEqualTo('mock-output')
     }
 
-    @Test()
+    @Test
     void runShWithDefaultPattern() {
         // given:
         helper.addShMock(~/.*/) { String script, String ...args ->
@@ -330,7 +343,7 @@ class PipelineTestHelperTest {
         assertThat(status).isEqualTo(2)
     }
 
-    @Test()
+    @Test
     void runShWithNoArgs() {
         // given:
         def helper = new PipelineTestHelper()
@@ -345,7 +358,7 @@ class PipelineTestHelperTest {
         assertThat(status).isEqualTo(2)
     }
 
-    @Test()
+    @Test
     void runBatWithNoArgs() {
         // given:
         def helper = new PipelineTestHelper()
@@ -360,7 +373,7 @@ class PipelineTestHelperTest {
         assertThat(status).isEqualTo(2)
     }
 
-    @Test()
+    @Test
     void runShWithNoArgsMultiline() {
         // given:
         def helper = new PipelineTestHelper()
@@ -380,7 +393,7 @@ class PipelineTestHelperTest {
     }
 
 
-    @Test()
+    @Test
     void runShWithoutMockOutput() {
         // given:
 
@@ -391,7 +404,7 @@ class PipelineTestHelperTest {
         assertThat(output).isNull()
     }
 
-    @Test()
+    @Test
     void runShWithoutMockOutputAndReturnStatus() {
         // given:
 
@@ -402,7 +415,7 @@ class PipelineTestHelperTest {
         assertThat(output).isEqualTo(0)
     }
 
-    @Test()
+    @Test
     void runShWithoutMockOutputAndReturnStdout() {
         // given:
 
@@ -413,7 +426,7 @@ class PipelineTestHelperTest {
         assertThat(output).isEqualTo('')
     }
 
-    @Test()
+    @Test
     void runShWithDefaultHandler() {
         // given:
         helper.addShMock('command', 'ignored', 0)
@@ -427,7 +440,7 @@ class PipelineTestHelperTest {
         assertThat(status).isEqualTo(1)
     }
 
-    @Test()
+    @Test
     void runShWithOverriddenHandler() {
         // given:
         helper.addShMock('command', 'base', 1)
@@ -440,14 +453,16 @@ class PipelineTestHelperTest {
         assertThat(status).isEqualTo(2)
     }
 
-    @Test(expected = IllegalArgumentException)
+    @Test
     void runShWithBothStatusAndStdout() {
-        // given:
+        assertThrows(IllegalArgumentException, { ->
+            // given:
 
-        // when:
-        helper.runSh(returnStatus: true, returnStdout: true, script: 'invalid')
+            // when:
+            helper.runSh(returnStatus: true, returnStdout: true, script: 'invalid')
 
-        // then: Exception raised
+            // then: Exception raised
+        })
     }
 
 }

@@ -3,26 +3,29 @@
  */
 package com.lesfurets.jenkins
 
+import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
 import org.codehaus.groovy.runtime.typehandling.GroovyCastException
-import org.junit.Before
-import org.junit.Ignore
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 
-import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS;
+import static org.junit.jupiter.api.Assertions.assertThrows
 
 class TestFailingJobs extends BasePipelineTestCPS {
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
     }
 
-    @Test(expected = GroovyCastException)
+    @Test
     void should_fail_nonCpsCallingCps() throws Exception {
-        def script = runScript("job/shouldFail/nonCpsCallingCps.jenkins")
-        printCallStack()
+        assertThrows(GroovyCastException, { ->
+            def  script = runScript("job/shouldFail/nonCpsCallingCps.jenkins")
+            printCallStack()
+        })
     }
 
     /**
@@ -31,10 +34,12 @@ class TestFailingJobs extends BasePipelineTestCPS {
      * on a CPS-transformed closure is not yet supported (JENKINS-26481);
      * encapsulate in a @NonCPS method, or use Java-style loops
      */
-    @Test(expected = UnsupportedOperationException)
-    @Ignore
+    @Test
+    @Disabled
     void should_fail_forEach() throws Exception {
-        def script = runScript("job/shouldFail/forEach.jenkins")
-        printCallStack()
+        assertThrows(UnsupportedOperationException, { ->
+            def  script = runScript("job/shouldFail/forEach.jenkins")
+            printCallStack()
+        })
     }
 }

@@ -1,11 +1,11 @@
 package com.lesfurets.jenkins.unit.declarative
 
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class TestDockerAgentInStep extends DeclarativePipelineTest {
 
-    @Before
+    @BeforeEach
     @Override
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins/jenkinsfiles'

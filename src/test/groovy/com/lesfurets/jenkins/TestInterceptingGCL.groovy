@@ -1,16 +1,15 @@
 package com.lesfurets.jenkins
 
 import com.lesfurets.jenkins.unit.BasePipelineTest
-
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
 import static com.lesfurets.jenkins.unit.global.lib.ProjectSource.projectSource
 
 class TestInterceptingGCL extends BasePipelineTest {
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()

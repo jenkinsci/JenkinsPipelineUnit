@@ -1,16 +1,15 @@
 package com.lesfurets.jenkins
 
-import org.junit.Before
-import org.junit.Test
-
 import com.lesfurets.jenkins.unit.BasePipelineTest
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
-import static org.junit.Assert.*
+import static org.junit.jupiter.api.Assertions.*
 
 class TestRegisterOriginalMethodCallArgs extends BasePipelineTest {
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += "src/test/jenkins"
         super.setUp()

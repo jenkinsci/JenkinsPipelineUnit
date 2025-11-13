@@ -1,21 +1,18 @@
 package com.lesfurets.jenkins
 
+import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.Parameter
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
+
 import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
 import static com.lesfurets.jenkins.unit.global.lib.ProjectSource.projectSource
 import static org.assertj.core.api.Assertions.assertThat
 
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
-import org.junit.runners.Parameterized.Parameter
-import org.junit.runners.Parameterized.Parameters
-
-import com.lesfurets.jenkins.unit.cps.BasePipelineTestCPS
-
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "Test {0} allowOverride:{1} implicit:{2} expected:{3}")
+@MethodSource("data")
 class TestSharedLibraryWithProjectSourceRetrieverCPS extends BasePipelineTestCPS {
 
     // For simplicity we use the common@master here. In this case 'commons@master'
@@ -37,13 +34,12 @@ class TestSharedLibraryWithProjectSourceRetrieverCPS extends BasePipelineTestCPS
     public boolean expected
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
     }
 
-    @Parameters(name = "Test {0} allowOverride:{1} implicit:{2} expected:{3}")
     static Collection<Object[]> data() {
         return [['libraryJob', false, false, false],
          ['libraryJob_implicit', false, false, true],

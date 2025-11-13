@@ -1,7 +1,7 @@
 package com.lesfurets.jenkins
 
 import com.lesfurets.jenkins.unit.BasePipelineTest
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class TestAddEnvVar extends BasePipelineTest {
 

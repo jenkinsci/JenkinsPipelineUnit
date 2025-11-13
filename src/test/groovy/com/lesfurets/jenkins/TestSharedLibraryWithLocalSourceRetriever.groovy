@@ -1,27 +1,23 @@
 package com.lesfurets.jenkins
 
-import com.lesfurets.jenkins.unit.LibClassLoader
+import com.lesfurets.jenkins.unit.BasePipelineTest
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.Parameter
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
 import static com.lesfurets.jenkins.unit.global.lib.LocalSource.localSource
 import static org.assertj.core.api.Assertions.assertThat
 
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
-import org.junit.runners.Parameterized.Parameter
-import org.junit.runners.Parameterized.Parameters
+@ParameterizedClass(name = "Test {0} allowOverride:{1} implicit:{2} expected:{3}")
+@MethodSource("data")
+class TestSharedLibraryWithLocalSourceRetriever extends BasePipelineTest {
 
-import com.lesfurets.jenkins.unit.BasePipelineTest
-
-@RunWith(Parameterized.class)
-class TestSharedLibrary extends BasePipelineTest {
-
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder()
+    @TempDir
+    public File folder
 
     String sharedLibs = this.class.getResource('/libs').getFile()
 
@@ -35,14 +31,13 @@ class TestSharedLibrary extends BasePipelineTest {
     public boolean expected
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()
         binding.setVariable('scm', [branch: 'master'])
     }
 
-    @Parameters(name = "Test {0} allowOverride:{1} implicit:{2} expected:{3}")
     static Collection<Object[]> data() {
         return [['libraryJob', false, false, false],
          ['libraryJob_implicit', false, false, true],

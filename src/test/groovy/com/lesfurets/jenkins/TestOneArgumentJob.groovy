@@ -1,21 +1,18 @@
 package com.lesfurets.jenkins
 
+import com.lesfurets.jenkins.unit.BaseRegressionTest
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
 import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
 import static com.lesfurets.jenkins.unit.global.lib.LocalSource.localSource
-
-import com.lesfurets.jenkins.unit.LibClassLoader
-import com.lesfurets.jenkins.unit.BaseRegressionTest
-import org.junit.Before
-import org.junit.Test
-
-import static org.junit.Assert.assertTrue
 
 class TestOneArgumentJob extends BaseRegressionTest {
     
     String sharedLibs = this.class.getResource('/libs').getFile()
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
         super.setUp()

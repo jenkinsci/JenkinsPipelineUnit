@@ -1,8 +1,7 @@
 package com.lesfurets.jenkins.unit
 
-import org.junit.Before
-import org.junit.Test
-
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 /**
  * Test the DockerMock class
@@ -15,7 +14,7 @@ class DockerMockTest extends BasePipelineTest {
   Object script = null
   String testImage = 'test'
 
-  @Before
+  @BeforeEach
   @Override
   void setUp() {
     super.setUp()

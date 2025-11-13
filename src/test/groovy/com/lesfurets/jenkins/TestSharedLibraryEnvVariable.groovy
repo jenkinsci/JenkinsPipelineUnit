@@ -1,19 +1,19 @@
 package com.lesfurets.jenkins
 
 import com.lesfurets.jenkins.unit.declarative.DeclarativePipelineTest
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 import static com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration.library
 import static com.lesfurets.jenkins.unit.global.lib.ProjectSource.projectSource
+import static org.junit.jupiter.api.Assertions.assertEquals
 
 class TestSharedLibraryEnvVariable extends DeclarativePipelineTest {
 
     String sharedLibVars = this.class.getResource("/libs/env_var_not_defined").getFile()
 
     @Override
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         scriptRoots += 'src/test/jenkins'
 
@@ -35,7 +35,7 @@ class TestSharedLibraryEnvVariable extends DeclarativePipelineTest {
         runScript("job/library/test_lib_var_not_defined_in_env.jenkins")
 
         def prop1 = binding.env["prop1"]
-        Assert.assertEquals("magic", prop1)
+        assertEquals("magic", prop1)
     }
 
     @Test
@@ -44,6 +44,6 @@ class TestSharedLibraryEnvVariable extends DeclarativePipelineTest {
 
         def versionFromEnv = binding.env["VERSION"]
         def versionFromParams = binding.params["VERSION"]
-        Assert.assertEquals(versionFromParams.toString(), versionFromEnv.toString())
+        assertEquals(versionFromParams.toString(), versionFromEnv.toString())
     }
 }
