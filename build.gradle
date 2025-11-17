@@ -27,7 +27,7 @@ dependencies {
     implementation('commons-io:commons-io:2.21.0')
     implementation('org.apache.ivy:ivy:2.5.3')
     api('org.assertj:assertj-core:3.27.6')
-    implementation('org.apache.commons:commons-lang3:3.19.0')
+    implementation('org.apache.commons:commons-lang3:3.20.0')
 
     testImplementation('org.junit.jupiter:junit-jupiter:6.0.1')
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:6.0.1')
