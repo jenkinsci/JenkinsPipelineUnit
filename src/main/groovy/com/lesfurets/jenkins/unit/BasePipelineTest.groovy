@@ -132,14 +132,7 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('bat', [String], { args -> helper.runBat(args) })
         helper.registerAllowedMethod('bat', [Map], { args -> helper.runBat(args) })
         helper.registerAllowedMethod('booleanParam', [Map], paramInterceptor)
-        helper.registerAllowedMethod("build", [Map.class], {
-            [
-                getNumber:{100500},
-                getDescription:{"Dummy build description"},
-                getFullProjectName:{"some_dir/some_job"},
-                getProjectName:{"some_job"},
-            ]
-        })
+        helper.registerAllowedMethod("build", [Map.class])
         helper.registerAllowedMethod("buildDiscarder", [Object])
         helper.registerAllowedMethod('catchError', [Closure]) { Closure c ->
             c.delegate = delegate
