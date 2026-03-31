@@ -1,0 +1,20 @@
+@RunWith(MockitoJunitRunner.class)
+class FooTest {
+    @Mock // Same as "someThing = Mockito.mock(SomeThing.class)"
+    private SomeThing someThing,
+
+    private final Foo foo;
+
+    @Before
+    public void setup() throws Exception {
+        foo = new Foo(); // our instance of Foo we will be testing
+        foo.setSomeThing(someThing); // we "inject" our mocked SomeThing
+    } 
+
+    @Test
+    public void testFoo() throws Exception {
+        when(someThing.compute(anyInt()).thenReturn(2); // we define some behavior
+        assertEquals(2, foo.bar(5)); // test assertion
+        verify(someThing).compute(7); // verify behavior.
+    } 
+}
