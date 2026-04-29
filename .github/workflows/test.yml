@@ -8,14 +8,14 @@ on:
       - master
 jobs:
   test:
-    name: macos-17
+    name: macos-21
     runs-on: macos-latest
     steps:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run Tests
