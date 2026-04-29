@@ -14,6 +14,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v1
         with:
+          distribution: temurin
           java-version: 17
       - name: Checkout
         uses: actions/checkout@v2
