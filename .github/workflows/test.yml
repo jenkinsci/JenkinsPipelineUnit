@@ -8,14 +8,15 @@ on:
       - master
 jobs:
   test:
-    name: macos-17
+    name: macos-21
     runs-on: macos-latest
     steps:
       - name: Setup Java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: 17
+          distribution: temurin
+          java-version: 21
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Run Tests
         run: ./gradlew --no-daemon cleanTest build
