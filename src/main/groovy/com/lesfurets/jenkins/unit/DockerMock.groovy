@@ -10,9 +10,6 @@ class DockerMock implements Serializable {
     private transient PipelineTestHelper helper
     private transient Binding binding
 
-    DockerMock() {
-    }
-
     DockerMock(PipelineTestHelper helper, Binding binding) {
         this.helper = helper
         this.binding = binding
