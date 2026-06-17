@@ -49,7 +49,7 @@ class AnyOfDeclaration extends WhenDeclaration {
     }
 
     def allOf(@DelegatesTo(strategy = DELEGATE_FIRST, value = AllOfDeclaration) Closure closure) {
-        this.allOfs.add(createComponent(AllOfDeclaration, closure))
+        this.allOfs.add(createComponent(AllOfDeclaration, this.binding, closure))
     }
 
     def allOf(Object delegate) {

@@ -15,7 +15,6 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     KubernetesAgentDeclaration kubernetes
     DockerfileAgentDeclaration dockerfileAgent
     String customWorkspace
-    def binding = null
 
     def label(String label) {
         this.label = label
@@ -34,7 +33,7 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     }
 
     def docker(@DelegatesTo(strategy = DELEGATE_FIRST, value = DockerAgentDeclaration) Closure closure) {
-        this.docker = createComponent(DockerAgentDeclaration, closure)
+        this.docker = createComponent(DockerAgentDeclaration, this.binding, closure)
     }
 
     def kubernetes(boolean _) {
@@ -46,7 +45,7 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     }
 
     def kubernetes(@DelegatesTo(strategy = DELEGATE_FIRST, value = KubernetesAgentDeclaration) Closure closure) {
-        this.@kubernetes = createComponent(KubernetesAgentDeclaration, closure)
+        this.@kubernetes = createComponent(KubernetesAgentDeclaration, this.binding, closure)
     }
 
     def dockerfile(boolean _) {
@@ -58,7 +57,7 @@ class AgentDeclaration extends GenericPipelineDeclaration {
     }
 
     def dockerfile(@DelegatesTo(strategy = DELEGATE_FIRST, value = DockerfileAgentDeclaration) Closure closure) {
-        this.@dockerfileAgent = createComponent(DockerfileAgentDeclaration, closure)
+        this.@dockerfileAgent = createComponent(DockerfileAgentDeclaration, this.binding, closure)
     }
 
 

@@ -41,7 +41,7 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
     }
 
     def parameters(@DelegatesTo(strategy=DELEGATE_FIRST, value=ParametersDeclaration) Closure closure) {
-        this.params = createComponent(ParametersDeclaration, closure)
+        this.params = createComponent(ParametersDeclaration, this.binding, closure)
     }
 
     def execute(Object delegate) {

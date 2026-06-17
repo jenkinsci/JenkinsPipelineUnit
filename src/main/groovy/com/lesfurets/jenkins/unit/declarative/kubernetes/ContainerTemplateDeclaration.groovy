@@ -92,12 +92,12 @@ class ContainerTemplateDeclaration extends GenericPipelineDeclaration {
 
     def ports(@DelegatesTo(strategy = DELEGATE_FIRST, value = PortMappingDeclaration) List<Closure> closures) {
         this.ports = closures.each { ct ->
-            return createComponent(PortMappingDeclaration, ct)
+            return createComponent(PortMappingDeclaration, this.binding, ct)
         } as List<PortMappingDeclaration>
     }
 
     def livenessProbe(@DelegatesTo(strategy = DELEGATE_FIRST, value = ContainerLivenessProbeDeclaration) Closure closure) {
-        this.livenessProbe = createComponent(ContainerLivenessProbeDeclaration, ct)
+        this.livenessProbe = createComponent(ContainerLivenessProbeDeclaration, this.binding, closure)
     }
 
     @Memoized
