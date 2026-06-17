@@ -351,11 +351,14 @@ abstract class BasePipelineTest {
             upstreamBuilds: [],
         ])
 
-        // Initialize interceptors for DockerMock
-        InterceptingGCL.interceptClassMethods(DockerMock.metaClass, helper, binding)
-        InterceptingGCL.interceptClassMethods(DockerMock.Container.metaClass, helper, binding)
-        InterceptingGCL.interceptClassMethods(DockerMock.Image.metaClass, helper, binding)
-        binding.setVariable('docker', new DockerMock())
+        // Initialize per-instance interceptors for DockerMock.
+        // Per-instance (not class-level) interception keeps the global metaclass of the shared
+        // DockerMock/Image/Container framework classes untouched, so concurrent tests don't
+        // route each other's docker calls to the wrong call stack. The mock applies the same
+        // per-instance interception to the Image/Container objects it creates.
+        DockerMock docker = new DockerMock(helper, binding)
+        InterceptingGCL.interceptInstanceMethods(docker, helper, binding)
+        binding.setVariable('docker', docker)
 
         binding.setVariable('env', [:])
         binding.setVariable('scm', [:])
