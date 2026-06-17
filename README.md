@@ -21,6 +21,7 @@ and even track regressions.
 
 1. [Usage](#usage)
 1. [Configuration](#configuration)
+1. [Parallel Test Execution](#parallel-test-execution)
 1. [Declarative Pipeline](#declarative-pipelines)
 1. [Testing Shared Libraries](#testing-pipelines-that-use-shared-libraries)
 1. [Writing Testable Libraries](#writing-testable-libraries)
@@ -558,6 +559,36 @@ This will work fine for such a project structure:
          └── groovy
              └── TestExampleJob.groovy
 ```
+
+## Parallel Test Execution
+
+JenkinsPipelineUnit is thread-safe and supports running tests in parallel within a single
+JVM. Each test must use its own `PipelineTestHelper` instance (the default when you subclass
+`BasePipelineTest`/`DeclarativePipelineTest` without sharing a helper): script classes,
+shared-library classes, mocks and the call stack are all isolated per helper, and the
+framework no longer mutates any JVM-global state across helpers.
+
+To enable parallel execution with JUnit 5/6, add a `junit-platform.properties` file to your
+test resources:
+
+```properties
+junit.jupiter.execution.parallel.enabled = true
+junit.jupiter.execution.parallel.mode.default = concurrent
+junit.jupiter.execution.parallel.mode.classes.default = concurrent
+junit.jupiter.execution.parallel.config.strategy = dynamic
+```
+
+Notes and caveats:
+
+- **One helper per test.** If you deliberately *share* a single `PipelineTestHelper`
+  across tests (e.g. a `static` cached helper for speed), that shared helper is still
+  mutable state and must not be used by concurrent tests. Give each concurrently-running
+  test its own helper.
+- **Your own test code must be thread-safe too.** Static mocks (e.g. shared Mockito mocks),
+  static maps populated by `@BeforeEach`, and `metaClass` mutation on shared/global objects
+  in your test code are not made safe by this framework. Keep such state per-test, or guard
+  it.
+- JenkinsPipelineUnit's own test suite runs concurrently to guard against regressions.
 
 ## Declarative Pipelines
 
