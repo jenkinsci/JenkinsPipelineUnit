@@ -588,6 +588,12 @@ Notes and caveats:
   static maps populated by `@BeforeEach`, and `metaClass` mutation on shared/global objects
   in your test code are not made safe by this framework. Keep such state per-test, or guard
   it.
+- **`@Grab` in pipeline or shared-library code is not safe under parallelism.** Groovy
+  resolves `@Grab` through Grape/Ivy *at compile time*, and Grape uses a process-global,
+  non-thread-safe Ivy instance. Because each helper compiles library classes with its own
+  class loader, two concurrent tests compiling the same `@Grab`-annotated class can corrupt
+  each other's resolution and fail with `unable to resolve class ...`. Pre-resolve such
+  dependencies on the test classpath instead of grabbing them from pipeline code.
 - JenkinsPipelineUnit's own test suite runs concurrently to guard against regressions.
 
 ## Declarative Pipelines
