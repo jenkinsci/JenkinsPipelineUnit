@@ -24,15 +24,15 @@ class WhenDeclaration extends GenericPipelineDeclaration {
     Boolean beforeAgent
 
     def allOf(@DelegatesTo(strategy = DELEGATE_FIRST, value = AllOfDeclaration) Closure closure) {
-        this.allOf = createComponent(AllOfDeclaration, closure)
+        this.allOf = createComponent(AllOfDeclaration, this.binding, closure)
     }
 
     def anyOf(@DelegatesTo(strategy = DELEGATE_FIRST, value = AnyOfDeclaration) Closure closure) {
-        this.anyOf = createComponent(AnyOfDeclaration, closure)
+        this.anyOf = createComponent(AnyOfDeclaration, this.binding, closure)
     }
 
     def not(@DelegatesTo(strategy = DELEGATE_FIRST, value = NotDeclaration) Closure closure) {
-        this.not = createComponent(NotDeclaration, closure)
+        this.not = createComponent(NotDeclaration, this.binding, closure)
     }
 
     def branch(String pattern) {

@@ -26,6 +26,27 @@ class InterceptingGCL extends GroovyClassLoader {
         }
     }
 
+    /**
+     * Intercept method calls on a single object instance, recording them on the given helper's
+     * call stack. Unlike {@link #interceptClassMethods(MetaClass, PipelineTestHelper, Binding)},
+     * this sets up a per-instance {@link ExpandoMetaClass} and does NOT mutate the class-level
+     * (JVM-global) metaclass. This keeps interception isolated per helper, so multiple tests
+     * sharing the same framework classes (e.g. {@link DockerMock}) can run concurrently without
+     * routing each other's calls to the wrong call stack.
+     *
+     * @param instance the object whose instance methods should be intercepted
+     * @param helper   the helper that records the calls
+     * @param binding  the binding backing this helper
+     */
+    static void interceptInstanceMethods(Object instance, PipelineTestHelper helper, Binding binding) {
+        ExpandoMetaClass emc = new ExpandoMetaClass(instance.getClass(), false, true)
+        emc.invokeMethod = helper.getMethodInterceptor()
+        emc.methodMissing = helper.getMethodMissingInterceptor()
+        emc.getEnv = { return binding.env }
+        emc.initialize()
+        instance.metaClass = emc
+    }
+
     static Closure defaultClosure(Class[] args) {
         int maxLength = 254
         if (args.length > maxLength) {

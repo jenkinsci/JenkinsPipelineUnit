@@ -17,23 +17,23 @@ class WorkspaceVolumeDeclaration extends GenericPipelineDeclaration {
     PersistentVolumeClaimWorkspaceVolume persistentVolumeClaimWorkspaceVolume
 
     void dynamicPVC(@DelegatesTo(strategy = DELEGATE_FIRST, value = DynamicWorkspaceVolume) Closure closure) {
-        this.dynamicPVC = createComponent(DynamicWorkspaceVolume, closure)
+        this.dynamicPVC = createComponent(DynamicWorkspaceVolume, this.binding, closure)
     }
 
     void emptyDirWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_FIRST, value = EmptyDirWorkspaceVolume) Closure closure) {
-        this.emptyDirWorkspaceVolume = createComponent(EmptyDirWorkspaceVolume, closure)
+        this.emptyDirWorkspaceVolume = createComponent(EmptyDirWorkspaceVolume, this.binding, closure)
     }
 
     void hostPathWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_FIRST, value = HostPathWorkspaceVolume) Closure closure) {
-        this.hostPathWorkspaceVolume = createComponent(HostPathWorkspaceVolume, closure)
+        this.hostPathWorkspaceVolume = createComponent(HostPathWorkspaceVolume, this.binding, closure)
     }
 
     void nfsWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_FIRST, value = NfsWorkspaceVolume) Closure closure) {
-        nfsWorkspaceVolume = createComponent(NfsWorkspaceVolume, closure)
+        nfsWorkspaceVolume = createComponent(NfsWorkspaceVolume, this.binding, closure)
     }
 
     void persistentVolumeClaimWorkspaceVolume(@DelegatesTo(strategy = DELEGATE_FIRST, value = PersistentVolumeClaimWorkspaceVolume) Closure closure) {
-        persistentVolumeClaimWorkspaceVolume = createComponent(PersistentVolumeClaimWorkspaceVolume, closure)
+        persistentVolumeClaimWorkspaceVolume = createComponent(PersistentVolumeClaimWorkspaceVolume, this.binding, closure)
     }
 
     @Memoized

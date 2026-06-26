@@ -88,12 +88,12 @@ class KubernetesAgentDeclaration extends GenericPipelineDeclaration {
     }
 
     def containerTemplate(@DelegatesTo(strategy = DELEGATE_FIRST, value = ContainerTemplateDeclaration) Closure closure) {
-        this.containerTemplate = createComponent(ContainerTemplateDeclaration, closure)
+        this.containerTemplate = createComponent(ContainerTemplateDeclaration, this.binding, closure)
     }
 
     def containerTemplates(@DelegatesTo(strategy = DELEGATE_FIRST, value = ContainerTemplateDeclaration) List<Closure> closures) {
         this.containerTemplates = closures.each { ct ->
-            return createComponent(ContainerTemplateDeclaration, ct)
+            return createComponent(ContainerTemplateDeclaration, this.binding, ct)
         } as List<ContainerTemplateDeclaration>
     }
 
@@ -114,7 +114,7 @@ class KubernetesAgentDeclaration extends GenericPipelineDeclaration {
     }
 
     def workspaceVolume(@DelegatesTo(strategy = DELEGATE_FIRST, value = WorkspaceVolumeDeclaration) Closure closure) {
-        this.workspaceVolume = createComponent(WorkspaceVolumeDeclaration, closure)
+        this.workspaceVolume = createComponent(WorkspaceVolumeDeclaration, this.binding, closure)
     }
 
     def supplementalGroups(final String supplementalGroups) {

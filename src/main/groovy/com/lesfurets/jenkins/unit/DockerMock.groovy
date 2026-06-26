@@ -3,6 +3,30 @@ package com.lesfurets.jenkins.unit
 
 @SuppressWarnings(['EmptyMethod', 'MethodReturnTypeRequired', 'UnusedMethodParameter'])
 class DockerMock implements Serializable {
+
+    // Helper and binding used to apply per-instance interception to the Image/Container
+    // objects this mock creates, so their calls are recorded on the owning helper's call stack.
+    // Transient: these are test-infra references and must not be carried by CPS serialization.
+    private transient PipelineTestHelper helper
+    private transient Binding binding
+
+    DockerMock(PipelineTestHelper helper, Binding binding) {
+        this.helper = helper
+        this.binding = binding
+    }
+
+    /**
+     * Apply per-instance method interception to a freshly created Image/Container so that calls
+     * on it are recorded on this mock's helper. No-op when the mock was created without a helper
+     * (e.g. after CPS deserialization), keeping behavior safe rather than throwing.
+     */
+    private <T> T intercept(T instance) {
+        if (helper != null) {
+            InterceptingGCL.interceptInstanceMethods(instance, helper, binding)
+        }
+        return instance
+    }
+
     class Container implements Serializable {
         String id
 
@@ -31,7 +55,7 @@ class DockerMock implements Serializable {
         }
 
         def inside(String args = '', Closure body) {
-            return body(new Container())
+            return body(DockerMock.this.intercept(new Container()))
         }
 
         def pull() {}
@@ -43,7 +67,7 @@ class DockerMock implements Serializable {
         }
 
         def run(String args = '', String command = '') {
-            return new Container()
+            return DockerMock.this.intercept(new Container())
         }
 
         def tag(String tagname = '') {
@@ -51,16 +75,16 @@ class DockerMock implements Serializable {
         }
 
         def withRun(String args = '', String command = '', Closure body) {
-            return body(new Container())
+            return body(DockerMock.this.intercept(new Container()))
         }
     }
 
     Image build(String image, String args = '') {
-        return new Image(image)
+        return intercept(new Image(image))
     }
 
     Image image(String id) {
-        return new Image(id)
+        return intercept(new Image(id))
     }
 
     void withRegistry(String url, String credentialsId = '', Closure body) {

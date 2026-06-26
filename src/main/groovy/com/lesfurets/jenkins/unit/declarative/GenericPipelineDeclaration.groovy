@@ -9,13 +9,18 @@ abstract class GenericPipelineDeclaration {
     Closure tools
     PostDeclaration post
     Map<String, StageDeclaration> stages = [:]
-    static def binding = null
+    // Per-instance binding (was a static field, which is not thread-safe when
+    // multiple declarative pipelines are executed concurrently). It is threaded
+    // explicitly through createComponent so each component tree carries its own binding.
+    def binding = null
 
-    static <T> T createComponent(Class<T> componentType, @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
+    static <T> T createComponent(Class<T> componentType,
+                                 Object binding,
+                                 @DelegatesTo(strategy = DELEGATE_FIRST) Closure<T> closure) {
         // declare componentInstance as final to prevent any multithreaded issues, since it is used inside closure
         final def componentInstance = componentType.newInstance()
         def rehydrate = closure.rehydrate(componentInstance, closure, componentInstance)
-        if (binding && componentInstance.hasProperty('binding') && componentInstance.binding != binding) {
+        if (componentInstance.hasProperty('binding')) {
             componentInstance.binding = binding
         }
         rehydrate.call()
@@ -47,7 +52,7 @@ abstract class GenericPipelineDeclaration {
     }
 
     def agent(@DelegatesTo(strategy = DELEGATE_FIRST, value = AgentDeclaration) Closure closure) {
-        this.agent = createComponent(AgentDeclaration, closure)
+        this.agent = createComponent(AgentDeclaration, this.binding, closure)
     }
 
     def environment(Closure closure) {
@@ -59,7 +64,7 @@ abstract class GenericPipelineDeclaration {
     }
 
     def post(@DelegatesTo(strategy = DELEGATE_FIRST, value = PostDeclaration) Closure closure) {
-        this.post = createComponent(PostDeclaration, closure)
+        this.post = createComponent(PostDeclaration, this.binding, closure)
     }
 
     def stages(@DelegatesTo(DeclarativePipeline) Closure closure) {
@@ -68,7 +73,7 @@ abstract class GenericPipelineDeclaration {
 
     def stage(String name,
               @DelegatesTo(strategy = DELEGATE_FIRST, value = StageDeclaration) Closure closure) {
-        this.stages.put(name, createComponent(StageDeclaration, closure).with { it.name = name; it })
+        this.stages.put(name, createComponent(StageDeclaration, this.binding, closure).with { it.name = name; it })
     }
 
     def getProperty(String propertyName) {

@@ -29,11 +29,11 @@ class StageDeclaration extends GenericPipelineDeclaration {
     }
 
     def parallel(@DelegatesTo(strategy = DELEGATE_FIRST, value = ParallelDeclaration) Closure closure) {
-        this.parallel = createComponent(ParallelDeclaration, closure).with { it.failFast = failFast; it }
+        this.parallel = createComponent(ParallelDeclaration, this.binding, closure).with { it.failFast = failFast; it }
     }
 
     def when(@DelegatesTo(strategy = DELEGATE_FIRST, value = WhenDeclaration) Closure closure) {
-        this.when = createComponent(WhenDeclaration, closure)
+        this.when = createComponent(WhenDeclaration, this.binding, closure)
     }
 
     def options(@DelegatesTo(StageDeclaration) Closure closure) {
