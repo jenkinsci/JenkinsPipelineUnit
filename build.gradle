@@ -17,8 +17,9 @@ repositories {
 }
 
 group = "com.lesfurets"
+def archivesBaseName = "jenkins-pipeline-unit"
 base {
-    archivesName = "jenkins-pipeline-unit"
+    archivesName = archivesBaseName
 }
 
 java {
@@ -79,7 +80,7 @@ publishing {
             artifact tasks.sourcesJar
             artifact tasks.javadocJar
             pom {
-                artifactId = "$project.base.archivesName"
+                artifactId = archivesBaseName
                 packaging = 'jar'
                 description = 'Jenkins Pipeline Unit testing framework'
                 url = 'https://github.com/jenkinsci/JenkinsPipelineUnit'
