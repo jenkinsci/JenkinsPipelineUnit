@@ -28,7 +28,7 @@ java {
 
 dependencies {
     implementation('org.codehaus.groovy:groovy-all:2.4.21')
-    implementation('com.cloudbees:groovy-cps:4331.v9d06ed4658ff')
+    implementation('com.cloudbees:groovy-cps:4348.ve8c60d51e508')
     testImplementation('io.jenkins.plugins:pipeline-groovy-lib:798.v5cc688825312')
     implementation('commons-io:commons-io:2.22.0')
     implementation('org.apache.ivy:ivy:2.5.3')
