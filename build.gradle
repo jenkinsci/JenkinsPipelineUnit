@@ -30,7 +30,7 @@ java {
 dependencies {
     implementation('org.codehaus.groovy:groovy-all:2.4.21')
     implementation('com.cloudbees:groovy-cps:4350.vcc65d4958821')
-    testImplementation('io.jenkins.plugins:pipeline-groovy-lib:798.v5cc688825312')
+    testImplementation('io.jenkins.plugins:pipeline-groovy-lib:805.va_fc79344957d')
     implementation('commons-io:commons-io:2.22.0')
     implementation('org.apache.ivy:ivy:2.6.0')
     api('org.assertj:assertj-core:3.27.7')
