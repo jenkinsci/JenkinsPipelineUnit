@@ -238,6 +238,10 @@ class PipelineTestHelper {
 
     Map<String, String> mockReadFileOutputs = [:]
 
+    private static final Map<String, Class> scriptClasses = [:]
+
+    private boolean shouldCacheScriptsAndLibraries = false
+
     /**
     * Get library loader object
     *
@@ -246,6 +250,18 @@ class PipelineTestHelper {
     */
     LibraryLoader getLibLoader() {
         return this.libLoader
+    }
+
+    PipelineTestHelper withShouldCacheScriptsAndLibraries(boolean shouldCacheScriptsAndLibraries) {
+        this.shouldCacheScriptsAndLibraries = shouldCacheScriptsAndLibraries
+        return this
+    }
+
+    /**
+     * Clears the cache of loaded script classes
+     */
+    static void clearScriptClasses() {
+        scriptClasses.clear()
     }
 
     /**
@@ -431,6 +447,11 @@ class PipelineTestHelper {
         LibraryAnnotationTransformer libraryTransformer = new LibraryAnnotationTransformer(libLoader)
         configuration.addCompilationCustomizers(libraryTransformer)
 
+        if (!shouldCacheScriptsAndLibraries) {
+            clearScriptClasses()
+            LibraryLoader.clearLibRecords()
+        }
+
         ImportCustomizer importCustomizer = new ImportCustomizer()
         imports.each { k, v -> importCustomizer.addImport(k, v) }
         configuration.addCompilationCustomizers(importCustomizer)
@@ -541,7 +562,11 @@ class PipelineTestHelper {
     Script loadScript(String scriptName, Binding binding) {
         Objects.requireNonNull(binding, "Binding cannot be null.")
         Objects.requireNonNull(gse, "GroovyScriptEngine is not initialized: Initialize the helper by calling init().")
-        Class scriptClass = gse.loadScriptByName(scriptName)
+        Class scriptClass = scriptClasses.get(scriptName)
+        if (scriptClass == null) {
+            scriptClass = gse.loadScriptByName(scriptName)
+            scriptClasses.put(scriptName, scriptClass)
+        }
         setGlobalVars(binding)
         Script script = InvokerHelper.createScript(scriptClass, binding)
         InterceptingGCL.interceptClassMethods(script.metaClass, this, binding)
