@@ -35,7 +35,7 @@ class LibraryLoader {
     //classes want to access the binding env.
     Boolean preloadLibraryClasses = true
 
-    final Map<String, LibraryRecord> libRecords = new HashMap<>()
+    static final Map<String, LibraryRecord> libRecords = new HashMap<>()
 
     LibraryLoader(GroovyClassLoader groovyClassLoader, Map<String, LibraryConfiguration> libraryDescriptions) {
         this.groovyClassLoader = groovyClassLoader
@@ -64,6 +64,13 @@ class LibraryLoader {
                 .forEach {
             doLoadLibrary(it)
         }
+    }
+
+    /**
+     * Clears the cache of lib records
+     */
+    static void clearLibRecords() {
+        libRecords.clear()
     }
 
     /**
