@@ -66,27 +66,33 @@ class StageDeclaration extends GenericPipelineDeclaration {
         }
 
         if (!when || when.execute(delegate)) {
-            super.execute(delegate)
+            Throwable failure = null
+            try {
+                super.execute(delegate)
 
-            // TODO handle credentials
+                // TODO handle credentials
 
-            if (parallel) {
-                parallel.execute(delegate)
+                if (parallel) {
+                    parallel.execute(delegate)
+                }
+
+                Closure stageBody = { agent?.execute(delegate) }
+                Closure cl = { stage("$name", stageBody) }
+                if (steps) {
+                    stageBody =  stageBody >> steps.rehydrate(delegate, this, delegate)
+                }
+                executeWith(delegate, cl)
+
+                executeStages(delegate)
+            } catch (Throwable t) {
+                failure = recordFailure(delegate, null, t)
             }
 
-            Closure stageBody = { agent?.execute(delegate) }
-            Closure cl = { stage("$name", stageBody) }
-            if (steps) {
-                stageBody =  stageBody >> steps.rehydrate(delegate, this, delegate)
-            }
-            executeWith(delegate, cl)
-
-            this.stages.entrySet().forEach { e ->
-                e.value.execute(delegate)
-            }
-
-            if (post) {
-                this.post.execute(delegate)
+            // The stage's post section runs even when its steps failed (e.g. a sh step
+            // returning a non-zero exit code); the failure is then propagated upwards.
+            failure = executePost(delegate, failure)
+            if (failure != null) {
+                throw failure
             }
         } else {
             executeWith(delegate, { echo "Skipping stage $name" })

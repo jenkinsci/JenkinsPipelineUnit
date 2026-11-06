@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+    stages {
+        stage('Test') {
+            steps {
+                sh 'foo'
+                echo 'after failing sh'
+            }
+            post {
+                always  { echo 'stage post ALWAYS' }
+                success { echo 'stage post SUCCESS' }
+                failure { echo 'stage post FAILURE' }
+            }
+        }
+        stage('Later') {
+            steps {
+                echo 'later stage ran'
+            }
+        }
+    }
+    post {
+        always  { echo 'pipeline post ALWAYS' }
+        success { echo 'pipeline post SUCCESS' }
+        failure { echo 'pipeline post FAILURE' }
+    }
+}
