@@ -47,6 +47,68 @@ abstract class GenericPipelineDeclaration {
         return null
     }
 
+    /**
+     * Runs the child stages in declaration order.
+     *
+     * A failing stage does not abort the loop: as in Jenkins, the remaining stages still get
+     * visited and report themselves as skipped (StageDeclaration checks currentBuild.result).
+     * The first failure is rethrown once every stage has been visited.
+     *
+     * Note: iterate with each() rather than forEach(). forEach() coerces the closure into a
+     * java.util.function.Consumer proxy, which wraps any checked exception (such as the one
+     * thrown by a failing sh mock) in an UndeclaredThrowableException.
+     */
+    protected void executeStages(Object delegate) {
+        Throwable failure = null
+        this.stages.values().each { StageDeclaration stage ->
+            try {
+                stage.execute(delegate)
+            } catch (Throwable t) {
+                failure = recordFailure(delegate, failure, t)
+            }
+        }
+        if (failure != null) {
+            throw failure
+        }
+    }
+
+    /**
+     * Runs the post section, if any, after the body has completed or failed.
+     * An exception thrown by the post section itself is recorded like any other failure.
+     *
+     * @return the failure to rethrow, or null
+     */
+    protected Throwable executePost(Object delegate, Throwable failure) {
+        if (this.post) {
+            try {
+                this.post.execute(delegate)
+            } catch (Throwable t) {
+                return recordFailure(delegate, failure, t)
+            }
+        }
+        return failure
+    }
+
+    /**
+     * Marks the build as failed (the result can only get worse, so ABORTED / NOT_BUILT are kept)
+     * and returns the failure that should eventually be rethrown. The first failure wins; later
+     * distinct ones are attached to it as suppressed exceptions.
+     */
+    protected static Throwable recordFailure(Object delegate, Throwable previous, Throwable current) {
+        def currentBuild = delegate.binding.variables.currentBuild
+        if (currentBuild != null && !(currentBuild.result in ['ABORTED', 'NOT_BUILT'])) {
+            currentBuild.result = 'FAILURE'
+            currentBuild.currentResult = 'FAILURE'
+        }
+        if (previous == null) {
+            return current
+        }
+        if (!previous.is(current)) {
+            previous.addSuppressed(current)
+        }
+        return previous
+    }
+
     def agent(Object o) {
         this.agent = new AgentDeclaration().with { it.label = o; it }
     }
