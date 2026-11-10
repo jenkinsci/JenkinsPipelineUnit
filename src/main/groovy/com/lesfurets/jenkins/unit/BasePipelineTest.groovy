@@ -1,5 +1,7 @@
 package com.lesfurets.jenkins.unit
 
+import com.lesfurets.jenkins.unit.global.lib.LibraryLoader
+
 import static java.util.stream.Collectors.joining
 import static org.assertj.core.api.Assertions.assertThat
 
