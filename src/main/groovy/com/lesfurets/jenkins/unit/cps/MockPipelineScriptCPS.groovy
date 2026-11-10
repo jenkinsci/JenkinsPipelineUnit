@@ -1,18 +1,26 @@
-package com.lesfurets.jenkins.unit.cps
+package com.lesfurets.jenkins.unit.cps;
 
-import com.lesfurets.jenkins.unit.MockPipelineScript
+import com.lesfurets.jenkins.unit.MockPipelineScript;
+import java.io.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-abstract class MockPipelineScriptCPS extends MockPipelineScript implements Serializable {
+public abstract class MockPipelineScriptCPS extends MockPipelineScript implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private transient Map<String, Object> cachedVariables;
 
     private void writeObject(ObjectOutputStream oos) throws IOException {
-        // binding is defined in non-serializable Script class,
-        // so we need to persist that here
-        def variables = getBinding().getVariables().clone()
-        oos.writeObject(variables)
+        Map<String, Object> variables = new HashMap<>(getBinding().getVariables());
+        oos.writeObject(variables);
     }
 
+    @SuppressWarnings("unchecked")
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-        Map m = (Map)ois.readObject()
-        getBinding().getVariables().putAll(m)
+        Map<String, Object> variables = (Map<String, Object>) ois.readObject();
+        getBinding().getVariables().putAll(variables);
+        cachedVariables = Collections.synchronizedMap(new HashMap<>(variables));
     }
 }
