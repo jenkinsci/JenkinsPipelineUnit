@@ -131,15 +131,8 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('archiveArtifacts', [String])
         helper.registerAllowedMethod('bat', [String], { args -> helper.runBat(args) })
         helper.registerAllowedMethod('bat', [Map], { args -> helper.runBat(args) })
-        helper.registerAllowedMethod("build", [Map.class], {
-            [
-                getNumber:{100500},
-                getDescription:{"Dummy build description"},
-                getFullProjectName:{"some_dir/some_job"},
-                getProjectName:{"some_job"},
-            ]
-        })
         helper.registerAllowedMethod('booleanParam', [Map], paramInterceptor)
+        helper.registerAllowedMethod("build", [Map.class])
         helper.registerAllowedMethod("buildDiscarder", [Object])
         helper.registerAllowedMethod('catchError', [Closure]) { Closure c ->
             c.delegate = delegate
@@ -252,8 +245,8 @@ abstract class BasePipelineTest {
         helper.registerAllowedMethod('sleep')
         helper.registerAllowedMethod('specific', [String])
         helper.registerAllowedMethod('sshPublisher', [Map], {true})
-        helper.registerAllowedMethod('stash', [Map])
         helper.registerAllowedMethod("stage", [String])
+        helper.registerAllowedMethod('stash', [Map])
         helper.registerAllowedMethod("stage", [String, Closure])
         helper.registerAllowedMethod("step", [Map])
         helper.registerAllowedMethod("string", [Map], stringInterceptor)
