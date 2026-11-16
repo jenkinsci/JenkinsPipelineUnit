@@ -720,6 +720,46 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void should_run_post_when_step_throws() throws Exception {
+        // A failing sh mock throws a checked java.lang.Exception, like the real sh step does
+        helper.addShMock('foo', 'mocked failing command', 127)
+
+        def e = assertThrows(Exception, { -> runScript('StageStepThrows_Jenkinsfile') })
+        printCallStack()
+
+        // the original exception surfaces, not a java.lang.reflect.UndeclaredThrowableException
+        assert e.class == Exception
+        assert e.message == 'script returned exit code 127'
+
+        assertJobStatusFailure()
+        assertCallStack().doesNotContain('after failing sh')
+        assertCallStack().contains('stage post ALWAYS')
+        assertCallStack().contains('stage post FAILURE')
+        assertCallStack().doesNotContain('stage post SUCCESS')
+        assertCallStack().contains('Stage "Later" skipped due to earlier failure(s)')
+        assertCallStack().doesNotContain('later stage ran')
+        assertCallStack().contains('pipeline post ALWAYS')
+        assertCallStack().contains('pipeline post FAILURE')
+        assertCallStack().doesNotContain('pipeline post SUCCESS')
+    }
+
+    @Test void should_run_success_post_when_step_passes() throws Exception {
+        helper.addShMock('foo', 'mocked succeeding command', 0)
+
+        runScript('StageStepThrows_Jenkinsfile')
+        printCallStack()
+
+        assertJobStatusSuccess()
+        assertCallStack().contains('after failing sh')
+        assertCallStack().contains('stage post ALWAYS')
+        assertCallStack().contains('stage post SUCCESS')
+        assertCallStack().doesNotContain('stage post FAILURE')
+        assertCallStack().contains('later stage ran')
+        assertCallStack().contains('pipeline post ALWAYS')
+        assertCallStack().contains('pipeline post SUCCESS')
+        assertCallStack().doesNotContain('pipeline post FAILURE')
+    }
+
     @Test void not_running_stage_after_failure() throws Exception {
         runScript('StageFailed_Jenkinsfile')
         printCallStack()

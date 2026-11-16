@@ -22,9 +22,7 @@ class ParallelDeclaration extends GenericPipelineDeclaration {
 
     def execute(Object delegate) {
         super.execute(delegate)
-        this.stages.entrySet().forEach { e ->
-            e.value.execute(delegate)
-        }
+        executeStages(delegate)
     }
 
 }

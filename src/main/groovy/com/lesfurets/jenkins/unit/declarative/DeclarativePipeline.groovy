@@ -45,16 +45,24 @@ class DeclarativePipeline extends GenericPipelineDeclaration {
     }
 
     def execute(Object delegate) {
-        super.execute(delegate)
-        this.options.forEach {
-            executeOn(delegate, it)
+        Throwable failure = null
+        try {
+            super.execute(delegate)
+            this.options.each {
+                executeOn(delegate, it)
+            }
+            this.agent?.execute(delegate)
+            executeOn(delegate, this.triggers)
+            executeStages(delegate)
+        } catch (Throwable t) {
+            failure = recordFailure(delegate, null, t)
         }
-        this.agent?.execute(delegate)
-        executeOn(delegate, this.triggers)
-        this.stages.entrySet().forEach { e ->
-            e.value.execute(delegate)
+        // post runs whether or not the pipeline failed; the failure is then rethrown so the
+        // test still sees it, just like Jenkins still fails the build.
+        failure = executePost(delegate, failure)
+        if (failure != null) {
+            throw failure
         }
-        this.post?.execute(delegate)
     }
 
 }
