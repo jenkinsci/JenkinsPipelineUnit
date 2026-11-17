@@ -9,6 +9,7 @@ class AnyOfDeclaration extends WhenDeclaration {
     List<Tuple2<String,ComparatorEnum>> tags = []
     List<Tuple2<String,ComparatorEnum>> branches = []
     List<ChangeRequestDeclaration> changeRequests = []
+    List<Tuple2<String,String>> environments = []
     List<Boolean> expressions = []
     List<AllOfDeclaration> allOfs = []
 
@@ -42,6 +43,10 @@ class AnyOfDeclaration extends WhenDeclaration {
 
     def changeRequest(Object val) {
         this.changeRequests.add(new ChangeRequestDeclaration(val))
+    }
+
+    def environment(Map args) {
+        this.environments.add(new Tuple2(args.name as String, args.value as String))
     }
 
     def expression(Closure closure) {
@@ -78,6 +83,11 @@ class AnyOfDeclaration extends WhenDeclaration {
         if (changeRequests) {
             changeRequests.each { changeRequest ->
                 results.add(changeRequest.execute(delegate))
+            }
+        }
+        if (environments) {
+            environments.each { environment ->
+                results.add(delegate?.env[environment.first] == environment.second)
             }
         }
 
