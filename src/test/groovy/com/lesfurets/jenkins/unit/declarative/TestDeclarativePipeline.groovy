@@ -294,6 +294,39 @@ class TestDeclarativePipeline extends DeclarativePipelineTest {
         assertJobStatusSuccess()
     }
 
+    @Test void when_environment_production() throws Exception {
+        addEnvVar('BRANCH_NAME', 'production')
+        addEnvVar('DEPLOY_TO', 'production')
+        runScript('When_Environment_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Executing environment')
+        assertCallStack().contains('Executing allOf with environment')
+        assertCallStack().contains('Executing anyOf with environment')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_environment_staging() throws Exception {
+        addEnvVar('BRANCH_NAME', 'production')
+        addEnvVar('DEPLOY_TO', 'staging')
+        runScript('When_Environment_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example environment')
+        assertCallStack().contains('Skipping stage Example allOf environment')
+        assertCallStack().contains('Executing anyOf with environment')
+        assertJobStatusSuccess()
+    }
+
+    @Test void when_environment_not() throws Exception {
+        addEnvVar('BRANCH_NAME', 'production')
+        addEnvVar('DEPLOY_TO', 'dev')
+        runScript('When_Environment_Jenkinsfile')
+        printCallStack()
+        assertCallStack().contains('Skipping stage Example environment')
+        assertCallStack().contains('Skipping stage Example allOf environment')
+        assertCallStack().contains('Skipping stage Example anyOf environment')
+        assertJobStatusSuccess()
+    }
+
     @Test void when_nested_when_allOf_anyOf_expression_1() throws Exception {
         addEnvVar('OPTIONAL_1', 'false')
         addEnvVar('OPTIONAL_2', 'false')
