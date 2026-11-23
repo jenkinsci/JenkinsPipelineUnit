@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+    stages {
+        stage('Example environment') {
+            when {
+                branch 'production'
+                environment name: 'DEPLOY_TO', value: 'production'
+            }
+            steps {
+                echo 'Executing environment'
+            }
+        }
+        stage('Example allOf environment') {
+            when {
+                allOf {
+                    branch 'production'
+                    environment name: 'DEPLOY_TO', value: 'production'
+                }
+            }
+            steps {
+                echo 'Executing allOf with environment'
+            }
+        }
+        stage('Example anyOf environment') {
+            when {
+                branch 'production'
+                anyOf {
+                    environment name: 'DEPLOY_TO', value: 'production'
+                    environment name: 'DEPLOY_TO', value: 'staging'
+                }
+            }
+            steps {
+                echo 'Executing anyOf with environment'
+            }
+        }
+    }
+}
